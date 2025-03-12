@@ -16,6 +16,8 @@ export default defineConfig({
         text: "介绍",
         items: [
           { text: "简介", link: "/introduction" },
+          { text: "手工部署", link: "/manual" },
+          { text: "注意事项", link: "/attention" },
           { text: "快速体验 (只是体验界面)", link: "/quick" },
         ],
       },
@@ -25,6 +27,14 @@ export default defineConfig({
           { text: "编译", link: "/compilation/index.md" },
           { text: "与 Armbian 集成", link: "/compilation/armbian.md" },
           { text: "交叉编译", link: "/compilation/cross.md" },
+        ],
+      },
+      {
+        text: "FAQ",
+        items: [
+          { text: "DNS 服务相关", link: "/faq/dns.md" },
+          { text: "在已有网络基础上运行", link: "/faq/coexist.md" },
+          { text: "与 iptable 的关系", link: "/faq/iptables.md" },
         ],
       },
       // {

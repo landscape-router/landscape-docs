@@ -181,6 +181,8 @@ Main "$@"
 ```
 
 # 编译命令
+> 需要检查 [注意事项](/attention) 中的内核编译参数是否开启
+
 需要保持 `KERNEL_CONFIGURE=yes` 需要开启内核 BTF 文件生成
 
 ```shell
@@ -194,14 +196,3 @@ RELEASE=bookworm \
 KERNEL_GIT=shallow \
 NETWORKING_STACK="none"
 ```
-
-# 内核 BTF 生成开启位置
-选择
-**Kernel hacking**   
-  -> **Compile-time checks and compiler options**   
-    -> **Debug information (Generate DWARF Version 5 debuginfo)**  
-即可在 
-**Kernel hacking**   
-  -> **Compile-time checks and compiler options**  
-看到 **Generate BTF type information**
-选中安装即可
