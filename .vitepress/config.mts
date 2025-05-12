@@ -34,7 +34,7 @@ export default defineConfig({
         text: "FAQ",
         items: [
           { text: "DNS 服务相关", link: "/faq/dns.md" },
-          { text: "在已有网络基础上运行", link: "/faq/coexist.md" },
+          // { text: "在已有网络基础上运行", link: "/faq/coexist.md" },
           { text: "与 iptable 的关系", link: "/faq/iptables.md" },
         ],
       },

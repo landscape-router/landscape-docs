@@ -3,15 +3,19 @@
 ## 文件准备
 1. Landscape Router 文件主体, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载
 2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
-3. 安装 Docker.
-4. 准备初始化配置文件 (可选, 注意, 此配置文件只在第一次运行被读取):   
+3. (可选) 安装 Docker.
+4. (*假如有桌面环境, 并有浏览器时可选*) 准备初始化配置文件  
+  (注意, 此配置文件只在第一次运行被读取):   
     放置在 -> `/root/.landscape-router/landscape_init.toml`
-5. geosite/geoip 文件(可选)
+5. (可选) geosite/geoip 文件
 
 ## 关闭本机自动配置 IP 服务 / DNS 服务
 1. Debian:
 修改文件: `/etc/network/interfaces`
 将所有网卡设置为手动配置模式.
+::: warning
+会导致当前主机不可被访问, 需要在可访问的情况下先在页面上配置 **DHCP** 或者 **静态 IP** 地址.
+:::
 ```
 auto <第一张网卡名>
 iface <第一张网卡名> inet manual

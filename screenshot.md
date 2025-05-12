@@ -2,7 +2,7 @@
 outline: deep
 ---
 
-## 部分配置界面截图
+# 部分配置界面截图
 
 ### IPv6 RA 通告配置
 ![](./images/ipv6_ra.png)

@@ -2,6 +2,8 @@
 
 本页面说明了如何与 Armbian 组合进行编译
 
+可参考项目: https://github.com/ThisSeanZhang/landscape-build
+
 # 初始配置文件
 文件位置：
 ```text
@@ -33,9 +35,17 @@ t = "dhcpclient"
 [[dhcpv4_services]]
 iface_name = "br_lan"
 enable = true
+
+[dhcpv4_services.config]
 server_ip_addr = "192.168.7.1"
-network_mask = 24
 ip_range_start = "192.168.7.100"
+network_mask = 24
+
+# LAN 绑定的 MAC 地址
+mac_binding_records = [
+    { mac = "00:11:22:33:44:55", ip = "192.168.7.50" },
+    { mac = "aa:bb:cc:dd:ee:ff", ip = "192.168.7.51" },
+]
 
 ```
 
