@@ -54,6 +54,7 @@ Requires=docker.service
 ExecStart=/root/landscape-webserver <- 记得修改此处
 Restart=always
 User=root
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target
