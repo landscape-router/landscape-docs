@@ -48,11 +48,6 @@ ipv4_mask = 16
 iface_name = "eth0"
 enable = true
 
-# 对 eth0 启用 Mark 服务
-[[marks]]
-iface_name = "eth0"
-enable = true
-
 # 配置 br_lan 网卡启用 DHCP Server
 [[dhcpv4_services]]
 iface_name = "br_lan"

@@ -31,9 +31,9 @@
 
 当前 Flow 的流量出口仅有 Docker 容器 (容器中的程序需要与[接应程序](#接应程序)配合使用), 当前还不支持 `多WAN` 作为流的出口.
 
-# 多个 Flow 组合
+<!-- # 多个 Flow 组合
 当流量进入容器后, 假设流量变为该 容器的 IP 进行发送, 那么可以新建一个 Flow 配置, 将该容器 IP 加入, 这样就能控制该容器发出流量的行为.
-( 大多数情况应该属于多此一举 )
+( 大多数情况应该属于多此一举 ) -->
 
 分流在代码中的流程示意图:
 
@@ -42,28 +42,23 @@
 
 
 ## 接应程序
-项目提供了一个测试接应程序以便进行测试, 使用
-[编译脚本](https://github.com/ThisSeanZhang/landscape/blob/main/build_redirect_docker_img.sh)
-选择对应的架构进行编译:
-```text
-./build_redirect_docker_img.sh 
-No target specified.
-Supported architectures:
-1) aarch64
-2) x86_64
-3) armv7
-4) Use default architecture (x86_64)
-Please select a target architecture by entering the corresponding number [default = x86_64]: 
-```
-如果使用 UI 进行启动可以忽略, 如果使用第三方或者手动启动则需要注意添加以下参数:
+项目提供了一个测试接应程序以便进行测试, 镜像[在此](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge):
+
+如果使用 UI 上的镜像运行界面运行, 记得点击按钮, 将会添加一个 label. (手动添加一个也可以, 后台运行时会自动添加,下方手动运行需要的设置)
+![](./images/flow/flow-5.png)
+
+进行启动可以忽略, 如果使用第三方或者手动启动则需要注意添加以下参数:
 * docker run
 ```shell
-docker run \
---sysctl net.ipv4.conf.lo.accept_local=1 \
---cap-add=NET_ADMIN \
---cap-add=BPF \
---cap-add=PERFMON \
-xxxx
+docker run -d \
+  --name your_service \
+  --sysctl net.ipv4.conf.lo.accept_local=1 \
+  --cap-add=NET_ADMIN \
+  --cap-add=BPF \
+  --cap-add=PERFMON \
+  --privileged \
+  -v /root/.landscape-router/unix_link/:/ld_unix_link/:ro \
+  ghcr.io/thisseanzhang/landscape-edge:amd64-xx
 ```
 
 * compose
@@ -77,4 +72,25 @@ services:
       - NET_ADMIN
       - BPF
       - PERFMON
+    privileged: true
+    volumes:
+      - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # 必要映射
+```
+默认设置下， 容器有一个[演示程序](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_demo_server.rs) 放置在 `/app/server` 监听 `12345` 端口。
+
+而接应程序是放置在 `/app`， 默认情况下是会将待处理流量转发到，演示程序监听的端口 `12345`。 可以通过设置容器的环境变量改变监听端口: `LAND_PROXY_SERVER_PORT`
+
+可将需要的程序挂载在 `/app/server` 目录下， `/app/start.sh` 默认会去执行 `/app/server/run.sh` 脚本。
+
+### /app/start.sh 文件
+```
+#!/bin/bash
+
+ip rule add fwmark 0x1/0x1 lookup 100
+ip route add local default dev lo table 100
+
+/app/server/run.sh /app/server &
+/app/redirect_pkg_handler &
+
+wait
 ```
