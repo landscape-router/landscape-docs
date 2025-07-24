@@ -19,12 +19,14 @@ export default defineConfig({
           { text: "手工部署", link: "/manual" },
           { text: "注意事项", link: "/attention" },
           { text: "部分界面截图", link: "/screenshot" },
-          { text: "分流控制", link: "/flow" },
         ],
       },
       {
         text: "特性",
-        items: [{ text: "eBPF 路由", link: "/feature/route.md" }],
+        items: [
+          { text: "分流控制", link: "/flow" },
+          { text: "eBPF 路由", link: "/feature/route.md" },
+        ],
       },
       {
         text: "配置",
