@@ -15,25 +15,25 @@
 * 每一条DNS规则，可以指定上游DNS服务器，或域名重定向
 * 每一个Flow，拥有独立的DNS缓存
 * 任何Flow，应当至少有一条兜底DNS规则，用于配置上游默认 DNS 服务器  
-![](images/flow/flow-7.png)
+![](../images/flow/flow-7.png)
 ## 默认分流设置
 通过主页右上方的 `DNS卡片` 进入配置   
 具体设置参考下面 其他分流设置   
-![](./images/flow/flow-6.png)
+![](../images/flow/flow-6.png)
 
 ## 其他分流设置
 通过侧边栏的 `分流设置` 进入配置  
-![](./images/flow/flow-1.png)
+![](../images/flow/flow-1.png)
 
 每个流拥有独立的 DNS 缓存以及自己的规则， 可通过各流卡片上方的 DNS 进行配置专属于该流的配置。
 
-![](./images/flow/flow-2.png)
+![](../images/flow/flow-2.png)
 
 `目标IP` 也是如此.
 
 在 DNS / IP 中的每条规则拥有以下的 `流量动作`. 用于限制`该组`配置中的 `入口流量` 访问规则中的 `目标 IP` 时的动作( 对于DNS是域名查询后得到的地址 ).
 
-![](./images/flow/flow-3.png)
+![](../images/flow/flow-3.png)
 
 > 以下的前提是建立在, 源 IP 匹配上了 该 Flow 的
 
@@ -52,7 +52,7 @@
 
 分流在代码中的流程示意图:
 
-![](./images/flow/flow-4.png)
+![](../images/flow/flow-4.png)
 
 
 
@@ -60,7 +60,7 @@
 项目提供了一个测试接应程序以便进行测试, 镜像[在此](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge):
 
 如果使用 UI 上的镜像运行界面运行, 记得点击按钮, 将会添加一个 label. (手动添加一个也可以, 后台运行时会自动添加,下方手动运行需要的设置)
-![](./images/flow/flow-5.png)
+![](../images/flow/flow-5.png)
 
 进行启动可以忽略, 如果使用第三方或者手动启动则需要注意添加以下参数:
 * docker run
