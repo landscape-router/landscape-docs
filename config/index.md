@@ -1,4 +1,4 @@
-# 配置介绍
+# 配置文件介绍
 
 程序的配置来源主要有以下:
 * `landscape_init.toml`: 全量配置文件, 除了包含各种规则配置还包含完整的 `landscape.toml`, 仅在初始化时进行读取一次, 
@@ -45,7 +45,7 @@ max_log_files = 10
 
 [store]
 # 数据库路径
-database_path = "=sqlite://~/.landscape-router/landscape_db.sqlite?mode=rwc"
+database_path = "sqlite://~/.landscape-router/landscape_db.sqlite?mode=rwc"
 
 ```
 ## landscape_init.toml 配置示例
