@@ -52,7 +52,10 @@ export default defineConfig({
           // { text: "分流设置", link: "/other-features/" },
           //  { text: "Docker", link: "/flow.md" },
           //  { text: "连接信息", link: "/flow.md" },
-          { text: "Geo 管理", link: "/other-features/domain-ip-collection" },
+          {
+            text: "地理关系库管理",
+            link: "/other-features/domain-ip-collection",
+          },
           {
             text: "系统配置导出",
             link: "/other-features/settings",
