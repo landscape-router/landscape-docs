@@ -1,15 +1,20 @@
 # 手工部署
 
 ## 文件准备
+::: warning
+1. 部署之前需要先确认当前的系统是否满足, [注意事项](./attention.md) 中的要求  
+2. 不进行任何配置是可以直接启动的, 唯一的副作用是会将 `/etc/resolv.conf` 修改为 `127.0.0.1`, 如停止后发现无法访问网络, 可以检查这个文件
+3. 以下的可选是在没有使用到时可选
+:::
+
 1. Landscape Router 文件主体, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载
 2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
-3. webserver environment
-4. (可选) 安装 PPP，用于 pppoe 拨号
-5. (可选) 安装 Docker.
-6. (*假如有桌面环境, 并有浏览器时可选*) 准备初始化配置文件  
+3. (可选) 安装 PPP，用于 pppoe 拨号
+4. (可选) 安装 Docker.
+5. (*假如有桌面环境, 并有浏览器时可选*) 准备初始化配置文件  
   (注意, 此配置文件只在第一次运行被读取):   
     放置在 -> `/root/.landscape-router/landscape_init.toml`
-7. (可选) geosite/geoip 文件
+6. (可选) geosite / geoip 文件
 
 ## 关闭本机自动配置 IP 服务 / DNS 服务
 1. Debian:
@@ -47,7 +52,7 @@ iface ens5 inet manual
 
 > 其他系统待添加... 欢迎 PR 分享部署过程
 
-## 关闭本机 DNS 服务
+## 关闭本机 DNS 服务 (如果不存在此服务可忽略)
 ```shell
 systemctl stop systemd-resolved
 systemctl disable systemd-resolved

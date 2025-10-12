@@ -7,9 +7,9 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
 ![](./images/1.png)
 
 ## 核心特性
-* 分流控制（SIP-CIDR、Qos(dscp)、DIP、域名、Geo 匹配规则）
-* eBPF 路由（性能优于 iptable）
-* 每个流 Flow 独立 dns 配置以及缓存（避免 dns 污染、泄露）
+* 分流控制: 入口: (SIP-CIDR、MAC), 分流对象: (DIP、域名、Geo 匹配规则)
+* eBPF 路由
+* 每个流 Flow 独立 DNS 配置以及缓存（避免 DNS 污染、泄露）
 * 流量导入 Docker 容器
 * 地理关系库管理
 
@@ -39,9 +39,9 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
         - ✅ IP 分配展示
     - *IPv6支持*
         - ✅ 使用 DHCPv6-PD 向上级路由请求前缀
-        - ✅ 使用 RA 对下级设备通告前缀
-- <u>流控模块</u>
-    - ✅ 允许使用 IP + QoS(dscp) 值进行区分流.
+        - ✅ 使用 RA 对下级设备多前缀通告
+- <u>分流模块</u>
+    - ✅ 允许使用 IP / MAC 值进行区分流.
     - ✅ 每个流配置中含有自己独立的 DNS 配置, 以及 DNS 缓存.
     - ✅ 将被标记流量按照标记配置( 直连/丢弃/允许复用端口/重定向到 Docker 容器或者网卡 )进行转发 
     - ❌ 对指定数据设置跟踪标记
@@ -57,7 +57,7 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
     - ❌ DNS 劫持返回多条记录 ( 例如 TXT / CNAME 或者其他的)
     - ✅ 对指定 DNS 解析结果进行 IP 标记, 配置标记模块进行处理
     - ✅ GeoSite 文件支持
-    - ❌ 支持将 Docker 容器设置的域名label 加入 DNS 解析中
+    - ❌ 支持将 Docker 容器设置的域名 label 加入 DNS 解析中
     - ✅ 支持进行测试域名查询
 - <u>NAT (eBPF) 实现</u>
     - ✅ 基础 NAT 

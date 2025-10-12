@@ -18,7 +18,7 @@ export default defineConfig({
         text: "介绍",
         items: [
           { text: "简介", link: "/introduction" },
-          { text: "部分界面截图", link: "/screenshot" },
+          // { text: "部分界面截图", link: "/screenshot" },
         ],
       },
       {
@@ -47,6 +47,8 @@ export default defineConfig({
         text: "基础功能设置",
         items: [
           { text: "系统基本设置", link: "/other-features/sys-info" },
+          { text: "IPv6 相关", link: "/other-features/ipv6" },
+          { text: "DHCPv4 相关", link: "/other-features/dhcpv4" },
           //  { text: "NAT", link: "/feature/route.md" },
           { text: "防火墙设置", link: "/other-features/firewall" },
           { text: "DNS 相关", link: "/other-features/serverdns" },
