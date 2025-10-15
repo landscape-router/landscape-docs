@@ -106,10 +106,10 @@ Flow 中核心的概念就是这个, 控制当前规则的目标的具体行为.
 ### 接应程序（镜像）
 项目提供了一个 **测试接应程序** 以便进行测试, [装有 **接应程序** 的镜像在此](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge):
 
-如果使用 UI 上的镜像运行界面运行, 记得点击按钮, 将会添加一个 label. (手动添加一个也可以, 后台运行时会自动添加,下方手动运行需要的设置)
+如果使用 UI 上的镜像运行界面运行, 记得开启 `用作 Flow 出口`. 这样才能作为有效的 Flow 出口.
 ![](../images/flow/flow-5.png)
 
-当使用 UI 进行启动,并点击 label 添加后可以忽略, 如果使用第三方或者手动启动则需要注意添加以下参数:
+假设你不想使用 UI 启动, 使用第三方或者手动启动则需要手动添加以下参数:
 * docker run
 ```shell
 docker run -d \
@@ -140,25 +140,41 @@ services:
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # 必要映射
       # 可挂载 任意工作程序及其启动脚本等所需文件
 ```
-默认设置下， 容器有一个[**演示工作程序** ](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_demo_server.rs) 放置在 `/app/server` 监听 `12345` 端口作为tproxy入口。
+打包的`landscape-edge:amd64-xx`镜像中包含一个[**演示工作程序** ](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_demo_server.rs) 放置在 `/app/server` 中, 程序的作用是创建 TProxy 监听 `12345` 端口.
 
-而 **接应程序** 是放置在 `/app`， 默认情况下是会将待处理流量转发到，演示 **工作程序** 监听端口 `12345`的tproxy入口。 可以通过设置容器的环境变量改变监听端口: `LAND_PROXY_SERVER_PORT`。
+而 **接应程序** 是放置在 `/app`， 默认情况下是会将待处理流量转发到，演示 **工作程序** 监听的端口 `12345`。 可以通过设置容器的环境变量改变转发的监听端口: `LAND_PROXY_SERVER_PORT`.
 
-可将需要的 **工作程序** 挂载在 `/app/server` 目录下以替换 **演示工作程序**，将 **工作程序** 启动脚本挂载为 `/app/server/run.sh` ， `/app/start.sh` 默认会去执行`/app/server/run.sh`以启动 **工作程序** 或 **演示工作程序** 。
-
-
-### /app/start.sh 文件（非 **工作程序** 启动脚本）
-
-**[测试接应程序镜像](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge)中已包含，无需自行添加/挂载**
-
-```bash
-#!/bin/bash
-
-ip rule add fwmark 0x1/0x1 lookup 100
-ip route add local default dev lo table 100
-
-/app/server/run.sh /app/server &
-/app/redirect_pkg_handler &
-
-wait
+可将需要任意的 **工作程序** 挂载在 `/app/server` 目录下以替换容器内部的 **演示工作程序**.  
+比如你可以将 **工作程序** 放在某个目录, 就如下方这样.
+```text
+root@landscape-router:/xx/flow# tree
+.
+├── config.json
+├── run.sh  // 你的工作程序的启动脚本
+└── server // 你的工作程序
+1 directory, 3 files
 ```
+然后再将 `/xx/flow` 映射到容器的 `/app/server`, 当容器启动时 `/app/start.sh` 会执行 `/app/server/run.sh` 这样就会按照 run 中的脚本执行你需要的程序了.
+
+::: info
+**[测试接应程序](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge) 镜像中已包含，无需自行添加/挂载**, 直接启动即可.
+:::
+
+### 自定义镜像
+当你不想使用 Landscape 已经打包好的镜像, 你想在已有的镜像中集成 Landscape 的接应程序, 你可以这样做.
+1. 首先拷贝你需要的接应程序版本: 在 [Release](https://github.com/ThisSeanZhang/landscape/releases) 中找到 `redirect_pkg_handler`.
+2. 需要用脚本准备一些环境. 比如, 这个是原镜像中启动执行的脚本
+  ```bash
+    #!/bin/bash
+
+    ip rule add fwmark 0x1/0x1 lookup 100
+    ip route add local default dev lo table 100
+
+    /app/server/run.sh /app/server &
+    /app/redirect_pkg_handler &
+
+    wait
+  ```
+
+  
+
