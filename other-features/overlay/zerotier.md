@@ -1,8 +1,4 @@
-# 虚拟组网
-你可以使用 Landscape 提供的镜像进行部署，也可以自己编译镜像进行部署。
-
-
-## zerotier
+# Zerotier
 首先从 gtihub 下载 handler
 这边使用 x86 作为例子
 ```shell
@@ -118,7 +114,7 @@ networks:
 ]
 ```
 
-![](../images/other-features/overlay/1.png)
+![](./images/1.png)
 
 成功后可见
 ```
@@ -133,11 +129,11 @@ cafefd6717 -      PLANET   137 DIRECT   172      25038    79.127.159.187/9993
 ```
 
 然后创建一个新流, 将 zerotier 的容器设置该流的出口.
-![](../images/other-features/overlay/2.png)
+![](./images/2.png)
 
 
 然后在默认流, 将 zerotier 网段的数据传到 zerotier 容器中. 
-![](../images/other-features/overlay/3.png)
+![](./images/3.png)
 
 除此之外要记得
 ```text
@@ -151,6 +147,6 @@ docker exec <容器名称> ip add
        valid_lft forever preferred_lft forever
 ```
 将你的 内网 (我这是 `10.1.1.0/24`) 配置到 zerotier 中, via 字段填的是 上方查询到的 容器内的 IP `(172.26.41.197)`
-![](../images/other-features/overlay/4.png)
+![](./images/4.png)
 
 此时你再使用另一个客户端连接上, 就可以访问你的内网资源了.
