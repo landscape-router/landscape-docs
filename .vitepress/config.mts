@@ -90,6 +90,7 @@ export default defineConfig({
           { text: "DNS 服务相关", link: "/faq/dns.md" },
           // { text: "在已有网络基础上运行", link: "/faq/coexist.md" },
           { text: "与 iptable 的关系是-没关系", link: "/faq/iptables.md" },
+          { text: "您的连接不是私密连接", link: "/faq/cert_error.md" },
         ],
       },
       // {

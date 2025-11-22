@@ -5,7 +5,7 @@ Tailscale 的部署使用的步骤大致如下:
 3. 设置路由让内网中的程序可以访问 tailscalse 中的 IP / 网段.
 
 ## 设置 NAT1
-主要有以下两种方式可进行 FullCone NAT (NAT1)
+主要有以下两种方式可进行 FullCone NAT (NAT1), 任选一种配置方式就行.
 1. 固定 tailscale 使用的端口, 并使用静态 NAT 进行开放端口.
 2. 动态 tailscale 端口, 但是需要添加 tailscale DERP 的 `域名` 或者 `IP` 到 DNS 或者 IP 规则中. 并开启 NAT1 开关.
 
@@ -16,7 +16,7 @@ Tailscale 的部署使用的步骤大致如下:
 ![](./tailscale-img/2.png)
 
 > 规则配置  
-> 还未进行实际配置, 理论上可行
+> 还未进行实际配置, 可参考 zerotier 中的配置方式.
 
 ## 启动容器
 ::: warning
