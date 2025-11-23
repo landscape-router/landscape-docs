@@ -6,7 +6,7 @@ Tailscale 的部署使用的步骤大致如下:
 
 ## 设置 NAT1
 主要有以下两种方式可进行 FullCone NAT (NAT1), 任选一种配置方式就行.
-1. 固定 tailscale 使用的端口, 并使用静态 NAT 进行开放端口.
+1. 固定 tailscale [使用的端口](https://tailscale.com/kb/1278/tailscaled#flags-to-tailscaled), 并使用静态 NAT 进行开放端口.
 2. 动态 tailscale 端口, 但是需要添加 tailscale DERP 的 `域名` 或者 `IP` 到 DNS 或者 IP 规则中. 并开启 NAT1 开关.
 
 以上两种方式都只在容器所属的 `网桥` 开启 `Lan 路由转发服务` 时才生效. 如下图.
@@ -16,7 +16,7 @@ Tailscale 的部署使用的步骤大致如下:
 ![](./tailscale-img/2.png)
 
 > 规则配置  
-> 还未进行实际配置, 可参考 zerotier 中的配置方式.
+> 还未进行实际配置, 可参考 ZeroTier 中的配置方式.
 
 ## 启动容器
 ::: warning
@@ -78,6 +78,15 @@ networks:
 然后创建一个 Flow 并使用这个容器作为出口.
 ![](./tailscale-img/3.png)
 
+注意，需要在 tailscale 的控制面板中允许此节点的路由。
+![](./tailscale-img/edit-route.png)
+
+![](./tailscale-img/allow-route.png)
+并且在其他客户端启动时，需要增加 `--accept-routes` 选项, 例如: 
+```shell
+tailscale up --accept-routes
+```
+
 ## 配置 "路由" 规则
 点击相应 Flow 的 `目标 IP` 按钮进行配置. 只有添加相应规则的 Flow 才会生效.
 ![](./tailscale-img/4.png)
@@ -85,7 +94,7 @@ networks:
 比如我当前 LAN 客户端的 MAC 地址是 `00:a0:98:27:41:47`, 这个客户端当前被 `Flow 11` 规则所管理. 所以我需要在 `Flow 11` 的 `目标 IP` 进行配置. 并选择流量的出口为刚刚启动容器时创建的 `Flow 20`.
 ![](./tailscale-img/5.png)
 
-这样, 当 LAN 客户端访问 `100.118.21.86/32` 或者 `192.168.2.0/24` 时, 这些数据包就会使用 Flow 20 (tailscale) 的出口, 也就是被转发到 `mytail` 容器中.
+这样, 当 LAN 客户端访问 `100.64.0.0/10` 或者 `192.168.2.0/24` 时, 这些数据包就会使用 Flow 20 (tailscale) 的出口, 也就是被转发到 `mytail` 容器中.
 
 > 192.168.2.0/24 这个示例是假设你在对端也部署了 tailscale , 那么可以直接配置对方的网段. 这样就能实现互通.
 

@@ -59,8 +59,9 @@ export default defineConfig({
             link: "/other-features/overlay/overlay-network",
             collapsed: true,
             items: [
+              { text: "NetBird", link: "/other-features/overlay/netbird" },
               { text: "Tailscale", link: "/other-features/overlay/tailscale" },
-              { text: "Zerotier", link: "/other-features/overlay/zerotier" },
+              { text: "ZeroTier", link: "/other-features/overlay/zerotier" },
             ],
           },
           //  { text: "Docker", link: "/flow.md" },
