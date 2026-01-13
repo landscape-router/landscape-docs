@@ -75,6 +75,8 @@ export default defineConfig({
               link: "/other-features/overlay/overlay-network",
               collapsed: true,
               items: [
+                { text: "DN42", link: "/other-features/overlay/dn42" },
+                { text: "EasyTier", link: "/other-features/overlay/easytier" },
                 { text: "NetBird", link: "/other-features/overlay/netbird" },
                 { text: "Tailscale", link: "/other-features/overlay/tailscale" },
                 { text: "ZeroTier", link: "/other-features/overlay/zerotier" },
