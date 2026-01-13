@@ -15,7 +15,7 @@ steps:
   - corepack prepare pnpm@latest --activate
   - ls -la
   - pnpm install
-  - pnpm run docs:build
+  - pnpm run build
   - ls -la .vitepress/dist
   - rm -rf /landscape/*
   - mv .vitepress/dist/* /landscape/
