@@ -10,14 +10,16 @@ steps:
 - name: build
   image: node:18.20.7-alpine3.21
   commands:
-  - apk add --no-cache git  
+  - apk add --no-cache git
+  - corepack enable
+  - corepack prepare pnpm@latest --activate
   - ls -la
-  - yarn install --cache-folder /yarn
-  - yarn run docs:build
+  - pnpm install
+  - pnpm run docs:build
   - ls -la .vitepress/dist
   - rm -rf /landscape/*
   - mv .vitepress/dist/* /landscape/
   - ls -la /landscape
   volumes:
   - /d/landscape/html:/landscape
-  - /d/agent_cache/yarn:/yarn
+  - /d/agent_cache/pnpm-store:/root/.pnpm-store
