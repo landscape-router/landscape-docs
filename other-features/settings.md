@@ -9,7 +9,7 @@
 2、复制文件到 `.landscape-router` 目录  
 3、删除 `landscape_init.lock` 文件  
 4、重启 landscape-router，导入完成  
-![](../images/other-features/settings/1.png)  
+![](./settings-img/1.png)  
 
 
 <!-- ## 系统降级

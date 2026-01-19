@@ -4,7 +4,7 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
 可以帮助您将 Linux 配置成 **路由器** 的工具
 
 ## 整体界面
-![](./images/1.png)
+![](./introduction-img/1.png)
 
 ## 核心特性
 * 分流控制: 入口: (SIP-CIDR、MAC), 分流对象: (DIP、域名、Geo 匹配规则)

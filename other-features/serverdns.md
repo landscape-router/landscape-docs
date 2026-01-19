@@ -5,8 +5,8 @@
 * 返回的重定向结果
 * 处理域名匹配规则（添加需要被重定向的域名）
 
-![](../images/other-features/serverdns/dns-redirect.png)
+![](./serverdns-img/dns-redirect.png)
 
 ## 上游 DNS 配置管理
 
-![](../images/other-features/serverdns/dns-upstream.png)
+![](./serverdns-img/dns-upstream.png)

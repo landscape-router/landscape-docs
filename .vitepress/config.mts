@@ -131,6 +131,28 @@ export default defineConfig({
               { text: "Manual Deployment", link: "/en/manual" },
             ],
           },
+          {
+            text: "Configuration",
+            items: [
+              { text: ".landscape-router Directory", link: "/en/config/home_path" },
+              { text: "Configuration File Guide", link: "/en/config/index" },
+            ],
+          },
+          {
+            text: "Core Features",
+            items: [
+              { text: "Traffic Shaping", link: "/en/feature/flow" },
+              { text: "eBPF Routing", link: "/en/feature/route" },
+            ],
+          },
+          {
+            text: "FAQ",
+            items: [
+              { text: "DNS Related", link: "/en/faq/dns" },
+              { text: "Relationship with iptables", link: "/en/faq/iptables" },
+              { text: "Certificate Error", link: "/en/faq/cert_error" },
+            ],
+          },
         ],
         editLink: {
           pattern:
