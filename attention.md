@@ -8,9 +8,10 @@
 检查内核编译配置文件是否如下进行配置
 ::: warning
 主要是检查 `BTF 文件` 生成是否开启, 并且 `BPF 功能` 是否开启
+还需要开启 `Cgroups` 的 CPU 控制
 :::
 
-```text
+``` sh
 CONFIG_BPF=y
 CONFIG_HAVE_EBPF_JIT=y
 CONFIG_ARCH_WANT_DEFAULT_BPF_JIT=y
@@ -35,7 +36,6 @@ CONFIG_LWTUNNEL_BPF=y
 # CONFIG_HID_BPF is not set
 # end of HID-BPF support
 CONFIG_BPF_EVENTS=y
-CONFIG_TEST_BPF=m
 ```
 
 
@@ -50,6 +50,30 @@ CONFIG_TEST_BPF=m
 看到 **Generate BTF type information**
 选中安装即可
 
+## OpenWRT 编译需要开启
+[上方配置](#需要检查的内核配置) 需在内核编译选项 (`make kernel_menuconfig`) 中开启  
+还需要在 OpenWRT 编译选项 (`make menuconfig`) 中:  
+选择:  
+- **Global build settings** -> **Kernel build options**  
+    - **Compile the kernel with BPF event support** *(KERNEL_BPF_EVENTS)*  
+    - **Enable kernel cgroups** *(KERNEL_CGROUPS)*  
+      - **Support for eBPF programs attached to cgroups** *(KERNEL_CGROUP_BPF)*
+- **Network** -> **Routing and Redirection**
+    - **tc-full** *Traffic control utility (full) (PACKAGE_tc-full)* *或* 
+    - **tc-bpf** *Traffic control utility (bpf) (PACKAGE_tc-bpf)*
+
+
+**取消**选择:
+- **Global build settings** -> **Kernel build options**  
+  - **Compile the kernel with debug information** *(KERNEL_DEBUG_INFO)*  
+    - **Reduce debugging information** *(CONFIG_KERNEL_DEBUG_INFO_REDUCED)*  
+
+即可在
+**Global build settings**  
+  -> **Kernel build options**  
+    -> **Compile the kernel with debug information** *(KERNEL_DEBUG_INFO)*  
+看到 **Enable additional BTF type information** *(CONFIG_KERNEL_DEBUG_INFO_BTF)*  
+选中即可  
 
 
 ## 内核版本兼容的 常见 Linux 发行版  
@@ -61,7 +85,7 @@ CONFIG_TEST_BPF=m
 |---|---|---|---|  
 | Debian  | ✅ | 13+ | 低版本需更新内核至6.9+ |  
 | Armbian | 🟢 |  | 需内核版本6.9+|  
-| OpenWRT | ❌ |  |  |  
+| OpenWRT | 🟢 | 25+ / snapshot | 自行编译, 官方编译版本不支持 |  
 | Alpine | ❌ |  |  |  
 <!--⚠️ 调整后可兼容-->
 <!--🟡 未知  -->
