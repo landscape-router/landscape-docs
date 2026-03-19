@@ -3,6 +3,11 @@
 Landscape Router 是一个使用了 eBPF / Rust / Vue 开发  
 可以帮助您将 Linux 配置成 **路由器** 的工具
 
+<div style="display: flex;">
+<a href="https://github.com/ThisSeanZhang/landscape"><img src="https://img.shields.io/github/stars/ThisSeanZhang/landscape.svg?logo=github&style=for-the-badge" alt="GitHub stars"></a>
+<a href="https://github.com/ThisSeanZhang/landscape/releases/latest"><img src="https://img.shields.io/github/downloads/ThisSeanZhang/landscape/total.svg?style=for-the-badge&logo=github" alt="GitHub Releases"></a>
+</div>
+
 ## 整体界面
 ![](./1.png)
 

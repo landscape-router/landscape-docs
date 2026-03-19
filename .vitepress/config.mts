@@ -78,8 +78,29 @@ export default defineConfig({
                 ],
               },
               {
+                text: "指标监控",
+                link: "/other-features/monitor/monitor",
+                collapsed: true,
+                items: [
+                  { text: "连接信息", link: "/other-features/monitor/connection-info/connection-info.md" },
+                  { text: "DNS指标", link: "/other-features/monitor/dnsmetrics/dnsmetrics.md" }
+                ]
+              },
+              {
                 text: "地理关系库管理",
                 link: "/other-features/domain-ip-collection/domain-ip-collection",
+              },
+              {
+                text: "设备管理",
+                link: "/other-features/devices/devices",
+              },
+              {
+                text: "证书管理",
+                link: "/other-features/certificate/certificate",
+              },
+              {
+                text: "网关代理",
+                link: "/other-features/proxy/proxy",
               },
               {
                 text: "系统配置导出",
@@ -206,7 +227,7 @@ export default defineConfig({
       },
     },
     socialLinks: [
-      { icon: "github", link: "https://github.com/ThisSeanZhang/landscape" },
+      { icon: "github", link: "https://github.com/ThisSeanZhang/landscape" }
     ],
     footer: {
       message: "",

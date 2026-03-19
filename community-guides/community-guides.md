@@ -2,7 +2,18 @@
 可以提交自己的 **博客链接** / **B站链接** / 等.. 都可以
 
 ## 视频教程
-- 时间 标题 [版本号] 这样的格式
+- 2025/07/27 两种部署方式简单介绍 [v0.6.7]
+  <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=114924349035593&bvid=BV1dP8iznEBs&cid=31313166827&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true">
+  </iframe>
+
+- 2025/10/13 直播切片从系统安装开始 [v0.8.0]
+  <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=115365388551454&bvid=BV1N541zRE9e&cid=33036635413&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+
+- 2025/10/13 从导出到init文件恢复配置 [v0.8.0]
+  <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=115365825026033&bvid=BV15j4yzYEvh&cid=33038008737&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
+
+- 2026/1/19 使用脚本进行一键安装
+  <iframe src="//player.bilibili.com/player.html?isOutside=true&aid=115920630649342&bvid=BV1pNkeBTE5x&cid=35480930686&p=1" scrolling="no" border="0" frameborder="no" framespacing="0" allowfullscreen="true"></iframe>
 
 ## 图文教程
 - **[在debian里，玩转landscape和其他花活（持续更新中）](https://github.com/CyberRookie-X/play_with_landscape_and_other_tricks_on_debian)**
