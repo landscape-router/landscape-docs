@@ -1,6 +1,7 @@
 # 防火墙
+:::warning
+自[0.16.0]版本起，防火墙改为黑名单模式
+:::
+## 防火墙黑名单
+![](./blacklist.png)
 
-## 防火墙白名单
-
-![](./whitelist.png)  
-![](./firewall.png)  
