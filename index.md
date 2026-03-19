@@ -9,10 +9,10 @@ hero:
   actions:
     - theme: brand
       text: 阅读文档
-      link: "/introduction"
+      link: "/introduction/introduction"
     - theme: alt
       text: 动手部署试试吧!
-      link: "/manual"
+      link: "/manual/manual"
 
 features:
   - title: Linux 为基础
