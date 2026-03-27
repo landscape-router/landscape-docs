@@ -15,7 +15,7 @@ Remember to use ```ss -lutp``` to check if any DNS service is already occupying 
 1. Landscape Router main executable, download from [here](https://github.com/ThisSeanZhang/landscape/releases/)
 2. Static page files, download from [here](https://github.com/ThisSeanZhang/landscape/releases/), and extract to `/root/.landscape-router/static` folder
 3. (Optional) Install PPP for PPPoE dial-up
-4. (Optional) Install Docker
+4. (Optional) Install Docker. Required if you want to divert traffic into containers.
 5. (*Optional if you have a desktop environment with a browser*) Prepare initialization configuration file  
   (Note: This configuration file is only read on the first run):   
     Place it in -> `/root/.landscape-router/landscape_init.toml`
@@ -136,4 +136,3 @@ systemctl stop landscape-router.service
 2. Stop landscape-router.service
 3. Replace with new version of `landscape-webserver` and `static`  
 4. Reboot system (simply restarting landscape-router.service will cause traffic shaping function to be unavailable)
-

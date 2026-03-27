@@ -1,35 +1,112 @@
 # eBPF Routing
-Currently, for Lan / Wan to communicate, you need to enable routing forwarding functionality for the corresponding Wan and Lan network interfaces.
-![](../../../feature/route/route-1.png)
 
-## Acceleration Principle
-![](../../../feature/route/route-2.png)
-> you can find on [Wikipedia](https://en.wikipedia.org/wiki/Netfilter#/media/File:Netfilter-packet-flow.svg) under CC BY-SA 3.0 license
+## Overview
 
-The diagram above shows the workflow of Netfilter. Netfilter is the packet processing framework in the Linux kernel, responsible for providing hooks mechanism and packet filtering, modification, and other operations. iptables and nftables are user-space tools based on Netfilter, used to configure and manage firewall rules.
+Landscape Router uses eBPF to implement high-performance packet forwarding in the kernel, bypassing the traditional Netfilter path and significantly improving routing performance.
 
-The current program's forwarding work is done at **Ingress / Egress (qdisc)** in the diagram above, meaning before entering Netfilter, it can determine which network interface to send to and directly send to the network card. This accelerates forwarding. However, NAT connection sharing has not been integrated into the current implementation yet. So the current acceleration effect is not very obvious.
+## Prerequisites
 
-Currently, this is just a 0 to 1 implementation. More optimizations will be made in the future.
+For LAN and WAN to communicate normally, route forwarding must be enabled on the corresponding interfaces.
 
-Also, determining whether to forward to Docker containers is done here as well. Therefore, direct traffic has almost no loss.
+![Enable route forwarding](../../../feature/route/route-1.png)
 
-## Performance Testing
+:::tip Where to configure it
+Open the interface configuration page, find the relevant WAN and LAN interfaces, and enable the `Route Forwarding Service` option.
+:::
 
-RX-PPS represents the number of packets that can be received.
-RX-BPS represents the rate at which data can be received.
+---
 
-### Test 1
-* CPU: 2700X (PVE virtualized with 4 physical cores)
-* NIC: Passthrough X520-DA2
+## How the Acceleration Works
 
-![64 small packets](../../../feature/route/4-64.png)
-![1500 large packets](../../../feature/route/4-1500.png)
+### Netfilter Packet Flow
 
+The diagram below shows the full Netfilter packet flow:
 
-### Test 2
-* CPU: 2700X (PVE virtualized with 4 physical cores / 8 threads)
-* NIC: Passthrough X520-DA2
+![Netfilter packet flow](../../../feature/route/route-2.png)
 
-![64 small packets](../../../feature/route/8-64.png)
-![1500 large packets](../../../feature/route/8-1500.png)
+> Image source: [Wikipedia - Netfilter](https://en.wikipedia.org/wiki/Netfilter#/media/File:Netfilter-packet-flow.svg) (CC BY-SA 3.0)
+
+### Traditional Routing vs eBPF Routing
+
+#### Traditional approach (Netfilter / iptables / nftables)
+
+Packets go through multiple stages:
+
+```text
+NIC receive -> kernel network stack -> Netfilter hooks -> route decision -> NAT -> forwarding decision -> transmit
+```
+
+#### eBPF accelerated approach
+
+:::tip Core advantage
+Landscape Router completes forwarding at the **Ingress / Egress (qdisc)** layer. In other words, it decides the destination **before** packets enter Netfilter and sends them directly to the target interface.
+:::
+
+Acceleration path:
+
+```text
+NIC receive -> eBPF processing (TC layer) -> direct forwarding to target NIC
+            -> bypass Netfilter
+```
+
+### Performance Characteristics
+
+| Feature | Description |
+|------|------|
+| **Forwarding stage** | TC (Traffic Control) layer, before Netfilter |
+| **NAT integration** | NAT connection state is not yet fully shared with the eBPF routing path |
+| **Direct traffic** | Nearly no overhead for direct forwarding |
+| **Container decision** | The decision of whether to forward traffic into a Docker container also happens here |
+
+:::warning Current limitation
+Because NAT connection state has not yet been fully integrated into eBPF routing, the current acceleration result is not the final form. This is already a working 0-to-1 implementation, and it will continue to be optimized.
+:::
+
+---
+
+## Performance Tests
+
+### Metric Definitions
+
+- **RX-PPS**: received packets per second
+- **RX-BPS**: received bits per second
+
+### Test Environment 1
+
+**Configuration**:
+- Operating system: Arch Linux (kernel 6.12.63-1-lts)
+- CPU: AMD 2700X (PVE virtual machine with 4 physical cores)
+- NIC: Passthrough X520-DA2 (10Gbps)
+
+**Results**:
+
+#### Small packet performance (64 bytes)
+![64-byte packet test](../../../feature/route/4-64.png)
+
+#### Large packet performance (1500 bytes)
+![1500-byte packet test](../../../feature/route/4-1500.png)
+
+---
+
+### Test Environment 2
+
+**Configuration**:
+- Operating system: Arch Linux (kernel 6.12.63-1-lts)
+- CPU: AMD 2700X (PVE virtual machine with 4 physical cores / 8 threads)
+- NIC: Passthrough X520-DA2 (10Gbps)
+
+**Results**:
+
+#### Small packet performance (64 bytes)
+![64-byte packet test](../../../feature/route/8-64.png)
+
+#### Large packet performance (1500 bytes)
+![1500-byte packet test](../../../feature/route/8-1500.png)
+
+---
+
+## Related Documents
+
+- [Traffic Shaping](../flow/flow.md) - Learn how to configure traffic forwarding rules
+- [Basic Operations](../../../other-features/basic/basic/basic.md) - XPS/RPS tuning for network interfaces
+- [Firewall Settings](../../../other-features/firewall/firewall.md) - Security policies that work alongside eBPF routing

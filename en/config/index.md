@@ -1,24 +1,22 @@
 # Configuration File Guide
 
 The program's configuration sources mainly include:
-* `landscape_init.toml`: Full configuration file, includes various rule configurations as well as complete `landscape.toml`. Read `only once` on ***first run***.
-    After reading, a `landscape_init.lock` file will be created. You can export the current configuration as an `init` file in the UI interface, which is convenient for redeployment using the current configuration.
-* `landscape.toml`: Read on each startup, contains only *listen addresses*, *login username* and *password*, *logs* and other configurations.
+* `landscape_init.toml`: Full configuration file, which not only contains all rule definitions but also includes the complete `landscape.toml`. It is read `only once` on the ***first run***. After being read, a `landscape_init.lock` file will be created. You can export the current configuration as an `init` file from the UI, which is convenient for redeploying with the current configuration.
+* `landscape.toml`: Read on every startup. It only contains configuration such as *listen addresses*, *login username* and *password*, and *logs*.
 
-The program can start without any file configuration.   
-If you want it to be ready on first boot, you can configure `landscape_init.toml`.
+The program can start without any file configuration.  
+If you want it to be ready to use on the first boot, you can configure `landscape_init.toml`.
 
 Settings in `landscape.toml` have lower priority than command-line arguments.
 
 ::: warning
-* When the `landscape_init.lock` file is deleted, startup will clear all existing configurations and then refresh the entire configuration using the content in `landscape_init.toml`, including the configuration in `landscape.toml`.
-So be cautious when deleting this file.
-* Path configurations in configuration files can only use **absolute paths** or **relative paths**. Cannot use paths starting with **~**
-* The `landscape_init.toml` file can only be used for recovery of the current version; cross-version recovery will fail. So you can first restore in the `appropriate version`, then start with the `new version`. The new version can `automatically migrate` old version configurations.
-(Note: Version file export is supported after version `v0.6.7`)
+* When the `landscape_init.lock` file is deleted, startup will clear all existing configuration, and then refresh the entire configuration from `landscape_init.toml`, including the configuration in `landscape.toml`. So delete this file carefully.
+* Path configuration in config files can only use **absolute paths** or **relative paths**. Paths beginning with **~** are not supported.
+* The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration.
+(Note: exporting versioned files is supported after `v0.6.7`)
 :::
 
-## landscape.toml Configuration Example (only configure what you need)
+## landscape.toml Configuration Example (configure only what you need)
 ```toml
 [auth]
 # Login username
@@ -50,12 +48,20 @@ max_log_files = 10
 # Database path
 database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 
+[gateway] # HTTP reverse proxy is disabled by default, but can be changed in the UI
+enable = true
+http_port = 80 # Reverse proxy HTTP listen port
+https_port = 443 # Reverse proxy HTTPS listen port
+
+[metric] # Metrics configuration, can be changed in the UI
+mode = "duckdb"
+
 ```
 
 ## landscape_init.toml Configuration Example
 
 ### config Definition
-Configuration details are the same as above, the only difference is that you need to add **config.** prefix, for example:
+Configuration details are the same as above. The only difference is that you need to add the **config.** prefix, for example:
 ```toml
 [config.auth]
 admin_user = "root"
@@ -76,12 +82,12 @@ database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 ```toml
 [[ifaces]]
 name = "ens3" # Interface name
-create_dev_type = "no_need_to_create" # Physical interface doesn't need creation
-zone_type = "wan" # Zone type
-enable_in_boot = true # Enable this interface on boot
-wifi_mode = "undefined" # Is it a WiFi interface
+create_dev_type = "no_need_to_create" # Physical interface does not need to be created
+zone_type = "wan" # Zone
+enable_in_boot = true # Start this interface on boot
+wifi_mode = "undefined" # Whether it is a WiFi interface
 
-# xps_rps configuration for CPU soft load balancing, needed when single CPU core is weak
+# xps_rps configuration for CPU soft load balancing, useful when a single CPU core is weak
 [ifaces.xps_rps]
 xps = "4"
 rps = "4"
@@ -96,8 +102,8 @@ enable = true # Whether to enable
 [ipconfigs.ip_model] # Specific IP configuration method
 t = "static" # Static IP configuration
 default_router_ip = "10.1.1.10" # Router IP
-default_router = true # Whether to set default_router_ip as default route
-ipv4 = "10.1.1.237" # Static IP to be set for current interface
+default_router = true # Whether to set default_router_ip as the default route
+ipv4 = "10.1.1.237" # Static IP to configure on the current interface
 ipv4_mask = 24
 ```
 
@@ -113,10 +119,9 @@ ip_range_end = "192.168.5.255"
 server_ip_addr = "192.168.5.1"
 network_mask = 24
 
-# MAC address IP binding
+# MAC address bindings for IPs
 mac_binding_records = [
     { mac = "00:11:22:33:44:55", ip = "192.168.5.100" },
     { mac = "00:11:22:33:44:55", ip = "192.168.5.200" },
 ]
 ```
-

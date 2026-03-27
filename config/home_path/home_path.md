@@ -3,12 +3,9 @@
 
 这个就是指定运行时项目的持久化配置存储路径位置. 检查目录你会看到如下内容:
 ```shell
-root@router:/root/.landscape-router# tree 
 .
-├── cert.pem # 生成的 自签名证书
-├── key.pem # 生成的 自签名证书
 ├── geo_tmp # geo 文件缓存路径
-│   ├── ip 
+│   ├── ip
 │   └── site
 ├── landscape_api_token # api jwt token, 每次重启刷新
 ├── landscape_db.sqlite # sqlite 数据库文件位置
@@ -17,7 +14,9 @@ root@router:/root/.landscape-router# tree
 ├── landscape.toml # 配置 日志 / 登录 用户 / 监听端口 等配置 介绍见 [配置文件介绍]
 ├── logs # 日志文件夹 ( 默认位置 可被修改 )
 │   ├── landscape.log.yyyy-MM-dd
-├── static # WEB UI 文件夹 ( 默认位置 可被修改 )
+├── metric # 指标文件目录
+│   ├── ...
+├── static  # WEB UI 文件夹 ( 默认位置 可被修改 )
 │   ├── assets
 │   │   └── ...
 │   └── index.html

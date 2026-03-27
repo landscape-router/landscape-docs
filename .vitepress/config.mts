@@ -36,6 +36,8 @@ export default defineConfig({
             text: "核心特性",
             items: [
               { text: "分流控制", link: "/feature/flow/flow" },
+              { text: "只能 NAT1/4? 我全都要!", link: "/feature/nat/nat" },
+              { text: "可 API 控制所有行为", link: "/feature/api/api" },
               { text: "eBPF 路由", link: "/feature/route/route" },
             ],
           },
@@ -163,6 +165,8 @@ export default defineConfig({
             text: "Core Features",
             items: [
               { text: "Traffic Shaping", link: "/en/feature/flow/flow" },
+              { text: "NAT Control", link: "/en/feature/nat/nat" },
+              { text: "API Access", link: "/en/feature/api/api" },
               { text: "eBPF Routing", link: "/en/feature/route/route" },
             ],
           },

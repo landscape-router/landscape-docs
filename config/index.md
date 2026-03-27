@@ -50,6 +50,14 @@ max_log_files = 10
 # 数据库路径
 database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 
+[gateway] # HTTP 反代默认为关闭，可通过前端修改
+enable = true
+http_port = 80 # 反代 HTTP 监听地址
+https_port = 443 # 反代 HTTPS 监听地址
+
+[metric] # 指标配置，可通过前端修改
+mode = "duckdb"
+
 ```
 
 ## landscape_init.toml 配置示例
