@@ -101,7 +101,7 @@ export default defineConfig({
                 link: "/other-features/certificate/certificate",
               },
               {
-                text: "网关代理",
+                text: "HTTP 反代",
                 link: "/other-features/proxy/proxy",
               },
               {
@@ -124,6 +124,7 @@ export default defineConfig({
             items: [
               { text: "DNS 服务相关", link: "/faq/dns/dns" },
               { text: "与 iptable 的关系是-没关系", link: "/faq/iptables/iptables" },
+              { text: "用 Podman 替换 Docker", link: "/faq/podman/podman" },
               { text: "您的连接不是私密连接", link: "/faq/cert_error/cert_error" },
             ],
           },

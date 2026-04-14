@@ -1,14 +1,36 @@
 
 # 注意事项
 
+## 常见 Linux 发行版兼容性  
+✅ 内核版本兼容  
+🟢 部分版本的内核版本兼容  
+❌ 内核版本不兼容  
+
+| 发行版 | 兼容 | 版本要求 | 备注 |  
+|---|---|---|---|  
+| Debian | ✅ | 13+ | Debian 13 默认内核已满足要求。避免安装 NetworkManager。 |  
+| Arch | ✅ | 滚动更新 | 内核版本足够新即可。避免安装 NetworkManager。 |  
+| Rocky Linux | 🟢 | 需升级到 6.9+ | 还需卸载 NetworkManager、关闭 `firewalld`，并处理 SELinux 权限。 |  
+| Armbian | 🟢 | 需升级到 6.9+ | 具体取决于所用内核分支。 |  
+| OpenWRT | 🟢 | 25+ / snapshot | 需自行编译；官方预编译版本暂不支持。 |  
+| Alpine | ❌ | - | 当前不兼容。 |  
+<!--⚠️ 调整后可兼容-->
+<!--🟡 未知  -->
+
+
+## 内存大小限制
+当前尚未针对内存占用做专项优化。
+普通发行版建议至少提供 2 GiB 内存。  
+如果是自行裁剪过的内核, 预计 1.5 GiB 左右即可。
+
 ## 内核版本
 需要使用内核版本在 `6.9.x` 以上的版本进行部署。
 
 ## 需要检查的内核配置
-检查内核编译配置文件是否如下进行配置
+请确认内核编译配置中包含以下选项:
 ::: warning
-主要是检查 `BTF 文件` 生成是否开启, 并且 `BPF 功能` 是否开启
-还需要开启 `Cgroups` 的 CPU 控制
+主要检查 `BTF` 信息生成是否开启, 并确认 `BPF` 功能已启用。
+此外还需要开启 `Cgroups` 的 CPU 控制。
 :::
 
 ``` sh
@@ -47,8 +69,8 @@ CONFIG_BPF_EVENTS=y
 即可在 
 **Kernel hacking**   
   -> **Compile-time checks and compiler options**  
-看到 **Generate BTF type information**
-选中安装即可
+看到 **Generate BTF type information** 选项。
+启用即可。
 
 ## OpenWRT 编译需要开启
 [上方配置](#需要检查的内核配置) 需在内核编译选项 (`make kernel_menuconfig`) 中开启  
@@ -74,18 +96,3 @@ CONFIG_BPF_EVENTS=y
     -> **Compile the kernel with debug information** *(KERNEL_DEBUG_INFO)*  
 看到 **Enable additional BTF type information** *(CONFIG_KERNEL_DEBUG_INFO_BTF)*  
 选中即可  
-
-
-## 内核版本兼容的 常见 Linux 发行版  
-✅ 内核版本兼容  
-🟢 部分版本的内核版本兼容  
-❌ 内核版本不兼容  
-
-| 发行版 | 兼容 | 版本要求 | 备注 |  
-|---|---|---|---|  
-| Debian  | ✅ | 13+ | 低版本需更新内核至6.9+ |  
-| Armbian | 🟢 |  | 需内核版本6.9+|  
-| OpenWRT | 🟢 | 25+ / snapshot | 自行编译, 官方编译版本不支持 |  
-| Alpine | ❌ |  |  |  
-<!--⚠️ 调整后可兼容-->
-<!--🟡 未知  -->

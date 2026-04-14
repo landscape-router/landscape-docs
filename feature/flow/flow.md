@@ -199,7 +199,7 @@ IP 规则与 DNS 规则类似，但少了"DNS 上游"配置：
    从 [Release](https://github.com/ThisSeanZhang/landscape/releases/latest) 下载
 
 2. **工作程序**  
-   可以是任意程序：组网程序、数据包分析程序、代理程序等
+   可以是任意程序：组网程序、数据包分析程序等
 
 :::danger 重要提示
 只有搭配 [**接应程序**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs) 打包的容器，才能作为有效的流出口容器！

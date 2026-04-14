@@ -12,12 +12,12 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
 ![](./main.zh.png)
 
 ## 核心特性
-* eBPF 分流，直连流量性能不受影响，使用 (SIP-CIDR、MAC), 分流对象: (DIP、域名、Geo 匹配规则)
-* 每个流 Flow 独立 dns 配置以及缓存（避免 dns 污染、泄露）
-* 流量导入 Docker 容器，可在容器中运行支持 TProxy 的程序进行扩展
-* 地理关系库管理， 支持 DAT/TXT 格式
-* 默认 更严格的 NAT4, 但可让指定 IP/域名 使用 NAT1, 方便进行组网等操作
-* 提供 API, 可通过 API 操作所有在 UI 上可操作的内容
+* eBPF 分流, 直连流量性能不受影响, 可基于入口条件 (源 IP CIDR、MAC) 与目标条件 (目标 IP、域名、Geo 规则) 进行匹配
+* 每个 Flow 都有独立的 DNS 配置和缓存, 以减少 DNS 污染与泄露
+* 支持将流量导入 Docker 容器, 可在容器中运行支持 TProxy 的程序进行扩展
+* 支持地理关系库管理, 支持 DAT / TXT 格式
+* 默认采用更严格的 NAT4, 但可为指定 IP / 域名启用 NAT1, 方便组网等场景
+* 提供 API, UI 上的所有操作都可以通过 API 完成
 
 ---
 
@@ -36,6 +36,9 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
 > ⚠ 可行但是未测试  
 > ❌ 未实现  
 
+- <u>部署方式</u>
+    - ✅ 主路由
+    - ❌ 单臂路由
 - <u>IP 配置</u>
     - *静态 IP 配置*
         - ✅ 指定 IP 
@@ -76,6 +79,7 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
     - ❌ 对指定数据设置跟踪标记
     - ✅ 外网 IP 行为控制, 按照标记的规则控制外网 IP, 并支持使用 `geoip.dat` 协助配置
     - ✅ IP 规则和 DNS 规则冲突时, 依据规则的优先级进行判定 (值越小越高)
+    - ❌ 多 WAN 负载均衡
 - <u>地理关系库管理</u>
     - ✅ 多 地理关系库 来源管理
     - ✅ Geo IP/Site 自动更新
