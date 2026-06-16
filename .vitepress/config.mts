@@ -26,13 +26,6 @@ export default defineConfig({
             ],
           },
           {
-            text: '目录结构 & 配置',
-            items: [
-              { text: '.landscape-router 目录介绍', link: '/configuration/home-path' },
-              { text: '配置文件介绍', link: '/configuration/' },
-            ],
-          },
-          {
             text: '核心特性',
             items: [
               { text: '分流控制', link: '/features/traffic-flow' },
@@ -117,6 +110,14 @@ export default defineConfig({
               { text: '编译', link: '/compilation/' },
               { text: '与 Armbian 集成', link: '/compilation/armbian' },
               { text: '交叉编译', link: '/compilation/cross-compile' },
+            ],
+          },
+          {
+            text: '目录结构 & 配置',
+            collapsed: true,
+            items: [
+              { text: '.landscape-router 目录介绍', link: '/configuration/home-path' },
+              { text: '配置文件介绍', link: '/configuration/' },
             ],
           },
           {
