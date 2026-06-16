@@ -25,4 +25,4 @@ Please select a target architecture by entering the corresponding number [defaul
 
 编译完成后，产物将存放在 `output` 文件夹中。
 
-如果需要在 x86 主机上进行交叉编译，请参考 [交叉编译 aarch64](cross/cross.md)
+如果需要在 x86 主机上进行交叉编译，请参考 [交叉编译 aarch64](cross-compile.md)

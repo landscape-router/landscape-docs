@@ -8,10 +8,10 @@ hero:
   actions:
     - theme: brand
       text: Read Documentation
-      link: "/en/introduction/introduction"
+      link: "/en/getting-started/"
     - theme: alt
       text: Try Manual Deployment!
-      link: "/en/manual/manual"
+      link: "/en/getting-started/manual-deployment"
 
 features:
   - title: Linux Based

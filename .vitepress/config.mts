@@ -15,30 +15,30 @@ export default defineConfig({
         lastUpdatedText: "最后更新时间",
         nav: [
           { text: "主页", link: "/" },
-          { text: "文档", link: "/introduction/introduction" },
+          { text: "文档", link: "/getting-started/" },
         ],
         sidebar: [
           {
             items: [
-              { text: "简介", link: "/introduction/introduction" },
-              { text: "系统运行基本要求!!! (必读)", link: "/attention/attention" },
-              { text: "手工部署", link: "/manual/manual" },
+              { text: "简介", link: "/getting-started/" },
+              { text: "系统运行基本要求!!! (必读)", link: "/getting-started/requirements" },
+              { text: "手工部署", link: "/getting-started/manual-deployment" },
             ],
           },
           {
             text: "目录结构 & 配置",
             items: [
-              { text: ".landscape-router 目录介绍", link: "/config/home_path/home_path" },
-              { text: "配置文件介绍", link: "/config/index" },
+              { text: ".landscape-router 目录介绍", link: "/configuration/home-path" },
+              { text: "配置文件介绍", link: "/configuration/" },
             ],
           },
           {
             text: "核心特性",
             items: [
-              { text: "分流控制", link: "/feature/flow/flow" },
-              { text: "只能 NAT1/4? 我全都要!", link: "/feature/nat/nat" },
-              { text: "可 API 控制所有行为", link: "/feature/api/api" },
-              { text: "eBPF 路由", link: "/feature/route/route" },
+              { text: "分流控制", link: "/features/traffic-flow" },
+              { text: "只能 NAT1/4? 我全都要!", link: "/features/nat" },
+              { text: "可 API 控制所有行为", link: "/features/api" },
+              { text: "eBPF 路由", link: "/features/ebpf-route" },
             ],
           },
           {
@@ -46,9 +46,9 @@ export default defineConfig({
             items: [
               {
                 text: "Site To Site 网络配置",
-                link: "/other-features/overlay/site-to-site/site-to-site",
+                link: "/guides/site-to-site",
               },
-              { text: "康康其他人怎么做 (链接)", link: "/community-guides/community-guides" },
+              { text: "康康其他人怎么做 (链接)", link: "/guides/community" },
             ],
           },
           {
@@ -58,55 +58,55 @@ export default defineConfig({
                 text: "系统基本设置",
                 collapsed: true,
                 items: [
-                  { text: "基础操作", link: "/other-features/basic/basic/basic" },
-                  { text: "区域切换", link: "/other-features/basic/zone/zone" },
+                  { text: "基础操作", link: "/network/basic-settings" },
+                  { text: "区域切换", link: "/network/zone-switching" },
                 ],
               },
-              { text: "IPv4 相关", link: "/other-features/ipv4/ipv4/ipv4" },
-              { text: "IPv6 相关", link: "/other-features/ipv6/ipv6" },
-              { text: "DHCPv4 Server 相关", link: "/other-features/dhcpv4/dhcpv4" },
-              { text: "防火墙设置", link: "/other-features/firewall/firewall" },
-              { text: "DNS 相关", link: "/other-features/serverdns/serverdns" },
+              { text: "IPv4 相关", link: "/network/ipv4" },
+              { text: "IPv6 相关", link: "/network/ipv6/" },
+              { text: "DHCPv4 Server 相关", link: "/network/dhcpv4" },
+              { text: "防火墙设置", link: "/network/firewall" },
+              { text: "DNS 相关", link: "/network/dns" },
               {
                 text: "虚拟组网",
-                link: "/other-features/overlay/overlay-network/overlay-network",
+                link: "/overlay/",
                 collapsed: true,
                 items: [
-                  { text: "DN42", link: "/other-features/overlay/dn42/dn42" },
-                  { text: "EasyTier", link: "/other-features/overlay/easytier/easytier" },
-                  { text: "NetBird", link: "/other-features/overlay/netbird/netbird" },
-                  { text: "Tailscale", link: "/other-features/overlay/tailscale/tailscale" },
-                  { text: "ZeroTier", link: "/other-features/overlay/zerotier/zerotier" },
+                  { text: "DN42", link: "/overlay/dn42" },
+                  { text: "EasyTier", link: "/overlay/easytier" },
+                  { text: "NetBird", link: "/overlay/netbird" },
+                  { text: "Tailscale", link: "/overlay/tailscale" },
+                  { text: "ZeroTier", link: "/overlay/zerotier" },
                 ],
               },
               {
                 text: "指标监控",
-                link: "/other-features/monitor/monitor",
+                link: "/monitoring/",
                 collapsed: true,
                 items: [
-                  { text: "连接信息", link: "/other-features/monitor/connection-info/connection-info.md" },
-                  { text: "DNS指标", link: "/other-features/monitor/dnsmetrics/dnsmetrics.md" }
+                  { text: "连接信息", link: "/monitoring/connection-info" },
+                  { text: "DNS指标", link: "/monitoring/dns-metrics" }
                 ]
               },
               {
                 text: "地理关系库管理",
-                link: "/other-features/domain-ip-collection/domain-ip-collection",
+                link: "/monitoring/domain-ip-collection",
               },
               {
                 text: "设备管理",
-                link: "/other-features/devices/devices",
+                link: "/network/device-management",
               },
               {
                 text: "证书管理",
-                link: "/other-features/certificate/certificate",
+                link: "/network/certificates",
               },
               {
                 text: "HTTP 反代",
-                link: "/other-features/proxy/proxy",
+                link: "/network/proxy",
               },
               {
                 text: "系统配置导出",
-                link: "/other-features/settings/settings",
+                link: "/advanced/settings-export",
               },
             ],
           },
@@ -114,18 +114,18 @@ export default defineConfig({
             text: "编译",
             collapsed: true,
             items: [
-              { text: "编译", link: "/compilation/index" },
-              { text: "与 Armbian 集成", link: "/compilation/armbian/armbian" },
-              { text: "交叉编译", link: "/compilation/cross/cross" },
+              { text: "编译", link: "/compilation/" },
+              { text: "与 Armbian 集成", link: "/compilation/armbian" },
+              { text: "交叉编译", link: "/compilation/cross-compile" },
             ],
           },
           {
             text: "常见问题",
             items: [
-              { text: "DNS 服务相关", link: "/faq/dns/dns" },
-              { text: "与 iptable 的关系是-没关系", link: "/faq/iptables/iptables" },
-              { text: "用 Podman 替换 Docker", link: "/faq/podman/podman" },
-              { text: "您的连接不是私密连接", link: "/faq/cert_error/cert_error" },
+              { text: "DNS 服务相关", link: "/faq/dns" },
+              { text: "与 iptable 的关系是-没关系", link: "/faq/iptables" },
+              { text: "用 Podman 替换 Docker", link: "/faq/podman" },
+              { text: "您的连接不是私密连接", link: "/faq/cert-error" },
             ],
           },
         ],
@@ -145,38 +145,38 @@ export default defineConfig({
         lastUpdatedText: "Last Updated",
         nav: [
           { text: "Home", link: "/en/" },
-          { text: "Docs", link: "/en/introduction/introduction" },
+          { text: "Docs", link: "/en/getting-started/" },
         ],
         sidebar: [
           {
             items: [
-              { text: "Introduction", link: "/en/introduction/introduction" },
-              { text: "System Requirements (Must Read)", link: "/en/attention/attention" },
-              { text: "Manual Deployment", link: "/en/manual/manual" },
+              { text: "Introduction", link: "/en/getting-started/" },
+              { text: "System Requirements (Must Read)", link: "/en/getting-started/requirements" },
+              { text: "Manual Deployment", link: "/en/getting-started/manual-deployment" },
             ],
           },
           {
             text: "Configuration",
             items: [
-              { text: ".landscape-router Directory", link: "/en/config/home_path/home_path" },
-              { text: "Configuration File Guide", link: "/en/config/index" },
+              { text: ".landscape-router Directory", link: "/en/configuration/home-path" },
+              { text: "Configuration File Guide", link: "/en/configuration/" },
             ],
           },
           {
             text: "Core Features",
             items: [
-              { text: "Traffic Shaping", link: "/en/feature/flow/flow" },
-              { text: "NAT Control", link: "/en/feature/nat/nat" },
-              { text: "API Access", link: "/en/feature/api/api" },
-              { text: "eBPF Routing", link: "/en/feature/route/route" },
+              { text: "Traffic Shaping", link: "/en/features/traffic-flow" },
+              { text: "NAT Control", link: "/en/features/nat" },
+              { text: "API Access", link: "/en/features/api" },
+              { text: "eBPF Routing", link: "/en/features/ebpf-route" },
             ],
           },
           {
             text: "FAQ",
             items: [
-              { text: "DNS Related", link: "/en/faq/dns/dns" },
-              { text: "Relationship with iptables", link: "/en/faq/iptables/iptables" },
-              { text: "Certificate Error", link: "/en/faq/cert_error/cert_error" },
+              { text: "DNS Related", link: "/en/faq/dns" },
+              { text: "Relationship with iptables", link: "/en/faq/iptables" },
+              { text: "Certificate Error", link: "/en/faq/cert-error" },
             ],
           },
         ],
