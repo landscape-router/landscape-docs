@@ -1,14 +1,12 @@
-
 # System Requirements
 
 ## Kernel Version
+
 Requires kernel version `6.9.x` or higher for deployment.
 
 ## Required Kernel Configuration
-Check if the kernel compilation configuration file is configured as follows:
-::: warning
-Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled
-:::
+
+Check if the kernel compilation configuration file is configured as follows: ::: warning Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled :::
 
 ```text
 CONFIG_BPF=y
@@ -38,30 +36,27 @@ CONFIG_BPF_EVENTS=y
 CONFIG_TEST_BPF=m
 ```
 
-
 ## Kernel BTF Generation Must Be Enabled
-Select:
-**Kernel hacking**   
-  -> **Compile-time checks and compiler options**   
-    -> **Debug information (Generate DWARF Version 5 debuginfo)**  
-Then you can find
-**Kernel hacking**   
-  -> **Compile-time checks and compiler options**  
-and see **Generate BTF type information**
-Select and install it.
 
+Select: **Kernel hacking**  
+ -> **Compile-time checks and compiler options**  
+ -> **Debug information (Generate DWARF Version 5 debuginfo)**  
+Then you can find **Kernel hacking**  
+ -> **Compile-time checks and compiler options**  
+and see **Generate BTF type information** Select and install it.
 
+## Linux Distributions Compatible with Kernel Version
 
-## Linux Distributions Compatible with Kernel Version  
 ✅ Kernel version compatible  
 🟢 Some versions have compatible kernel versions  
-❌ Kernel version not compatible  
+❌ Kernel version not compatible
 
-| Distribution | Compatible | Version Requirements | Notes |  
-|---|---|---|---|  
-| Debian  | ✅ | 13+ | Lower versions need kernel update to 6.9+ |  
-| Armbian | 🟢 |  | Requires kernel version 6.9+|  
-| OpenWRT | ❌ |  |  |  
-| Alpine | ❌ |  |  |  
+| Distribution | Compatible | Version Requirements | Notes                                     |
+| ------------ | ---------- | -------------------- | ----------------------------------------- |
+| Debian       | ✅         | 13+                  | Lower versions need kernel update to 6.9+ |
+| Armbian      | 🟢         |                      | Requires kernel version 6.9+              |
+| OpenWRT      | ❌         |                      |                                           |
+| Alpine       | ❌         |                      |                                           |
+
 <!--⚠️ Compatible after adjustment-->
 <!--🟡 Unknown  -->

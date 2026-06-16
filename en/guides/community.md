@@ -1,10 +1,13 @@
 # Community Guides
+
 You can submit your own **Blog Links** / **Video Links** / etc.
 
 ## Video Tutorials
+
 - Date Title [Version] format
 
 ## Text Tutorials
+
 - **[In Debian, play with landscape and other tricks (Continuing Update)](https://github.com/CyberRookie-X/play_with_landscape_and_other_tricks_on_debian)**
   - Date: 2025-07-25
   - Version: [Continuing Update]

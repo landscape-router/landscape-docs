@@ -5,12 +5,15 @@
 可参考项目: https://github.com/ThisSeanZhang/landscape-build
 
 # 初始配置文件
+
 文件位置：
+
 ```text
 userpatches/overlay/landscape_init.toml
 ```
 
 配置需根据目标开发板的硬件配置进行决定
+
 ```toml
 # Config Interface
 [[ifaces]]
@@ -51,10 +54,13 @@ mac_binding_records = [
 ```
 
 # 脚本
+
 放置位置：
+
 ```text
 userpatches/customize-image.sh
 ```
+
 ```bash
 #!/bin/bash
 
@@ -187,6 +193,7 @@ Main "$@"
 ```
 
 # 编译命令
+
 > 需要检查 [注意事项](/getting-started/requirements) 中的内核编译参数是否开启
 
 需要保持 `KERNEL_CONFIGURE=yes` 需要开启内核 BTF 文件生成

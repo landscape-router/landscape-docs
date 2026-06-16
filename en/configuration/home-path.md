@@ -1,7 +1,9 @@
 # Configuration Directory Structure
+
 When you use the command `landscape-webserver --help`, you can see the `-c, --config-dir <CONFIG_DIR>` option.
 
 This is the persistent configuration storage path for the runtime project. When you inspect the directory, you will see something like this:
+
 ```shell
 .
 ├── geo_tmp # Geo file cache path

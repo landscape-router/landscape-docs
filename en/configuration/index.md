@@ -1,8 +1,9 @@
 # Configuration File Guide
 
 The program's configuration sources mainly include:
-* `landscape_init.toml`: Full configuration file, which not only contains all rule definitions but also includes the complete `landscape.toml`. It is read `only once` on the ***first run***. After being read, a `landscape_init.lock` file will be created. You can export the current configuration as an `init` file from the UI, which is convenient for redeploying with the current configuration.
-* `landscape.toml`: Read on every startup. It only contains configuration such as *listen addresses*, *login username* and *password*, and *logs*.
+
+- `landscape_init.toml`: Full configuration file, which not only contains all rule definitions but also includes the complete `landscape.toml`. It is read `only once` on the **_first run_**. After being read, a `landscape_init.lock` file will be created. You can export the current configuration as an `init` file from the UI, which is convenient for redeploying with the current configuration.
+- `landscape.toml`: Read on every startup. It only contains configuration such as _listen addresses_, _login username_ and _password_, and _logs_.
 
 The program can start without any file configuration.  
 If you want it to be ready to use on the first boot, you can configure `landscape_init.toml`.
@@ -10,13 +11,13 @@ If you want it to be ready to use on the first boot, you can configure `landscap
 Settings in `landscape.toml` have lower priority than command-line arguments.
 
 ::: warning
-* When the `landscape_init.lock` file is deleted, startup will clear all existing configuration, and then refresh the entire configuration from `landscape_init.toml`, including the configuration in `landscape.toml`. So delete this file carefully.
-* Path configuration in config files can only use **absolute paths** or **relative paths**. Paths beginning with **~** are not supported.
-* The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration.
-(Note: exporting versioned files is supported after `v0.6.7`)
-:::
+
+- When the `landscape_init.lock` file is deleted, startup will clear all existing configuration, and then refresh the entire configuration from `landscape_init.toml`, including the configuration in `landscape.toml`. So delete this file carefully.
+- Path configuration in config files can only use **absolute paths** or **relative paths**. Paths beginning with **~** are not supported.
+- The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration. (Note: exporting versioned files is supported after `v0.6.7`) :::
 
 ## landscape.toml Configuration Example (configure only what you need)
+
 ```toml
 [auth]
 # Login username
@@ -61,7 +62,9 @@ mode = "duckdb"
 ## landscape_init.toml Configuration Example
 
 ### config Definition
+
 Configuration details are the same as above. The only difference is that you need to add the **config.** prefix, for example:
+
 ```toml
 [config.auth]
 admin_user = "root"
@@ -79,6 +82,7 @@ database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 ```
 
 ### Network Interface Definition
+
 ```toml
 [[ifaces]]
 name = "ens3" # Interface name
@@ -94,6 +98,7 @@ rps = "4"
 ```
 
 ### Interface IP Configuration Method
+
 ```toml
 [[ipconfigs]]
 iface_name = "ens3" # Which interface to apply to
@@ -108,6 +113,7 @@ ipv4_mask = 24
 ```
 
 ### DHCP Service Configuration
+
 ```toml
 [[dhcpv4_services]]
 iface_name = "test"

@@ -1,7 +1,9 @@
 # 配置存放目录文件介绍
+
 当你使用命令 `landscape-webserver --help` 时可以看到有个 `-c, --config-dir <CONFIG_DIR>` 配置.
 
 这个就是指定运行时项目的持久化配置存储路径位置. 检查目录你会看到如下内容:
+
 ```shell
 .
 ├── geo_tmp # geo 文件缓存路径
@@ -23,4 +25,3 @@
 └── unix_link # 与 docker 容器通信的 sock 文件 忽略即可
     └── register.sock
 ```
-

@@ -1,24 +1,23 @@
 # 配置文件介绍
 
 程序的配置来源主要有以下:
-* `landscape_init.toml`: 全量配置文件, 除了包含各种规则配置还包含完整的 `landscape.toml`, `仅在首次` 进行读取 ***一次***, 
-    读取后将会创建一个 `landscape_init.lock` 文件, 可在 UI 界面中导出当前的配置的 `init` 文件. 方便使用当前配置进行重新部署.
-* `landscape.toml`: 每次启动进行读取, 只包含*监听地址*. *登录用户名* 和 *密码*, *日志* 等配置.
 
-启动时可以不进行任何文件的配置即可启动.   
+- `landscape_init.toml`: 全量配置文件, 除了包含各种规则配置还包含完整的 `landscape.toml`, `仅在首次` 进行读取 **_一次_**, 读取后将会创建一个 `landscape_init.lock` 文件, 可在 UI 界面中导出当前的配置的 `init` 文件. 方便使用当前配置进行重新部署.
+- `landscape.toml`: 每次启动进行读取, 只包含*监听地址*. _登录用户名_ 和 _密码_, _日志_ 等配置.
+
+启动时可以不进行任何文件的配置即可启动.  
 如果第一次启动时想要达到开机即使用, 可以配置 `landscape_init.toml`.
 
 `landscape.toml` 中配置的优先级低于命令行传入的参数.
 
 ::: warning
-* 当删除了 `landscape_init.lock` 文件后, 启动将会清空所有的已有配置, 然后使用 `landscape_init.toml` 中的内容刷新整个配置包含 `landscape.toml` 中的配置.
-所以谨慎删除此文件.
-* 配置文件中关于路径的配置只能使用 **绝对路径** 或者 **相对路径**. 不能使用 **~** 开头的地址
-* `landscape_init.toml` 文件只能用于当前版本的恢复, 跨版本会导致失败. 所以可以先在`适合的版本`恢复后, 再使用`新版本启动`, 新版本的文件能`自动迁移`旧版本的配置.
-(注, 版本文件导出是在 `v0.6.7` 版本之后支持的)
-:::
+
+- 当删除了 `landscape_init.lock` 文件后, 启动将会清空所有的已有配置, 然后使用 `landscape_init.toml` 中的内容刷新整个配置包含 `landscape.toml` 中的配置. 所以谨慎删除此文件.
+- 配置文件中关于路径的配置只能使用 **绝对路径** 或者 **相对路径**. 不能使用 **~** 开头的地址
+- `landscape_init.toml` 文件只能用于当前版本的恢复, 跨版本会导致失败. 所以可以先在`适合的版本`恢复后, 再使用`新版本启动`, 新版本的文件能`自动迁移`旧版本的配置. (注, 版本文件导出是在 `v0.6.7` 版本之后支持的) :::
 
 ## landscape.toml 配置示例 (可以仅配置需要的)
+
 ```toml
 [auth]
 # 登录用户名
@@ -63,7 +62,9 @@ mode = "duckdb"
 ## landscape_init.toml 配置示例
 
 ### config 定义
+
 配置细节同上, 唯一区别是需要加 **config.**, 例如
+
 ```toml
 [config.auth]
 admin_user = "root"
@@ -81,6 +82,7 @@ database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 ```
 
 ### 网卡定义
+
 ```toml
 [[ifaces]]
 name = "ens3" # 网卡名称
@@ -96,6 +98,7 @@ rps = "4"
 ```
 
 ### 网卡 IP 配置方式
+
 ```toml
 [[ipconfigs]]
 iface_name = "ens3" # 应用在哪张网卡上
@@ -110,6 +113,7 @@ ipv4_mask = 24
 ```
 
 ### DHCP 服务配置
+
 ```toml
 [[dhcpv4_services]]
 iface_name = "test"
@@ -127,4 +131,3 @@ mac_binding_records = [
     { mac = "00:11:22:33:44:55", ip = "192.168.5.200" },
 ]
 ```
-

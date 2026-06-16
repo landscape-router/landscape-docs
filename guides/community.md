@@ -1,7 +1,9 @@
 # 大家贡献的教程
+
 可以提交自己的 **博客链接** / **B站链接** / 等.. 都可以
 
 ## 图文教程
+
 - **[在debian里，玩转landscape和其他花活（持续更新中）](https://github.com/CyberRookie-X/play_with_landscape_and_other_tricks_on_debian)**
   - 日期: 2025-07-25
   - 版本: [持续更新中]

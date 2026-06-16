@@ -34,8 +34,7 @@ Then when you actually need your uplink, you discover it has already been rate-l
 1. If you already know the port, use a static NAT mapping to allow that specific client port to use NAT1.
 2. If you know the target domain or IP, use DNS rules or IP rules in the UI to control it.
 
-![In DNS rules](../../features/nat-1.png)
-![In IP rules](../../features/nat-2.png)
+![In DNS rules](../../features/nat-1.png) ![In IP rules](../../features/nat-2.png)
 
 ## Result Demo
 
