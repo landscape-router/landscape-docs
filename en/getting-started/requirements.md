@@ -8,7 +8,7 @@ Requires kernel version `6.9.x` or higher for deployment.
 
 Check if the kernel compilation configuration file is configured as follows:
 
-::: warning Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled :::
+::: warning Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled. :::
 
 ```text
 CONFIG_BPF=y

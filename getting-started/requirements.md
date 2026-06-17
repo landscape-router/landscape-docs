@@ -31,7 +31,7 @@
 
 请确认内核编译配置中包含以下选项:
 
-::: warning主要检查 `BTF` 信息生成是否开启, 并确认 `BPF` 功能已启用。此外还需要开启 `Cgroups` 的 CPU 控制。:::
+::: warning主要检查 `BTF` 信息生成是否开启，并确认 `BPF` 功能已启用。此外还需要开启 `Cgroups` 的 CPU 控制。:::
 
 ```sh
 CONFIG_BPF=y
