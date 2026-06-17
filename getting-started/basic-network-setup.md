@@ -3,11 +3,12 @@
 > 本文引导你完成 Landscape Router 的基础网络配置：为网卡分配区域、设置 IP 地址、启用防火墙，让你的路由器可以正常上网。
 
 ## 起始状态介绍
+
 当前虚拟机中有两张网卡: `ens18`, `ens19`
 ![当前的初始状态](./basic-network-setup/start.png)
 
-
 ## 切换网卡区域
+
 首先需要将网卡切换到具体的区域之后才能进行配置.
 
 ::: tip 简单理解
@@ -20,8 +21,6 @@
 
 ![网卡面板](./basic-network-setup/iface-info.png)
 ![区域切换](./basic-network-setup/change-zone.png)
-
-
 
 最终效果, 两张网卡在正确的区域, 并且都处于 UP 状态.
 
@@ -91,14 +90,16 @@ LAN 口连接内网设备，通常启用 DHCPv4 服务。
 1. 确保网卡已分配为 **LAN** 区域
 
 2. 点击网卡下方的 `DHCPv4` 服务按钮
-![](./basic-network-setup/dhcpv4-server.png)
+   ![](./basic-network-setup/dhcpv4-server.png)
 
 3. 配置所使用的子网
-![](./basic-network-setup/dhcpv4-config.png)
+   ![](./basic-network-setup/dhcpv4-config.png)
 4. 点击保存
 
 ## 配置 WAN / LAN 转发路由服务
+
 在进行了以上步骤配置后. 当前的网络状态:
+
 1. LAN 可以通过 DHCPv4 的配置访问路由
 2. 当前路由可以上网.
 3. LAN 侧的设备无法进行上网.
