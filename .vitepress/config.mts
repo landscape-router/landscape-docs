@@ -34,7 +34,7 @@ export default defineConfig({
           {
             text: '开始配置',
             items: [
-              { text: '基础的网络配置', link: '/getting-started/basic-network-setup' },
+              { text: '基础上网配置', link: '/getting-started/basic-network-setup' },
               { text: 'DNS 配置', link: '/getting-started/dns-setup' },
               { text: '分流配置', link: '/getting-started/flow-setup' },
             ],

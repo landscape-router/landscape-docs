@@ -24,7 +24,7 @@ Landscape Router documentation site, built with VitePress (Chinese + English loc
 
 - **开始配置 (getting-started/)** — Guided step-by-step tutorials. Written for new users, organized by operational sequence. Uses tab containers (`vitepress-plugin-tabs`) for alternative configuration paths.
 - **参考文档 (reference/, overlay/, monitoring/)** — Reference documentation. Explains why each feature is designed the way it is and what configuration options are available.
-- **Images** are stored alongside the markdown files that reference them, within their respective feature directories.
+- **Images** for a markdown file are stored in a same-name subdirectory (e.g., images for `basic-network-setup.md` go in `basic-network-setup/`). Use `./` relative paths to reference them.
 
 ## Configuration
 

@@ -1,8 +1,14 @@
-# 基础的网络配置
+# 基础上网配置
 
 > 本文引导你完成 Landscape Router 的基础网络配置：为网卡分配区域、设置 IP 地址、启用防火墙，让你的路由器可以正常上网。
 
-## 第一步：了解区域 (Zone)
+## 起始状态介绍
+当前虚拟机中有两张网卡: `ens18`, `ens19`
+![当前的初始状态](./basic-network-setup/start.png)
+
+
+## 切换网卡区域
+首先需要将网卡切换到具体的区域之后才能进行配置.
 
 ::: tip 简单理解
 **WAN** = 接光猫/外网的网口，**LAN** = 接电脑/交换机的网口。
@@ -10,11 +16,28 @@
 详细说明参考：[区域 (Zone)](../reference/interface-zone)
 :::
 
-进入页面 **系统基本设置**，在拓扑视图中将网卡拖拽到对应区域：
+点击对应的网卡, 网卡将会高亮. 并在右侧展开`网卡面板`, 点击 `ZONE` 即可打开区域切换设置.
 
-![区域设置](../reference/1.png)
+![网卡面板](./basic-network-setup/iface-info.png)
+![区域切换](./basic-network-setup/change-zone.png)
 
-## 第二步：配置 WAN 口上网
+
+
+最终效果, 两张网卡在正确的区域, 并且都处于 UP 状态.
+
+![](./basic-network-setup/zone-result.png)
+
+::: details 我的网卡状态为 `DOWN` 怎么办
+当网卡的状态是处于 `DOWN` 时, 需要将网卡启动, 并设置开机启动. 点击网卡面板左侧的 `ON` / `BOOT` 按钮. 依次开启即可.
+![](./basic-network-setup/boot-iface.png)
+
+如果设置了之后网卡还是 DOWN. 请确保网线是否已接入
+:::
+
+## 配置 WAN 口让路由自己能上网
+
+点击所在网卡的卡片下方的 `IP` 按钮:
+![](./basic-network-setup/ip.png)
 
 WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网络环境选择一种。
 
@@ -24,11 +47,11 @@ WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网
 适合光猫拨号、上级路由器已开启 DHCP 的场景。
 
 1. 确保网卡已分配为 **WAN** 区域
-2. 进入页面 **IPv4 相关**，点击 **DHCP 客户端** 标签
+2. 选择 **DHCP 客户端** 配置方式
 3. 填写主机名称（可选，留空则使用当前主机名）
 4. 点击保存
 
-![DHCP 客户端](../reference/dhcp_v4_client.png)
+![DHCP 客户端](./basic-network-setup/dhcp_v4_client.png)
 
 == PPPoE 拨号
 
@@ -41,51 +64,49 @@ WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网
 5. 在 PPPoE 账号中开启 **设为默认路由**
 6. AC Name 通常留空即可
 
-![PPPoE 配置](../reference/4.png)
+![PPPoE 配置](./basic-network-setup/4.png)
 
-![PPPoE 账号编辑](../reference/pppoe_edit.png)
+![PPPoE 账号编辑](./basic-network-setup/pppoe_edit.png)
 
 == 静态 IP
 
 适合企业专线、需要固定 IP 的场景。
 
 1. 确保网卡已分配为 **WAN** 区域
-2. 进入页面 **IPv4 相关**，点击 **静态 IP** 标签
+2. 选择 **静态 IP** 方式
 3. 填入 IP 地址、子网掩码、网关
-4. 如需作为默认路由，勾选 **IPv4 默认路由**
+4. 如需作为默认路由，开启 **IPv4 默认路由**
 5. 点击保存
 
-![静态 IP](../reference/static_ip.png)
+![静态 IP](./basic-network-setup/static_ip.png)
 
-![设为默认路由](../reference/8.png)
 :::
 
-## 第三步：配置 LAN 口
+到目前为止我们配置了路由自己的上网方式. 接下来我们配置对 LAN 侧的 IP 分配
 
-LAN 口连接内网设备，通常设置为静态 IP。
+## 配置 LAN 口, 为内网分配 IP
+
+LAN 口连接内网设备，通常启用 DHCPv4 服务。
 
 1. 确保网卡已分配为 **LAN** 区域
-2. 进入页面 **IPv4 相关**，点击 **静态 IP** 标签
-3. 为 LAN 口填写内网地址（例如 `192.168.1.1`）
-4. 子网掩码填 `255.255.255.0`（或 `/24`）
-5. 点击保存
 
-::: tip
-如果需要 LAN 下的设备自动获取 IP
+2. 点击网卡下方的 `DHCPv4` 服务按钮
+![](./basic-network-setup/dhcpv4-server.png)
 
-## 第四步：防火墙设置
+3. 配置所使用的子网
+![](./basic-network-setup/dhcpv4-config.png)
+4. 点击保存
 
-Landscape Router 自 0.16.0 起采用**黑名单模式**，默认放行所有流量。
+## 配置 WAN / LAN 转发路由服务
+在进行了以上步骤配置后. 当前的网络状态:
+1. LAN 可以通过 DHCPv4 的配置访问路由
+2. 当前路由可以上网.
+3. LAN 侧的设备无法进行上网.
 
-1. 进入页面 **防火墙设置**
-2. 如需阻止特定来源/目标，添加黑名单规则
+这是需要打开 WAN/LAN 的路由转发服务:
+![](./basic-network-setup/wr-lr.png)
 
-![防火墙](../reference/blacklist.png)
-
-::: warning
-如果你的路由器直接暴露在公网
-
-## 第五步：验证网络连通性
+## 验证网络连通性
 
 配置完成后，检查网络是否正常工作：
 
