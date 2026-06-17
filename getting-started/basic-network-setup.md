@@ -104,7 +104,18 @@ LAN 口连接内网设备，通常启用 DHCPv4 服务。
 2. 当前路由可以上网.
 3. LAN 侧的设备无法进行上网.
 
-这是需要打开 WAN/LAN 的路由转发服务:
+::: danger 开启 WAN NAT 服务需注意!!!
+打开 `NAT 服务` 前, 假设您是从 `WAN 网卡` 访问的, 需要设置 `静态 NAT 映射`. 否则将会`失联`!
+:::
+
+::: details 静态 NAT 映射方式
+点击左侧菜单 `静态 NAT` 进入 静态 NAT 配置页面.
+点击添加按钮, 按照如下配置, 即可在 wan 进行访问. 如果通过 lan 连接. 则可以忽略
+![](./basic-network-setup/static-nat.png)
+
+:::
+
+这是需要打开 WAN/LAN 的路由转发服务, 以及 NAT 服务:
 ![](./basic-network-setup/wr-lr.png)
 
 ## 验证网络连通性
