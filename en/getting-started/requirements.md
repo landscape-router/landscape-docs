@@ -6,7 +6,9 @@ Requires kernel version `6.9.x` or higher for deployment.
 
 ## Required Kernel Configuration
 
-Check if the kernel compilation configuration file is configured as follows: ::: warning Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled :::
+Check if the kernel compilation configuration file is configured as follows:
+
+::: warning Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled :::
 
 ```text
 CONFIG_BPF=y

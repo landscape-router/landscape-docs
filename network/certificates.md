@@ -1,6 +1,8 @@
 # 证书管理
 
-::: warning [0.17.3] 及以后的版本支持，功能还在完善 ::: ![](./certificate.png)
+::: warning [0.17.3] 及以后的版本支持，功能还在完善 :::
+
+![](./certificate.png)
 
 ## ACME账户配置
 

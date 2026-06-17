@@ -35,6 +35,8 @@ networks:
       com.docker.network.bridge.name: netbird-br0
 ```
 
+:::
+
 ::: 使用 [apps](https://github.com/landscape-router/landscape-apps) 仓库编译的 [镜像](https://github.com/landscape-router/landscape-apps/pkgs/container/landscape-apps%2Fnetbird) 进行启动容器. 下方展示的 compose 配置可能过时, 最新配置文件请访问 [docker-compose](https://github.com/landscape-router/landscape-apps/blob/main/netbird/docker-compose.yaml).
 
 然后按照你的 compose 配置进行启动即可.

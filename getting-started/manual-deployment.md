@@ -6,9 +6,11 @@
 
 1. 部署之前需要先确认当前的系统是否满足, [注意事项](./requirements.md) 中的要求
 2. 不进行任何配置是可以直接启动的, 唯一的副作用是会将 `/etc/resolv.conf` 修改为 `127.0.0.1`, 如停止后发现无法访问网络, 可以检查这个文件
-3. 以下的可选是在没有使用到时可选 :::
+3. 以下的可选是在没有使用到时可选
 
-::: warning记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口, 如果已被占用则无法启动. :::
+:::
+
+::: warning 记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口，如果已被占用则无法启动。:::
 
 1. Landscape Router 文件主体, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载
 2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
@@ -24,7 +26,8 @@
 1. Debian: 修改文件: `/etc/network/interfaces`  
    将 LAN 网卡全设置为 manual 后, 将 WAN 的网卡额外在配置文件中设置一个静态 IP, 方便即使路由程序出现故障时, 使用另外一台机器设置静态 IP 后也能进行访问.
 
-```
+```text
+
 auto <第一张网卡名> <- 比如设置为 WAN
 iface <第一张网卡名> inet static
     address 192.168.22.1
@@ -39,7 +42,8 @@ iface <第三张网卡名> inet manual
 
 效果:
 
-```
+```text
+
 auto ens3
 iface ens3 inet static
     address 192.168.22.1

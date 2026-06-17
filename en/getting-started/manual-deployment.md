@@ -6,7 +6,9 @@
 
 1. Before deployment, please confirm that your system meets the requirements outlined in [System Requirements](./requirements.md)
 2. The system can start without any configuration, but the only side effect is that `/etc/resolv.conf` will be modified to `127.0.0.1`. If you cannot access the network after stopping the service, please check this file
-3. The following items marked as "optional" can be skipped if not needed :::
+3. The following items marked as "optional" can be skipped if not needed
+
+:::
 
 ::: warning Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start. :::
 
@@ -24,7 +26,8 @@
 1. Debian: Modify file: `/etc/network/interfaces`  
    Set all LAN network cards to manual, and additionally set a static IP for the WAN network card in the configuration file, so that even if the router program fails, you can still access it from another machine with a static IP.
 
-```
+```text
+
 auto <first_network_card_name> <- For example, set as WAN
 iface <first_network_card_name> inet static
     address 192.168.22.1
@@ -39,7 +42,8 @@ iface <third_network_card_name> inet manual
 
 Example:
 
-```
+```text
+
 auto ens3
 iface ens3 inet static
     address 192.168.22.1

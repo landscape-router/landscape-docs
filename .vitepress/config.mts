@@ -26,7 +26,11 @@ export default defineConfig({
             ],
           },
           {
-            text: '核心特性',
+            text: '开始配置',
+            items: [],
+          },
+          {
+            text: '功能特性',
             items: [
               { text: '分流控制', link: '/features/traffic-flow' },
               { text: '只能 NAT1/4? 我全都要!', link: '/features/nat' },
@@ -163,7 +167,7 @@ export default defineConfig({
             ],
           },
           {
-            text: 'Core Features',
+            text: 'Features',
             items: [
               { text: 'Traffic Shaping', link: '/en/features/traffic-flow' },
               { text: 'NAT Control', link: '/en/features/nat' },

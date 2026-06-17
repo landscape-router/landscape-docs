@@ -28,19 +28,18 @@ Exit defines which exit will be used when traffic is determined to be handled by
 
 Not all traffic from this entry goes out through this exit. How to determine these exceptions is generally distinguished by domain name or IP.
 
-:::info
+::: info
 
 - Entry / Exit can be left unconfigured
 - When the entry is empty, only the exit is defined. Although there are no entry rules, other flow rules can forward to this flow, equivalent to using the exit
 - When the exit is empty, only the entry is defined. Equivalent to traffic entering this flow is discarded by default, unless using another flow's exit
-- If neither is defined, it can be used to discard traffic forwarded from other flows  
-  :::
+- If neither is defined, it can be used to discard traffic forwarded from other flows :::
 
 ## How Flows Divide
 
 ### DNS Rule Description
 
-:::info Each flow has independent DNS cache, no need to worry that the same domain name will cause caches in different flows to overwrite each other. :::
+::: info Each flow has independent DNS cache, no need to worry that the same domain name will cause caches in different flows to overwrite each other. :::
 
 - For each DNS rule, these parts can be defined:
   1. When encountering `what domain name` this rule `takes effect` -- Domain name matching rules
@@ -106,8 +105,7 @@ Programs mentioned in the tutorial below:
 1. Relay program: Download from [release](https://github.com/ThisSeanZhang/landscape/releases/latest), select the needed version redirect_pkg_handler.
 2. Worker program: Can be any program, such as network program, packet analysis program, proxy program. (Different programs need to use different working modes to start)
 
-:::info Only containers packaged with the [**relay program**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs) can be used as effective flow **exit containers**  
-:::
+::: info Only containers packaged with the [**relay program**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs) can be used as effective flow **exit containers** :::
 
 ### Relay Program (Image)
 

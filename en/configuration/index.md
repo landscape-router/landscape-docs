@@ -14,7 +14,8 @@ Settings in `landscape.toml` have lower priority than command-line arguments.
 
 - When the `landscape_init.lock` file is deleted, startup will clear all existing configuration, and then refresh the entire configuration from `landscape_init.toml`, including the configuration in `landscape.toml`. So delete this file carefully.
 - Path configuration in config files can only use **absolute paths** or **relative paths**. Paths beginning with **~** are not supported.
-- The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration. (Note: exporting versioned files is supported after `v0.6.7`) :::
+- The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration. (Note: exporting versioned files is supported after `v0.6.7`)
+:::
 
 ## landscape.toml Configuration Example (configure only what you need)
 
