@@ -1,5 +1,6 @@
 {
   "devDependencies": {
+    "prettier": "^3.8.4",
     "viewerjs": "^1.11.7",
     "vitepress": "^1.6.4",
     "vitepress-plugin-image-viewer": "^1.1.6"
@@ -11,5 +12,8 @@
     "preview": "vitepress preview",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "vitepress-plugin-tabs": "^0.9.0"
   }
 }

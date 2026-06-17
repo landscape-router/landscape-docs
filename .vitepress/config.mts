@@ -1,9 +1,15 @@
 import { defineConfig } from 'vitepress';
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   lastUpdated: true,
   ignoreDeadLinks: true,
+  markdown: {
+    config: (md) => {
+      md.use(tabsMarkdownPlugin);
+    },
+  },
 
   locales: {
     root: {
@@ -27,7 +33,11 @@ export default defineConfig({
           },
           {
             text: '开始配置',
-            items: [],
+            items: [
+              { text: '基础的网络配置', link: '/start-config/basic-network-setup' },
+              { text: 'DNS 配置', link: '/start-config/dns-setup' },
+              { text: '分流配置', link: '/start-config/flow-setup' },
+            ],
           },
           {
             text: '功能特性',
@@ -49,8 +59,9 @@ export default defineConfig({
             ],
           },
           {
-            text: '基础功能设置',
+            text: '功能介绍',
             items: [
+              { text: '区域 (Zone)', link: '/network/interface-zone' },
               {
                 text: '系统基本设置',
                 collapsed: true,
