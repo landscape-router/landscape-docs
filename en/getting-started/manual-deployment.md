@@ -10,7 +10,11 @@
 
 :::
 
-::: warning Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start. :::
+::: warning Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start.
+
+If `NetworkManager` is installed, please uninstall it first, as it conflicts with network management: `apt remove network-manager`
+
+If `SELinux` is enabled, you need to grant the relevant permissions. :::
 
 1. Landscape Router main executable, download from [here](https://github.com/ThisSeanZhang/landscape/releases/)
 2. Static page files, download from [here](https://github.com/ThisSeanZhang/landscape/releases/), and extract to `/root/.landscape-router/static` folder
@@ -21,13 +25,12 @@
     Place it in -> `/root/.landscape-router/landscape_init.toml`
 6. (Optional) geosite / geoip files
 
-## Disable Automatic IP Configuration / DNS Services on Host Machine
+## Disable Automatic IP Configuration on Host Machine
 
 1. Debian: Modify file: `/etc/network/interfaces`  
    Set all LAN network cards to manual, and additionally set a static IP for the WAN network card in the configuration file, so that even if the router program fails, you can still access it from another machine with a static IP.
 
 ```text
-
 auto <first_network_card_name> <- For example, set as WAN
 iface <first_network_card_name> inet static
     address 192.168.22.1
@@ -43,7 +46,6 @@ iface <third_network_card_name> inet manual
 Example:
 
 ```text
-
 auto ens3
 iface ens3 inet static
     address 192.168.22.1
@@ -117,7 +119,7 @@ Create `/etc/systemd/system/landscape-router.service` File content:
 Description=Landscape Router
 
 [Service]
-ExecStart=/root/landscape-webserver <- Remember to modify this path
+ExecStart=/root/landscape-webserver
 Restart=always
 User=root
 LimitMEMLOCK=infinity
@@ -140,4 +142,4 @@ systemctl stop landscape-router.service
 1. Download new version of `landscape-webserver` and `static` and extract
 2. Stop landscape-router.service
 3. Replace with new version of `landscape-webserver` and `static`
-4. Reboot system (simply restarting landscape-router.service will cause traffic shaping function to be unavailable)
+4. Restart the service; if any issues occur, reboot the system

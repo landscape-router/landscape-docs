@@ -10,7 +10,11 @@
 
 :::
 
-::: warning 记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口，如果已被占用则无法启动。:::
+::: warning记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口，如果已被占用则无法启动。
+
+如果安装了 `NetworkManager`，请先卸载该软件，否则会影响网络管理： `apt remove network-manager`
+
+如果启用了 `SELinux`，需要开放相关权限。:::
 
 1. Landscape Router 文件主体, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载
 2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
@@ -21,13 +25,12 @@
     放置在 -> `/root/.landscape-router/landscape_init.toml`
 6. (可选) geosite / geoip 文件
 
-## 关闭本机自动配置 IP 服务 / DNS 服务
+## 关闭本机自动配置 IP 服务
 
 1. Debian: 修改文件: `/etc/network/interfaces`  
    将 LAN 网卡全设置为 manual 后, 将 WAN 的网卡额外在配置文件中设置一个静态 IP, 方便即使路由程序出现故障时, 使用另外一台机器设置静态 IP 后也能进行访问.
 
 ```text
-
 auto <第一张网卡名> <- 比如设置为 WAN
 iface <第一张网卡名> inet static
     address 192.168.22.1
@@ -43,7 +46,6 @@ iface <第三张网卡名> inet manual
 效果:
 
 ```text
-
 auto ens3
 iface ens3 inet static
     address 192.168.22.1
@@ -117,7 +119,7 @@ Database Connect: sqlite://./db.sqlite?mode=rwc
 Description=Landscape Router
 
 [Service]
-ExecStart=/root/landscape-webserver <- 记得修改此处
+ExecStart=/root/landscape-webserver
 Restart=always
 User=root
 LimitMEMLOCK=infinity
@@ -140,4 +142,4 @@ systemctl stop landscape-router.service
 1. 下载新版 `landscape-webserver` 与 `static` 并解压
 2. 停止 landscape-router.service
 3. 换入新版 `landscape-webserver` 与 `static`
-4. 重启系统（仅重启 landscape-router.service 会导致分流功能不可用）
+4. 重启服务，如有异常再重启系统
