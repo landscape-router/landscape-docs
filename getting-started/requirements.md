@@ -6,14 +6,14 @@
 🟢 部分版本的内核版本兼容  
 ❌ 内核版本不兼容
 
-| 发行版 | 兼容 | 版本要求 | 备注 |
-| --- | --- | --- | --- |
-| Debian | ✅ | 13+ | Debian 13 默认内核已满足要求。避免安装 NetworkManager。 |
-| Arch | ✅ | 滚动更新 | 内核版本足够新即可。避免安装 NetworkManager。 |
-| Rocky Linux | 🟢 | 需升级到 6.9+ | 还需卸载 NetworkManager、关闭 `firewalld`，并处理 SELinux 权限。 |
-| Armbian | 🟢 | 需升级到 6.9+ | 具体取决于所用内核分支。 |
-| OpenWRT | 🟢 | 25+ / snapshot | 需自行编译；官方预编译版本暂不支持。 |
-| Alpine | ❌ | - | 当前不兼容。 |
+| 发行版      | 兼容 | 版本要求       | 备注                                                             |
+| ----------- | ---- | -------------- | ---------------------------------------------------------------- |
+| Debian      | ✅   | 13+            | Debian 13 默认内核已满足要求。避免安装 NetworkManager。          |
+| Arch        | ✅   | 滚动更新       | 内核版本足够新即可。避免安装 NetworkManager。                    |
+| Rocky Linux | 🟢   | 需升级到 6.9+  | 还需卸载 NetworkManager、关闭 `firewalld`，并处理 SELinux 权限。 |
+| Armbian     | 🟢   | 需升级到 6.9+  | 具体取决于所用内核分支。                                         |
+| OpenWRT     | 🟢   | 25+ / snapshot | 需自行编译；官方预编译版本暂不支持。                             |
+| Alpine      | ❌   | -              | 当前不兼容。                                                     |
 
 <!--⚠️ 调整后可兼容-->
 <!--🟡 未知  -->
@@ -31,7 +31,9 @@
 
 请确认内核编译配置中包含以下选项:
 
-::: warning主要检查 `BTF` 信息生成是否开启，并确认 `BPF` 功能已启用。此外还需要开启 `Cgroups` 的 CPU 控制。:::
+::: warning
+主要检查 `BTF` 信息生成是否开启，并确认 `BPF` 功能已启用。此外还需要开启 `Cgroups` 的 CPU 控制。
+:::
 
 ```sh
 CONFIG_BPF=y

@@ -9,8 +9,10 @@ Site-to-Site 网络（站点到站点） 指的是：
 
 配置之后的拓扑大概这样
 
-::: info 注意, 拓扑上未列出 A/B 两侧 LAN 区域的网段.  
-如果要实现互通, 需要在 tailscale 启动参数中增加使用 `--advertise-routes` 添加各自 LAN `CIDR`. :::
+::: info
+注意, 拓扑上未列出 A/B 两侧 LAN 区域的网段.  
+如果要实现互通, 需要在 tailscale 启动参数中增加使用 `--advertise-routes` 添加各自 LAN `CIDR`.
+:::
 
 ![](./topology.png)
 

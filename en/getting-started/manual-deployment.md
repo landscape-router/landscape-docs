@@ -10,11 +10,13 @@
 
 :::
 
-::: warning Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start.
+::: warning
+Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start.
 
 If `NetworkManager` is installed, please uninstall it first, as it conflicts with network management: `apt remove network-manager`
 
-If `SELinux` is enabled, you need to grant the relevant permissions. :::
+If `SELinux` is enabled, you need to grant the relevant permissions.
+:::
 
 1. Landscape Router main executable, download from [here](https://github.com/ThisSeanZhang/landscape/releases/)
 2. Static page files, download from [here](https://github.com/ThisSeanZhang/landscape/releases/), and extract to `/root/.landscape-router/static` folder

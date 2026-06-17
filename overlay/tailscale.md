@@ -22,7 +22,8 @@ Tailscale 的部署使用的步骤大致如下:
 
 ## 启动容器
 
-::: warning 网桥中的名称一定要设置 !!!
+::: warning
+网桥中的名称一定要设置 !!!
 
 ```yaml
 networks:

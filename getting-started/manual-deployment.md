@@ -10,11 +10,13 @@
 
 :::
 
-::: warning记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口，如果已被占用则无法启动。
+::: warning
+记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口，如果已被占用则无法启动。
 
 如果安装了 `NetworkManager`，请先卸载该软件，否则会影响网络管理： `apt remove network-manager`
 
-如果启用了 `SELinux`，需要开放相关权限。:::
+如果启用了 `SELinux`，需要开放相关权限。
+:::
 
 1. Landscape Router 文件主体, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载
 2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
