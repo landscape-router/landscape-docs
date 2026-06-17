@@ -194,7 +194,7 @@ Main "$@"
 
 # 编译命令
 
-> 需要检查 [注意事项](/getting-started/requirements) 中的内核编译参数是否开启
+> 需要检查 [注意事项](/intro/requirements) 中的内核编译参数是否开启
 
 需要保持 `KERNEL_CONFIGURE=yes` 需要开启内核 BTF 文件生成
 

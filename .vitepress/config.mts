@@ -21,22 +21,22 @@ export default defineConfig({
         lastUpdatedText: '最后更新时间',
         nav: [
           { text: '主页', link: '/' },
-          { text: '文档', link: '/getting-started/' },
+          { text: '文档', link: '/intro/' },
         ],
         sidebar: [
           {
             items: [
-              { text: '简介', link: '/getting-started/' },
-              { text: '系统运行基本要求!!! (必读)', link: '/getting-started/requirements' },
-              { text: '手工部署', link: '/getting-started/manual-deployment' },
+              { text: '简介', link: '/intro/' },
+              { text: '系统运行基本要求!!! (必读)', link: '/intro/requirements' },
+              { text: '手工部署', link: '/intro/manual-deployment' },
             ],
           },
           {
             text: '开始配置',
             items: [
-              { text: '基础的网络配置', link: '/start-config/basic-network-setup' },
-              { text: 'DNS 配置', link: '/start-config/dns-setup' },
-              { text: '分流配置', link: '/start-config/flow-setup' },
+              { text: '基础的网络配置', link: '/getting-started/basic-network-setup' },
+              { text: 'DNS 配置', link: '/getting-started/dns-setup' },
+              { text: '分流配置', link: '/getting-started/flow-setup' },
             ],
           },
           {
@@ -59,22 +59,22 @@ export default defineConfig({
             ],
           },
           {
-            text: '功能介绍',
+            text: '参考文档',
             items: [
-              { text: '区域 (Zone)', link: '/network/interface-zone' },
+              { text: '区域 (Zone)', link: '/reference/interface-zone' },
               {
                 text: '系统基本设置',
                 collapsed: true,
                 items: [
-                  { text: '基础操作', link: '/network/basic-settings' },
-                  { text: '区域切换', link: '/network/zone-switching' },
+                  { text: '基础操作', link: '/reference/basic-settings' },
+                  { text: '区域切换', link: '/reference/zone-switching' },
                 ],
               },
-              { text: 'IPv4 相关', link: '/network/ipv4' },
-              { text: 'IPv6 相关', link: '/network/ipv6/' },
-              { text: 'DHCPv4 Server 相关', link: '/network/dhcpv4' },
-              { text: '防火墙设置', link: '/network/firewall' },
-              { text: 'DNS 相关', link: '/network/dns' },
+              { text: 'IPv4 相关', link: '/reference/ipv4' },
+              { text: 'IPv6 相关', link: '/reference/ipv6/' },
+              { text: 'DHCPv4 Server 相关', link: '/reference/dhcpv4' },
+              { text: '防火墙设置', link: '/reference/firewall' },
+              { text: 'DNS 相关', link: '/reference/dns' },
               {
                 text: '虚拟组网',
                 link: '/overlay/',
@@ -102,15 +102,15 @@ export default defineConfig({
               },
               {
                 text: '设备管理',
-                link: '/network/device-management',
+                link: '/reference/device-management',
               },
               {
                 text: '证书管理',
-                link: '/network/certificates',
+                link: '/reference/certificates',
               },
               {
                 text: 'HTTP 反代',
-                link: '/network/proxy',
+                link: '/reference/proxy',
               },
               {
                 text: '系统配置导出',
@@ -160,14 +160,14 @@ export default defineConfig({
         lastUpdatedText: 'Last Updated',
         nav: [
           { text: 'Home', link: '/en/' },
-          { text: 'Docs', link: '/en/getting-started/' },
+          { text: 'Docs', link: '/en/intro/' },
         ],
         sidebar: [
           {
             items: [
-              { text: 'Introduction', link: '/en/getting-started/' },
-              { text: 'System Requirements (Must Read)', link: '/en/getting-started/requirements' },
-              { text: 'Manual Deployment', link: '/en/getting-started/manual-deployment' },
+              { text: 'Introduction', link: '/en/intro/' },
+              { text: 'System Requirements (Must Read)', link: '/en/intro/requirements' },
+              { text: 'Manual Deployment', link: '/en/intro/manual-deployment' },
             ],
           },
           {

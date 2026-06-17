@@ -114,5 +114,5 @@ Current limitation Because NAT connection state has not yet been fully integrate
 ## Related Documents
 
 - [Traffic Shaping](./traffic-flow.md) - Learn how to configure traffic forwarding rules
-- [Basic Operations](../../network/basic-settings.md) - XPS/RPS tuning for network interfaces
-- [Firewall Settings](../../network/firewall.md) - Security policies that work alongside eBPF routing
+- [Basic Operations](../../reference/basic-settings.md) - XPS/RPS tuning for network interfaces
+- [Firewall Settings](../../reference/firewall.md) - Security policies that work alongside eBPF routing

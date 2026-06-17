@@ -9,7 +9,7 @@ Traffic shaping can `define` a set of target IP behaviors and `apply` them to a 
 - `Flow`: A set of policies with entry and exit points, Chinese "流"
 - `Entry`: A set of filter rules for screening clients, matching using `IP address` or `MAC`
 - `Exit`: Docker container (the program in the container needs to work with the [relay program](#relay-program-image)), or a certain WAN network card. Currently, there is no multi-exit load balancing, only a single exit.
-- `Default Flow`: Flow **_ID 0_**, all `unmatched` traffic defaults to this flow, exit is the `default route` set in the topology, such as enabling the `Set as default route` switch in [PPPoE](../../network/ipv4.md#pppoe)
+- `Default Flow`: Flow **_ID 0_**, all `unmatched` traffic defaults to this flow, exit is the `default route` set in the topology, such as enabling the `Set as default route` switch in [PPPoE](../../reference/ipv4.md#pppoe)
 - `Other Flows`: Flow **_ID 1~255_**, matched according to entry rules, if matched successfully, enters this flow
 - `Rule matching within flow`: Will check DNS rules and IP rules. When both types of rules are satisfied, select by priority (the smaller the priority value, the higher), once matched, send to the exit, subsequent rules are no longer matched (only matches one rule)
 - `Priority`: Defined by the index value of DNS / IP rules, total number of entries is 2^32. When this value is duplicate, DNS action processing is prioritized.

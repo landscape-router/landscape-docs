@@ -114,5 +114,5 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 ## 相关文档
 
 - [分流控制](./traffic-flow.md) - 了解如何配置流量转发规则
-- [基础操作](../network/basic-settings.md) - 网卡 XPS/RPS 优化配置
-- [防火墙设置](../network/firewall.md) - 配合 eBPF 路由的安全策略
+- [基础操作](../reference/basic-settings.md) - 网卡 XPS/RPS 优化配置
+- [防火墙设置](../reference/firewall.md) - 配合 eBPF 路由的安全策略

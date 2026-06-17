@@ -7,12 +7,12 @@
 ::: tip 简单理解
 **WAN** = 接光猫/外网的网口，**LAN** = 接电脑/交换机的网口。
 
-详细说明参考：[区域 (Zone)](../network/interface-zone)
+详细说明参考：[区域 (Zone)](../reference/interface-zone)
 :::
 
 进入页面 **系统基本设置**，在拓扑视图中将网卡拖拽到对应区域：
 
-![区域设置](../network/1.png)
+![区域设置](../reference/1.png)
 
 ## 第二步：配置 WAN 口上网
 
@@ -28,7 +28,7 @@ WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网
 3. 填写主机名称（可选，留空则使用当前主机名）
 4. 点击保存
 
-![DHCP 客户端](../network/dhcp_v4_client.png)
+![DHCP 客户端](../reference/dhcp_v4_client.png)
 
 == PPPoE 拨号
 
@@ -41,9 +41,9 @@ WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网
 5. 在 PPPoE 账号中开启 **设为默认路由**
 6. AC Name 通常留空即可
 
-![PPPoE 配置](../network/4.png)
+![PPPoE 配置](../reference/4.png)
 
-![PPPoE 账号编辑](../network/pppoe_edit.png)
+![PPPoE 账号编辑](../reference/pppoe_edit.png)
 
 == 静态 IP
 
@@ -55,9 +55,9 @@ WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网
 4. 如需作为默认路由，勾选 **IPv4 默认路由**
 5. 点击保存
 
-![静态 IP](../network/static_ip.png)
+![静态 IP](../reference/static_ip.png)
 
-![设为默认路由](../network/8.png)
+![设为默认路由](../reference/8.png)
 :::
 
 ## 第三步：配置 LAN 口
@@ -80,7 +80,7 @@ Landscape Router 自 0.16.0 起采用**黑名单模式**，默认放行所有流
 1. 进入页面 **防火墙设置**
 2. 如需阻止特定来源/目标，添加黑名单规则
 
-![防火墙](../network/blacklist.png)
+![防火墙](../reference/blacklist.png)
 
 ::: warning
 如果你的路由器直接暴露在公网
