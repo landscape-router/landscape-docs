@@ -59,7 +59,7 @@ export default defineConfig({
             ],
           },
           {
-            text: '参考文档',
+            text: '功能详解',
             items: [
               { text: '区域 (Zone)', link: '/reference/interface-zone' },
               {
