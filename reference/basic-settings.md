@@ -4,11 +4,11 @@
 
 1、创建网桥  
 2、为网桥绑定网卡  
-![](./13.png)
+![](./basic-settings/13.png)
 
 ## 开启/关闭 网卡
 
-![](./3.png)
+![](./basic-settings/3.png)
 
 ## 无线网卡
 
@@ -16,7 +16,7 @@
 
 ## 启用 Wan 和 Lan 网卡的路由转发功
 
-![](./12.png)
+![](./basic-settings/12.png)
 
 ## vlan 配置
 

@@ -11,7 +11,7 @@ Landscape 默认启用的上游 DNS 服务商是 Cloudflare. 可以进行更换.
 1. 在左侧菜单中选择 **DNS 相关**
 2. 找到 **上游 DNS** 二级菜单
 3. 点击添加新上游, 或是修改已有上游, landscape 提供了多种预设, 以供快速填充.
-   ![上游 DNS 配置](../reference/dns-upstream.png)
+   ![上游 DNS 配置](../reference/dns/dns-upstream.png)
 4. 可添加多个上游 DNS 实现不同的域名使用不同的 DNS 进行解析, 如下我添加了一个并修改了默认的. 用于之后的演示
    ![](./dns-setup/more-dns.png)
 

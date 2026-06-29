@@ -11,7 +11,7 @@
 2、复制文件到 `.landscape-router` 目录  
 3、删除 `landscape_init.lock` 文件  
 4、重启 landscape-router，导入完成  
-![](./1.png)
+![](./settings-export/1.png)
 
 <!-- ## 系统降级
 当要回退之前的版本时, 可以使用 `landscape-webserver db -r` 进行配置降级, 注意降级后使用特定的版本进行启动, 使用当前的版本启动的话还是会自动升级.
@@ -36,12 +36,12 @@ Options:
 
 1. 系统偏好设置
 
-![](2.png)
+![](./settings-export/2.png)
 
 2. DNS全局配置
 
-![](3.png)
+![](./settings-export/3.png)
 
 3. 指标监控配置
 
-![](4.png)
+![](./settings-export/4.png)

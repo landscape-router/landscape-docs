@@ -2,4 +2,4 @@
 
 指标监控中可以查看当前网络中连接信息，以及DNS相关的指标
 
-![](./monitor-1.png)
+![](./index/monitor-1.png)

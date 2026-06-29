@@ -31,13 +31,13 @@
 ## 那我想要进行 NAT1 时该怎么做?
 
 1. 当你已知端口的情况下, 可通过设置 静态 NAT 映射允许客户端的指定端口使用 NAT1.
-2. 当你已知 目标域名 / IP 地址 时, 那可以通过 UI 上的, DNS 规则 / IP 规则进行控制. ![DNS 规则中](./nat-1.png) ![IP 规则中](./nat-2.png)
+2. 当你已知 目标域名 / IP 地址 时, 那可以通过 UI 上的, DNS 规则 / IP 规则进行控制. ![DNS 规则中](./nat/nat-1.png) ![IP 规则中](./nat/nat-2.png)
 
 ## 效果展示
 
 当默认情况下访问 [checkmynat](https://www.checkmynat.com/) 时.  
 会得到 `Error: Failed, process was interrupted` 错误
 
-![](./result-1.png)
+![](./nat/result-1.png)
 
-而当你打开了 NAT1 按钮时, 再次点击检测, 将会得到 Full Cone 的提示. ![](./result-2.png)
+而当你打开了 NAT1 按钮时, 再次点击检测, 将会得到 Full Cone 的提示. ![](./nat/result-2.png)

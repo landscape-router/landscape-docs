@@ -8,7 +8,7 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 
 当前 LAN 和 WAN 要能正常通信，需要开启对应网卡的路由转发功能。
 
-![开启路由转发](./route-1.png)
+![开启路由转发](./ebpf-route/route-1.png)
 
 ::: tip
 配置位置在网卡配置界面中，找到对应的 WAN 和 LAN 网卡，开启"路由转发服务"选项。
@@ -22,7 +22,7 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 
 下图展示了 Netfilter 的完整数据包处理流程：
 
-![Netfilter 数据包流程](./route-2.png)
+![Netfilter 数据包流程](./ebpf-route/route-2.png)
 
 > 图片来源：[Wikipedia - Netfilter](https://en.wikipedia.org/wiki/Netfilter#/media/File:Netfilter-packet-flow.svg)（CC BY-SA 3.0 许可）
 
@@ -83,11 +83,11 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 
 #### 小包性能（64 字节）
 
-![64字节小包测试](./4-64.png)
+![64字节小包测试](./ebpf-route/4-64.png)
 
 #### 大包性能（1500 字节）
 
-![1500字节大包测试](./4-1500.png)
+![1500字节大包测试](./ebpf-route/4-1500.png)
 
 ---
 
@@ -103,11 +103,11 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 
 #### 小包性能（64 字节）
 
-![64字节小包测试](./8-64.png)
+![64字节小包测试](./ebpf-route/8-64.png)
 
 #### 大包性能（1500 字节）
 
-![1500字节大包测试](./8-1500.png)
+![1500字节大包测试](./ebpf-route/8-1500.png)
 
 ---
 

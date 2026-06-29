@@ -14,4 +14,4 @@ Landscape 中, 你在 UI 上的所有操作都可以通过 API 完成。
 
 ## 界面展示
 
-![](./api-1.png)
+![](./api/api-1.png)

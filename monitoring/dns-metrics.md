@@ -6,4 +6,4 @@
 2. 缓存命中率
 3. 拦截率
 
-![](dnsmetrics.png)
+![](./dns-metrics/dnsmetrics.png)

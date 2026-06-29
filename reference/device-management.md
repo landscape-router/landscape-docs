@@ -1,3 +1,3 @@
 # 设备管理
 
-![](./devices-1.png)
+![](./device-management/devices-1.png)

@@ -6,4 +6,4 @@
 
 ## 防火墙黑名单
 
-![](./blacklist.png)
+![](./firewall/blacklist.png)

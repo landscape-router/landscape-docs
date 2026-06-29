@@ -18,9 +18,9 @@ Traffic shaping can `define` a set of target IP behaviors and `apply` them to a 
 
 When we discuss traffic shaping, our focus is generally on: from `what client` the traffic comes, to `which exit` it goes out. The choice of exit depends on the client's access `target`, that is, **_domain name_** or **_IP_**. (Of course, domain names will eventually become **_target IP_** when accessed)
 
-Click the button in the image below to create a new Flow ![](../../features/flow-10.png)
+Click the button in the image below to create a new Flow ![](../../features/traffic-flow/flow-10.png)
 
-This window will pop up ![](../../features/flow-8.png)
+This window will pop up ![](../../features/traffic-flow/flow-8.png)
 
 Entry defines which qualifying clients will use this flow
 
@@ -50,11 +50,11 @@ Each flow has independent DNS cache, no need to worry that the same domain name 
   3. When `clients matching Flow entry` access this domain name, which `exit` to use for sending -- Traffic action
   4. When the DNS resolution result conflicts with IP rules, which takes effect? -- Priority (will compare who has higher priority between IP rules and DNS rules (the smaller the value, the higher))
 
-  ![](../../features/flow-7.png)
+  ![](../../features/traffic-flow/flow-7.png)
 
 - Any Flow should have at least one fallback DNS rule, used for processing when the current domain name does not match any rule, looks like this
 
-![](../../features/flow-11.png)
+![](../../features/traffic-flow/flow-11.png)
 
 ### Target IP Rule Description
 
@@ -62,7 +62,7 @@ Target IP rule configuration is actually just missing the upstream definition co
 
 ### Traffic Actions
 
-The core concept in Flow is this, controlling the specific behavior of the current rule's target. ![](../../features/flow-3.png)
+The core concept in Flow is this, controlling the specific behavior of the current rule's target. ![](../../features/traffic-flow/flow-3.png)
 
 - `Current flow's exit`: Domain names or IPs matched by the current rule use the exit defined in the `current Flow`
 - `Default flow's exit`: Domain names or IPs matched by the current rule are sent out using the exit of the `default flow`
@@ -89,13 +89,13 @@ The core concept in Flow is this, controlling the specific behavior of the curre
 ### Default Flow Flow 0 Destination Matching Rule Settings
 
 Access configuration through `DNS card` in the upper right of the homepage  
-![Default flow](../../features/flow-6.png)
+![Default flow](../../features/traffic-flow/flow-6.png)
 
 ### Other Flows Flow 1~255 Destination Matching Rule Settings
 
 Access configuration through `Traffic Shaping Settings` in the sidebar
 
-![Other flows](../../features/flow-9.png)
+![Other flows](../../features/traffic-flow/flow-9.png)
 
 <!-- # Multiple Flow Combination
 After traffic enters the container, assuming traffic becomes the container's IP for sending, you can create a new Flow configuration, add the container IP, so you can control the behavior of traffic sent out from this container.
@@ -116,7 +116,7 @@ Only containers packaged with the [**relay program**](https://github.com/ThisSea
 
 The project provides a **test relay program** for testing, [image with **relay program** is here](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge):
 
-If using the UI's image run interface to run, remember to enable `Use as Flow exit`. Only then can it be used as an effective Flow exit. ![](../../features/flow-5.png)
+If using the UI's image run interface to run, remember to enable `Use as Flow exit`. Only then can it be used as an effective Flow exit. ![](../../features/traffic-flow/flow-5.png)
 
 If you don't want to use the UI to start, using third-party or manual start requires manually adding the following parameters:
 

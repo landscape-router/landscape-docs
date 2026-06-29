@@ -6,8 +6,8 @@
 - 返回的重定向结果
 - 处理域名匹配规则（添加需要被重定向的域名）
 
-![](./dns-redirect.png)
+![](./dns/dns-redirect.png)
 
 ## 上游 DNS 配置管理
 
-![](./dns-upstream.png)
+![](./dns/dns-upstream.png)

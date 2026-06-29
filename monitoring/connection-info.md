@@ -6,4 +6,4 @@
 2. 来自源IP地址或发往目的IP地址的流速统计、PPS统计
 3. 历史流量信息统计。
 
-![](./connection-info-1.png)
+![](./connection-info/connection-info-1.png)

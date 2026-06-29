@@ -4,9 +4,9 @@
 
 ## 切换按钮位置
 
-![](./1.png)
+![](./zone-switching/1.png)
 
-![](./2.png)
+![](./zone-switching/2.png)
 
 ## WAN 可开启的服务
 
@@ -17,7 +17,7 @@
 2-1 IPV6-PD 客户端配置  
 2-2 Wan 路由转发服务
 
-![](./10.png)
+![](./zone-switching/10.png)
 
 ## LAN 可开启的服务
 
@@ -25,4 +25,4 @@
 1-1 DHCPv4 服务配置 （包含 Mac IP 地址绑定）  
 1-2 ICMPV6-RA 服务配置  
 1-3 Lan 路由 转发 （应当启用）  
-![](./11.png)
+![](./zone-switching/11.png)

@@ -34,8 +34,8 @@ Sidebar and navigation are defined in `.vitepress/config.mts`. Custom theme enha
 
 Write commit messages in English.
 
-Run formatting before committing:
+Run formatting and build before committing:
 
 ```bash
-pnpm format
+pnpm format && pnpm build
 ```

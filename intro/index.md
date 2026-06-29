@@ -10,7 +10,7 @@ Landscape Router 是一个使用了 eBPF / Rust / Vue 开发
 
 ## 整体界面
 
-![](./main.zh.png)
+![](./index/main.zh.png)
 
 ## 核心特性
 

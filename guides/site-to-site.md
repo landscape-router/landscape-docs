@@ -14,7 +14,7 @@ Site-to-Site 网络（站点到站点） 指的是：
 如果要实现互通, 需要在 tailscale 启动参数中增加使用 `--advertise-routes` 添加各自 LAN `CIDR`.
 :::
 
-![](./topology.png)
+![](./site-to-site/topology.png)
 
 上图中 `B侧` 部分 LAN， 可以通过 `10.200.1.0/24` 对 `A侧` 的容器进行访问。而无需在意 tailscale 使用的 IP 是什么。
 
@@ -135,12 +135,12 @@ networks:
 启动后需要按照 [tailscale 组网](../overlay/tailscale.md#启动容器) 中一样, 在 tailscale 的控制面板中允许此节点的路由.
 
 以上配置之后, 除了在 [tailscale/配置-路由-规则](../overlay/tailscale.md#配置-路由-规则) 中, 配置的 tailscale 的路由, 额外需要增加对方的 LAN 配置.  
-B区域除了访问 tailscale 的 IP 外, 还访问对方的 Docker 容器, 所以要将 容器 CIDR 也设置上. ![](./b-zone-dstip.png)
+B区域除了访问 tailscale 的 IP 外, 还访问对方的 Docker 容器, 所以要将 容器 CIDR 也设置上. ![](./site-to-site/b-zone-dstip.png)
 
 A 区也同样的要将 B区 LAN CIDR 加入.
 
 ## 附: 使用 A 区作为跳板与另一个账号的 tailscale 网络进行组网
 
-![](./add-c-topology.png)
+![](./site-to-site/add-c-topology.png)
 
 只要同时在连接 C 的 tailscale 客户端中通告 `10.200.1.0/24` 即可在 B 通过 A 访问 C 的 LAN. 当然 访问 C 的途径你可以换成任意的组网工具.

@@ -10,4 +10,4 @@ There is also an npm package available: [@landscape-router/types](https://www.np
 
 ## Screenshot
 
-![](../../features/api-1.png)
+![](../../features/api/api-1.png)

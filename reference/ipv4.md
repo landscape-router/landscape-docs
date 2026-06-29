@@ -6,12 +6,12 @@
 在网卡状态为: 未指定分区, WAN 时可以进行静态 IP 配置.
 :::
 
-![](./static_ip.png)
+![](./ipv4/static_ip.png)
 
 当为 WAN 时可以额外指定当前网卡为 **_IPv4_** 的 **默认路由**
 
-![](./8.png)  
-![](./9.png)
+![](./ipv4/8.png)  
+![](./ipv4/9.png)
 
 ## DHCP 客户端
 
@@ -21,7 +21,7 @@
 主机名称可以不用设置, 默认使用当前主机的主机名称.
 :::
 
-![](./dhcp_v4_client.png)
+![](./ipv4/dhcp_v4_client.png)
 
 ## PPPoE
 
@@ -35,7 +35,7 @@
 2. 在PPPOE账号里设为默认路由
 3. AC Name 只有在你需要的时候进行填写, 默认留空即可
 
-![](./4.png)  
-![](./5.png)  
-![](./pppoe_edit.png)  
-![](./7.png)
+![](./ipv4/4.png)  
+![](./ipv4/5.png)  
+![](./ipv4/pppoe_edit.png)  
+![](./ipv4/7.png)

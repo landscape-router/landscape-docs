@@ -10,7 +10,7 @@ that helps you turn Linux into a **router**.
 
 ## Overview
 
-![](./main.png)
+![](./index/main.png)
 
 ## Core Features
 

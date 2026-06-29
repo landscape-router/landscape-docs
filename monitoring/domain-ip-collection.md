@@ -10,20 +10,20 @@
 
 1、点击 `Geo IP配置`  
 2、点击右侧弹窗 `添加规则`  
-![](./2.png) ![](./3.png)
+![](./domain-ip-collection/2.png) ![](./domain-ip-collection/3.png)
 
 ## 从 URL 获取
 
-![](./4.png)
+![](./domain-ip-collection/4.png)
 
 ## 上传文件更新
 
-![](./5.png)
+![](./domain-ip-collection/5.png)
 
 ## 强制更新文件
 
-![](./6.png)
+![](./domain-ip-collection/6.png)
 
 ## 支持TXT格式文件
 
-![](./7.png)
+![](./domain-ip-collection/7.png)
