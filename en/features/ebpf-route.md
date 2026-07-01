@@ -1,4 +1,4 @@
-# eBPF Routing
+# eBPF Routing Acceleration
 
 ## Overview
 
@@ -30,39 +30,53 @@ The diagram below shows the full Netfilter packet flow:
 
 #### Traditional approach (Netfilter / iptables / nftables)
 
-Packets go through multiple stages:
+Forwarded packets must pass through multiple Netfilter hook points. Taking LAN → WAN as an example:
 
 ```text
-NIC receive -> kernel network stack -> Netfilter hooks -> route decision -> NAT -> forwarding decision -> transmit
+NIC receive → Pre-routing (connection tracking)
+            → Routing decision
+            → Forward (firewall filtering)
+            → Post-routing (SNAT / Masquerade)
+            → Transmit
 ```
 
-#### eBPF accelerated approach
+The WAN → LAN direction is symmetric, except DNAT (port forwarding) occurs in the Pre-routing stage, with connection tracking ensuring reply packets are automatically restored.
 
-::: tip
-Core advantage Landscape Router completes forwarding at the **Ingress / Egress (qdisc)** layer. In other words, it decides the destination **before** packets enter Netfilter and sends them directly to the target interface.
-:::
+#### TC (Traffic Control) layer approach
+
+Landscape Router completes forwarding at the **Ingress / Egress (qdisc)** layer — it decides the destination **before** packets enter Netfilter and sends them directly to the target interface, completely bypassing the Netfilter processing chain.
 
 Acceleration path:
 
 ```text
-NIC receive -> eBPF processing (TC layer) -> direct forwarding to target NIC
-            -> bypass Netfilter
+NIC receive → driver → SKB alloc → eBPF processing (TC layer) → bpf_redirect() → target NIC
 ```
 
-### Performance Characteristics
+#### XDP (eXpress Data Path) approach
 
-| Feature                | Description                                                                          |
-| ---------------------- | ------------------------------------------------------------------------------------ |
-| **Forwarding stage**   | TC (Traffic Control) layer, before Netfilter                                         |
-| **NAT integration**    | NAT connection state is not yet fully shared with the eBPF routing path              |
-| **Direct traffic**     | Nearly no overhead for direct forwarding                                             |
-| **Container decision** | The decision of whether to forward traffic into a Docker container also happens here |
+XDP intercepts packets at the **earliest entry point** of the kernel network stack — the NIC driver layer — before SKB (Socket Buffer) allocation. This enables significantly higher forwarding performance than TC.
 
-::: warning
-Current limitation Because NAT connection state has not yet been fully integrated into eBPF routing, the current acceleration result is not the final form. This is already a working 0-to-1 implementation, and it will continue to be optimized.
-:::
+Acceleration path:
 
----
+```text
+NIC receive -> XDP processing (driver layer, before SKB alloc) -> bpf_redirect() to target NIC
+```
+
+### Enabling XDP
+
+Pass the `--try-xdp` flag when starting Landscape Router:
+
+```bash
+landscape-webserver --try-xdp
+```
+
+Or restrict to specific interfaces:
+
+```bash
+landscape-webserver --try-xdp=eth0,eth1
+```
+
+If the NIC driver does not support native XDP, the system automatically falls back to the TC path.
 
 ## Performance Tests
 
@@ -111,8 +125,18 @@ Current limitation Because NAT connection state has not yet been fully integrate
 
 ---
 
-## Related Documents
+### Test Environment 3 (XDP + NAT Forwarding)
 
-- [Traffic Shaping](./traffic-flow.md) - Learn how to configure traffic forwarding rules
-- [Basic Operations](../../reference/basic-settings.md) - XPS/RPS tuning for network interfaces
-- [Firewall Settings](../../reference/firewall.md) - Security policies that work alongside eBPF routing
+**Configuration**:
+
+- Operating system: Arch Linux (ChachyOS Server)
+- CPU: Intel 9100T (4 cores / 4 threads)
+- NIC: Passthrough X520-DA2 (10Gbps)
+
+**Tool**: TRex ASTF (stateful traffic)
+
+**Result** (bidirectional 64-byte small packets):
+
+![XDP NAT 64-byte forwarding](../../features/ebpf-route/xdp-has-nat-forward.gif)
+
+---

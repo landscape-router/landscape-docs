@@ -1,4 +1,4 @@
-# eBPF 路由
+# eBPF 路由加速
 
 ## 概述
 
@@ -30,39 +30,53 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 
 #### 传统方式（Netfilter/iptables/nftables）
 
-数据包需要经过多个处理阶段：
+数据包转发需经过 Netfilter 的多个 Hook 点，以 LAN → WAN 为例：
 
 ```text
-网卡接收 → 进入内核网络栈 → Netfilter Hooks → 路由判断 → NAT → 转发判断 → 发送
+网卡接收 → Pre-routing（连接跟踪）
+        → 路由判断
+        → Forward（防火墙过滤）
+        → Post-routing（SNAT / Masquerade）
+        → 发送
 ```
 
-#### eBPF 加速方式
+WAN → LAN 方向同理，区别在于 DNAT（端口映射）发生在 Pre-routing 阶段，由连接跟踪保证回包自动还原。
 
-::: tip
-核心优势 Landscape Router 的转发工作在 **Ingress/Egress (qdisc)** 层完成，即在进入 Netfilter **之前**就决定转发目标并直接发送到网卡。
-:::
+#### TC（Traffic Control）层方案
+
+Landscape Router 的转发工作在 **Ingress/Egress (qdisc)** 层完成，即在进入 Netfilter **之前**就决定转发目标并直接发送到网卡，完全绕过后续的 Netfilter 处理链路。
 
 加速路径：
 
 ```text
-网卡接收 → eBPF 处理（TC 层） → 直接转发到目标网卡
-         ↓ 绕过 Netfilter
+网卡接收 → 驱动 → SKB 分配 → eBPF 处理（TC 层）→ bpf_redirect() → 目标网卡
 ```
 
-### 性能特点
+#### XDP（eXpress Data Path）方案
 
-| 特性         | 说明                                       |
-| ------------ | ------------------------------------------ |
-| **转发位置** | TC（Traffic Control）层，在 Netfilter 之前 |
-| **NAT 集成** | 目前 NAT 连接信息尚未完全共享到 eBPF 实现  |
-| **直连流量** | 对直连流量几乎无损耗                       |
-| **容器判断** | 是否转发到 Docker 容器的判断也在此完成     |
+XDP 在内核网络栈的**最早入口**——网卡驱动层——接管数据包处理。它在 SKB（Socket Buffer）分配之前执行，能够实现远高于 TC 的转发性能。
 
-::: warning
-当前限制由于 NAT 连接信息尚未完全集成到 eBPF 路由中，当前加速效果还不是最优。这是从 0 到 1 的实现，后续会持续优化。
-:::
+加速路径：
 
----
+```text
+网卡接收 → XDP 处理（驱动层，SKB 分配前） → bpf_redirect() 直接转发到目标网卡
+```
+
+### XDP 启用方式
+
+在启动 Landscape Router 时传入 `--try-xdp` 参数即可尝试启用 XDP 加速：
+
+```bash
+landscape-webserver --try-xdp
+```
+
+也可限制为指定网卡：
+
+```bash
+landscape-webserver --try-xdp=eth0,eth1
+```
+
+如果网卡驱动不支持 native XDP，会自动降级到 TC 路径，不影响正常运行。
 
 ## 性能测试
 
@@ -111,8 +125,16 @@ Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发
 
 ---
 
-## 相关文档
+### 测试环境 3（XDP + NAT 转发）
 
-- [分流控制](./traffic-flow.md) - 了解如何配置流量转发规则
-- [基础操作](../reference/basic-settings.md) - 网卡 XPS/RPS 优化配置
-- [防火墙设置](../reference/firewall.md) - 配合 eBPF 路由的安全策略
+**配置**：
+
+- 操作系统：Arch Linux（ChachyOS Server）
+- CPU：Intel 9100T（4 核心 / 4 线程）
+- 网卡：直通 X520-DA2（10Gbps）
+
+**测试工具**：TRex ASTF（状态化流量）
+
+**测试结果**（双向 64 字节小包）：
+
+![XDP NAT 64字节小包转发](./ebpf-route/xdp-has-nat-forward.gif)

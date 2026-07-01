@@ -45,7 +45,7 @@ export default defineConfig({
               { text: '分流控制', link: '/features/traffic-flow' },
               { text: '只能 NAT1/4? 我全都要!', link: '/features/nat' },
               { text: '可 API 控制所有行为', link: '/features/api' },
-              { text: 'eBPF 路由', link: '/features/ebpf-route' },
+              { text: 'eBPF 路由加速', link: '/features/ebpf-route' },
             ],
           },
           {
@@ -183,7 +183,7 @@ export default defineConfig({
               { text: 'Traffic Shaping', link: '/en/features/traffic-flow' },
               { text: 'NAT Control', link: '/en/features/nat' },
               { text: 'API Access', link: '/en/features/api' },
-              { text: 'eBPF Routing', link: '/en/features/ebpf-route' },
+              { text: 'eBPF Routing Acceleration', link: '/en/features/ebpf-route' },
             ],
           },
           {
