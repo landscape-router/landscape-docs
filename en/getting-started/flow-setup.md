@@ -6,12 +6,12 @@
 
 A few concepts to know before starting:
 
-| Concept          | Description                                                                                              | Analogy                        |
-| ---------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| **Flow**         | A traffic policy made up of ingress rules, egresses and routing rules                                    | A custom pipe                  |
-| **Ingress rule** | Matches the source device (device / MAC / IP), deciding **whose** traffic enters this Flow                | The filter on the pipe's inlet |
-| **Egress**       | Where traffic finally leaves (a WAN interface or a Docker container); several can be set with weights     | Where the pipe leads           |
-| **Routing rule** | DNS and IP rules deciding **which egress** traffic inside the Flow actually takes                        | A fork inside the pipe         |
+| Concept          | Description                                                                                           | Analogy                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------ |
+| **Flow**         | A traffic policy made up of ingress rules, egresses and routing rules                                 | A custom pipe                  |
+| **Ingress rule** | Matches the source device (device / MAC / IP), deciding **whose** traffic enters this Flow            | The filter on the pipe's inlet |
+| **Egress**       | Where traffic finally leaves (a WAN interface or a Docker container); several can be set with weights | Where the pipe leads           |
+| **Routing rule** | DNS and IP rules deciding **which egress** traffic inside the Flow actually takes                     | A fork inside the pipe         |
 
 ### The two kinds of Flow
 
@@ -55,13 +55,13 @@ The configuration dialog looks like this:
 
 The fields:
 
-| Field             | Description                                                                       |
-| ----------------- | --------------------------------------------------------------------------------- |
-| **Flow ID**       | The Flow's unique identifier, 1~255, no duplicates                                |
-| **Enable**        | Whether the Flow is in effect                                                     |
-| **Note**          | For your own reference, so you remember what this Flow is for                      |
-| **Ingress rules** | Which devices enter this Flow                                                     |
-| **Egress rules**  | Where matched traffic leaves by default; several egresses can be weighted          |
+| Field             | Description                                                               |
+| ----------------- | ------------------------------------------------------------------------- |
+| **Flow ID**       | The Flow's unique identifier, 1~255, no duplicates                        |
+| **Enable**        | Whether the Flow is in effect                                             |
+| **Note**          | For your own reference, so you remember what this Flow is for             |
+| **Ingress rules** | Which devices enter this Flow                                             |
+| **Egress rules**  | Where matched traffic leaves by default; several egresses can be weighted |
 
 There are three common patterns:
 
@@ -90,11 +90,11 @@ Our scenario uses the first pattern.
 
 Ingress rules decide **which devices'** traffic enters the Flow. Three matching modes are available:
 
-| Mode        | Description                                                     | When to use                            |
-| ----------- | --------------------------------------------------------------- | -------------------------------------- |
-| Device      | Pick from already enrolled devices                              | The device is enrolled via DHCP        |
-| MAC address | Enter the MAC address by hand                                   | The device is not enrolled, or static  |
-| IP address  | Enter an IP plus prefix length (e.g. `192.168.1.0/24`)          | Matching a whole subnet at once        |
+| Mode        | Description                                            | When to use                           |
+| ----------- | ------------------------------------------------------ | ------------------------------------- |
+| Device      | Pick from already enrolled devices                     | The device is enrolled via DHCP       |
+| MAC address | Enter the MAC address by hand                          | The device is not enrolled, or static |
+| IP address  | Enter an IP plus prefix length (e.g. `192.168.1.0/24`) | Matching a whole subnet at once       |
 
 #### Doing it in our scenario
 
@@ -115,10 +115,10 @@ Create Flow 1 for the TV box and click "add an ingress match rule":
 
 Two egress types are supported, each with a weight (a higher weight receives more traffic):
 
-| Egress type   | Description                                    |
-| ------------- | ---------------------------------------------- |
-| WAN interface | Pick an interface in the WAN zone              |
-| Docker        | Pick a container designated as a Flow egress   |
+| Egress type   | Description                                  |
+| ------------- | -------------------------------------------- |
+| WAN interface | Pick an interface in the WAN zone            |
+| Docker        | Pick a container designated as a Flow egress |
 
 ::: info Load balancing across egresses
 With several egresses configured, traffic is split in proportion to the weights. For example, weight 3 on carrier A and 1 on carrier B sends roughly 75% of traffic over carrier A.
@@ -134,12 +134,12 @@ Pointing a device at one broadband line is not the whole story — to send **spe
 
 Every DNS rule defines:
 
-| Part               | Description                                                                    |
-| ------------------ | ------------------------------------------------------------------------------ |
-| **Domain match**   | The domain that triggers the rule (e.g. `*.example.com`)                        |
+| Part               | Description                                                                       |
+| ------------------ | --------------------------------------------------------------------------------- |
+| **Domain match**   | The domain that triggers the rule (e.g. `*.example.com`)                          |
 | **Upstream DNS**   | The upstream used to resolve it (optional; the default upstream is used if empty) |
-| **Traffic action** | What happens to matched traffic                                                |
-| **Priority**       | Lower numbers win; used to resolve conflicts between rules                      |
+| **Traffic action** | What happens to matched traffic                                                   |
+| **Priority**       | Lower numbers win; used to resolve conflicts between rules                        |
 
 ### Adding a DNS rule to a Flow
 
@@ -152,12 +152,12 @@ Every DNS rule defines:
 
 The traffic action decides where matched traffic ultimately goes:
 
-| Action                     | Description                                        |
-| -------------------------- | -------------------------------------------------- |
-| **This Flow's egress**     | Send via the egress configured on this Flow        |
-| **The default Flow's egress** | Send via the default route (Flow 0's egress)     |
-| **Block**                  | Drop the traffic, denying access                   |
-| **A specific Flow's egress** | Redirect to another Flow's egress                |
+| Action                        | Description                                  |
+| ----------------------------- | -------------------------------------------- |
+| **This Flow's egress**        | Send via the egress configured on this Flow  |
+| **The default Flow's egress** | Send via the default route (Flow 0's egress) |
+| **Block**                     | Drop the traffic, denying access             |
+| **A specific Flow's egress**  | Redirect to another Flow's egress            |
 
 ![Traffic action options](../../getting-started/flow-setup/flow-actions.png)
 
