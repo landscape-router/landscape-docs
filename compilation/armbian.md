@@ -14,7 +14,15 @@ userpatches/overlay/landscape_init.toml
 
 配置需根据目标开发板的硬件配置进行决定
 
+::: warning
+`version` 必须**等于**你下载的 landscape 版本号 —— 这是严格相等校验, 不匹配会直接启动失败.
+用 `latest` 下载二进制时记得同步改这里. 完整字段说明见
+[landscape_init.toml 参考](../configuration/init-config).
+:::
+
 ```toml
+version = "0.22.2"   # 必须与实际部署的版本一致
+
 # Config Interface
 [[ifaces]]
 name = "eth0"
@@ -45,12 +53,19 @@ server_ip_addr = "192.168.7.1"
 ip_range_start = "192.168.7.100"
 network_mask = 24
 
-# LAN 绑定的 MAC 地址
-mac_binding_records = [
-    { mac = "00:11:22:33:44:55", ip = "192.168.7.50" },
-    { mac = "aa:bb:cc:dd:ee:ff", ip = "192.168.7.51" },
-]
+# LAN 绑定的 MAC 地址.
+# 注意: 旧版的 dhcpv4_services.config.mac_binding_records 已移除, 现在写在 enrolled_devices
+[[enrolled_devices]]
+name = "device-1"
+mac = "00:11:22:33:44:55"
+ipv4 = "192.168.7.50"
+iface_name = "br_lan"
 
+[[enrolled_devices]]
+name = "device-2"
+mac = "aa:bb:cc:dd:ee:ff"
+ipv4 = "192.168.7.51"
+iface_name = "br_lan"
 ```
 
 # 脚本
