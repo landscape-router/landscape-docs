@@ -75,6 +75,7 @@ export default defineConfig({
               { text: 'DHCPv4 Server 相关', link: '/reference/dhcpv4' },
               { text: '防火墙设置', link: '/reference/firewall' },
               { text: 'DNS 相关', link: '/reference/dns' },
+              { text: '内网主机名与 LAN 后缀', link: '/reference/lan-hostname' },
               {
                 text: '虚拟组网',
                 link: '/overlay/',
@@ -133,6 +134,7 @@ export default defineConfig({
             items: [
               { text: '.landscape-router 目录介绍', link: '/configuration/home-path' },
               { text: '配置文件介绍', link: '/configuration/' },
+              { text: 'landscape_init.toml 参考', link: '/configuration/init-config' },
             ],
           },
           {
@@ -171,10 +173,11 @@ export default defineConfig({
             ],
           },
           {
-            text: 'Configuration',
+            text: 'Getting Started',
             items: [
-              { text: '.landscape-router Directory', link: '/en/configuration/home-path' },
-              { text: 'Configuration File Guide', link: '/en/configuration/' },
+              { text: 'Basic Network Setup', link: '/en/getting-started/basic-network-setup' },
+              { text: 'DNS Setup', link: '/en/getting-started/dns-setup' },
+              { text: 'Flow Setup', link: '/en/getting-started/flow-setup' },
             ],
           },
           {
@@ -187,10 +190,82 @@ export default defineConfig({
             ],
           },
           {
+            text: 'Examples',
+            items: [
+              { text: 'Site-to-Site Networking', link: '/en/guides/site-to-site' },
+              { text: 'See what others are doing (links)', link: '/en/guides/community' },
+            ],
+          },
+          {
+            text: 'Reference',
+            items: [
+              { text: 'Zone', link: '/en/reference/interface-zone' },
+              {
+                text: 'Basic System Settings',
+                collapsed: true,
+                items: [
+                  { text: 'Basic Settings', link: '/en/reference/basic-settings' },
+                  { text: 'Zone Switching', link: '/en/reference/zone-switching' },
+                ],
+              },
+              { text: 'Interface IP Settings', link: '/en/reference/ipv4' },
+              { text: 'IPv6', link: '/en/reference/ipv6/' },
+              { text: 'DHCPv4 Server', link: '/en/reference/dhcpv4' },
+              { text: 'Firewall', link: '/en/reference/firewall' },
+              { text: 'DNS', link: '/en/reference/dns' },
+              { text: 'LAN Hostnames', link: '/en/reference/lan-hostname' },
+              {
+                text: 'Overlay Networking',
+                link: '/en/overlay/',
+                collapsed: true,
+                items: [
+                  { text: 'DN42', link: '/en/overlay/dn42' },
+                  { text: 'EasyTier', link: '/en/overlay/easytier' },
+                  { text: 'NetBird', link: '/en/overlay/netbird' },
+                  { text: 'Tailscale', link: '/en/overlay/tailscale' },
+                  { text: 'ZeroTier', link: '/en/overlay/zerotier' },
+                ],
+              },
+              {
+                text: 'Metrics',
+                link: '/en/monitoring/',
+                collapsed: true,
+                items: [
+                  { text: 'Connection Info', link: '/en/monitoring/connection-info' },
+                  { text: 'DNS Metrics', link: '/en/monitoring/dns-metrics' },
+                ],
+              },
+              { text: 'Geo Database', link: '/en/monitoring/domain-ip-collection' },
+              { text: 'Device Management', link: '/en/reference/device-management' },
+              { text: 'Certificates', link: '/en/reference/certificates' },
+              { text: 'HTTP Reverse Proxy', link: '/en/reference/proxy' },
+              { text: 'System Configuration', link: '/en/advanced/settings-export' },
+            ],
+          },
+          {
+            text: 'Build',
+            collapsed: true,
+            items: [
+              { text: 'Building', link: '/en/compilation/' },
+              { text: 'Integrating with Armbian', link: '/en/compilation/armbian' },
+              { text: 'Cross-compiling', link: '/en/compilation/cross-compile' },
+            ],
+          },
+          {
+            text: 'Directory & Configuration',
+            collapsed: true,
+            items: [
+              { text: '.landscape-router Directory', link: '/en/configuration/home-path' },
+              { text: 'Configuration File Guide', link: '/en/configuration/' },
+              { text: 'landscape_init.toml Reference', link: '/en/configuration/init-config' },
+            ],
+          },
+          {
             text: 'FAQ',
             items: [
               { text: 'DNS Related', link: '/en/faq/dns' },
               { text: 'Relationship with iptables', link: '/en/faq/iptables' },
+              { text: 'Using Podman instead of Docker', link: '/en/faq/podman' },
               { text: 'Certificate Error', link: '/en/faq/cert-error' },
             ],
           },
