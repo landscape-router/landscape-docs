@@ -96,7 +96,7 @@
   进入这个流的流量默认被丢弃，除非规则指定使用其他流的出口
 
 - **都不配置**  
-   可作为其他流转发过来的流量丢弃点
+  可作为其他流转发过来的流量丢弃点
   :::
 
 ---
@@ -318,6 +318,46 @@ ip route add local default dev lo table 100
 
 wait
 ```
+
+---
+
+## 接应程序参数
+
+`redirect_pkg_handler` 的参数, 每项都有对应环境变量:
+
+| 参数                        | 环境变量                             | 默认值    | 说明                                   |
+| --------------------------- | ------------------------------------ | --------- | -------------------------------------- |
+| `-s`, `--saddr`             | `LAND_PROXY_SERVER_ADDR`             | `0.0.0.0` | 工作程序的 IPv4 监听地址               |
+| `--saddr6`                  | `LAND_PROXY_SERVER_ADDR_V6`          | `::`      | 工作程序的 IPv6 监听地址               |
+| `-p`, `--sport`             | `LAND_PROXY_SERVER_PORT`             | `12345`   | 工作程序的监听端口                     |
+| `-m`, `--mode`              | `LAND_PROXY_HANDLE_MODE`             | `tproxy`  | `tproxy` / `route` / `multiple_tproxy` |
+| `--enable-icmp-passthrough` | `LAND_PROXY_ENABLE_ICMP_PASSTHROUGH` | `false`   | 见下方 ICMP 放行                       |
+| `--icmp-mark-value`         | `LAND_PROXY_ICMP_MARK_VALUE`         | `2`       | ICMP 放行时打的 mark                   |
+| `--sock_path`               | `LAND_SOCK_PATH`                     | -         | 注册用的 unix socket 路径              |
+| `--log-level`               | `LAND_REDIRECT_LOG_LEVEL`            | `INFO`    | 日志级别                               |
+
+### ICMP 放行
+
+TProxy 机制本身只接管 TCP / UDP. 接应程序对进入的 **ICMP 包默认直接丢弃**,
+所以走分流出口容器的链路上 **`ping` 不通** —— 这是设计如此, 不是故障.
+
+打开 `--enable-icmp-passthrough` 后, ICMP 包会被打上 `--icmp-mark-value` 的 mark
+并放行给本机协议栈, 从而可以 `ping`.
+
+::: warning 光开开关还不够
+放行只解决"包不被丢", 出站还需要容器内自己配转发与 NAT, 且 **mark 必须与
+`--icmp-mark-value` 一致**:
+
+```sh
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+iptables  -t nat -A POSTROUTING -m mark --mark 0x2/0x2 -j MASQUERADE
+ip6tables -t nat -A POSTROUTING -m mark --mark 0x2/0x2 -j MASQUERADE
+```
+
+官方镜像的 `start.sh` 里已经写好这几行但**默认注释掉**, 需要时取消注释,
+或者放进自己的 `/app/server/run.sh`.
+:::
 
 ---
 
