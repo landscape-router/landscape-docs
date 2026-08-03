@@ -24,7 +24,7 @@ If `SELinux` is enabled, you need to grant the relevant permissions.
 4. (Optional) Install Docker. Required if you want to divert traffic into containers.
 5. (_Optional if you have a desktop environment with a browser_) Prepare initialization configuration file  
    (Note: This configuration file is only read on the first run):  
-    Place it in -> `/root/.landscape-router/landscape_init.toml`
+   Place it in -> `/root/.landscape-router/landscape_init.toml`
 6. (Optional) geosite / geoip files
 
 ## Disable Automatic IP Configuration on Host Machine

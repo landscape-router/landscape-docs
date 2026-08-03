@@ -65,10 +65,10 @@ CONFIG_BPF_EVENTS=y
 ## 内核 BTF 生成需要开启
 
 选择 **Kernel hacking**  
- -> **Compile-time checks and compiler options**  
- -> **Debug information (Generate DWARF Version 5 debuginfo)**  
+-> **Compile-time checks and compiler options**  
+-> **Debug information (Generate DWARF Version 5 debuginfo)**  
 即可在 **Kernel hacking**  
- -> **Compile-time checks and compiler options**  
+-> **Compile-time checks and compiler options**  
 看到 **Generate BTF type information** 选项。启用即可。
 
 ## OpenWRT 编译需要开启
@@ -92,7 +92,7 @@ CONFIG_BPF_EVENTS=y
     - **Reduce debugging information** _(CONFIG_KERNEL_DEBUG_INFO_REDUCED)_
 
 即可在 **Global build settings**  
- -> **Kernel build options**  
- -> **Compile the kernel with debug information** _(KERNEL_DEBUG_INFO)_  
+-> **Kernel build options**  
+-> **Compile the kernel with debug information** _(KERNEL_DEBUG_INFO)_  
 看到 **Enable additional BTF type information** _(CONFIG_KERNEL_DEBUG_INFO_BTF)_  
 选中即可

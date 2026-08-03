@@ -43,10 +43,10 @@ CONFIG_TEST_BPF=m
 ## Kernel BTF Generation Must Be Enabled
 
 Select: **Kernel hacking**  
- -> **Compile-time checks and compiler options**  
- -> **Debug information (Generate DWARF Version 5 debuginfo)**  
+-> **Compile-time checks and compiler options**  
+-> **Debug information (Generate DWARF Version 5 debuginfo)**  
 Then you can find **Kernel hacking**  
- -> **Compile-time checks and compiler options**  
+-> **Compile-time checks and compiler options**  
 and see **Generate BTF type information** Select and install it.
 
 ## Linux Distributions Compatible with Kernel Version
