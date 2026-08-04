@@ -76,6 +76,15 @@ After getting an address, a few services still need enabling before internal tra
 | **Firewall**  | Recommended          | Blocks inbound connections initiated from outside                   |
 | **MSS clamp** | Recommended on PPPoE | Prevents large packets being dropped, which breaks some sites       |
 
+::: danger Enabling WAN NAT: be careful
+If you are accessing the management interface **from the WAN interface**, you must set up a **Static NAT mapping** before enabling the `NAT service`, otherwise you will **lose connection**!
+:::
+
+::: details Static NAT mapping
+Click **Static NAT** in the left menu to open the static NAT configuration page. Click the add button and configure as shown below to access from WAN. If you connect via LAN, you can ignore this.
+![](../zh/getting-started/basic-network-setup/static-nat.png)
+:::
+
 Unless you have special requirements, enabling them with the defaults is fine.
 
 ## Step 4: Configure LAN

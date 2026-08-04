@@ -258,3 +258,45 @@ mac_binding_records = [
     { mac = "00:11:22:33:44:55", ip = "192.168.5.200" },
 ]
 ```
+
+## Command Line Arguments and Environment Variables
+
+Command line arguments take precedence over `landscape.toml`. Every argument has a corresponding environment variable, convenient for container deployment.
+
+| Argument                     | Environment variable             | Corresponding config item      |
+| ---------------------------- | -------------------------------- | ------------------------------ |
+| `-c`, `--config-dir`         | `LANDSCAPE_CONF_PATH`            | Config directory (`<HOME>`)    |
+| `-w`, `--web`                | `LANDSCAPE_WEB_ROOT`             | `web.web_root`                 |
+| `-p`, `--port`               | `LANDSCAPE_WEB_HTTP_PORT`        | `web.port`                     |
+| `-s`, `--https`              | `LANDSCAPE_WEB_HTTPS_PORT`       | `web.https_port`               |
+| `-a`, `--address`            | `LANDSCAPE_WEB_ADDR`             | `web.address`                  |
+| `--user`                     | `LANDSCAPE_ADMIN_USER`           | `auth.admin_user`              |
+| `--pass`                     | `LANDSCAPE_ADMIN_PASS`           | `auth.admin_pass`              |
+| `--log_path`                 | `LANDSCAPE_LOG_PATH`             | `log.log_path`                 |
+| `--debug`                    | `LANDSCAPE_DEBUG`                | `log.debug`                    |
+| `-o`, `--log-output-in-terminal` | `LANDSCAPE_LOG_TERMINAL`     | `log.log_output_in_terminal`   |
+| `--max-log-files`            | `LANDSCAPE_LOG_FILE_LIMIT`       | `log.max_log_files`            |
+| `--db_url`                   | `DATABASE_URL`                   | `store.database_path`          |
+
+Command line only (no corresponding `landscape.toml` field):
+
+| Argument             | Environment variable         | Description                                                                       |
+| -------------------- | ---------------------------- | --------------------------------------------------------------------------------- |
+| `--log-filter`       | `LANDSCAPE_LOG_FILTER`       | Comma-separated keywords. When set, only ERROR/WARN logs and logs matching the keywords are output, e.g. `dhcp,dns` |
+| `--auto`             | `LANDSCAPE_AUTO`             | Automatically initialize the default network. Automatically assigns existing network cards to zones |
+| `-e`, `--export-manager` | -                        | Allow accessing the management UI from the WAN IP                                 |
+| `--try-xdp`, `--txdp` | -                            | Try native XDP attachment. No value = all network cards, or give comma-separated ifindexes like `3,5`. Defaults to TC (SKB) mode only |
+| `--ebpf_map_space`    | `LANDSCAPE_EBPF_MAP_SPACE`   | eBPF map namespace, default `default`                                            |
+
+::: danger
+`--auto` will **automatically assign detected network cards to zones**. On a machine that already has a configuration, or on a machine where you only want isolated testing, it may take over the management network card in use and cause you to lose connection. Do not pass this argument unless it is the first-time initialization.
+:::
+
+### Subcommands
+
+```sh
+# Interactively roll back the database to a release boundary
+landscape-webserver db rollback
+# Or use the alias
+landscape-webserver db rb
+```

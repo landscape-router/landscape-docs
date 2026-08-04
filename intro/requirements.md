@@ -1,4 +1,27 @@
-# System Requirements
+# Requirements
+
+## Linux Distribution Compatibility
+
+✅ Kernel version compatible  
+🟢 Some versions have compatible kernel versions  
+❌ Kernel version not compatible
+
+| Distribution | Compatible | Version Requirements  | Notes                                                                                       |
+| ------------ | ---------- | --------------------- | ------------------------------------------------------------------------------------------- |
+| Debian       | ✅         | 13+                   | Debian 13's default kernel already meets the requirements. Avoid installing NetworkManager. |
+| Arch         | ✅         | Rolling release       | The kernel just needs to be new enough. Avoid installing NetworkManager.                    |
+| Rocky Linux  | 🟢         | Needs upgrade to 6.9+ | Also needs NetworkManager removed, `firewalld` disabled, and SELinux permissions handled.   |
+| Armbian      | 🟢         | Needs upgrade to 6.9+ | Depends on the specific kernel branch.                                                      |
+| OpenWRT      | 🟢         | 25+ / snapshot        | Requires compiling yourself; official prebuilt versions are not supported yet.              |
+| Alpine       | ❌         | -                     | Currently incompatible.                                                                     |
+
+<!--⚠️ Compatible after adjustment-->
+<!--🟡 Unknown  -->
+
+## Memory Size Limits
+
+Memory usage has not been specially optimized yet. For ordinary distributions, at least 2 GiB of memory is recommended.  
+If you use a self-trimmed kernel, about 1.5 GiB should be enough.
 
 ## Kernel Version
 
@@ -6,10 +29,10 @@ Requires kernel version `6.9.x` or higher for deployment.
 
 ## Required Kernel Configuration
 
-Check if the kernel compilation configuration file is configured as follows:
+Please make sure the kernel compilation configuration contains the following options:
 
 ::: warning
-Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled.
+Mainly check whether `BTF` generation is enabled, confirm `BPF` functionality is enabled, and also enable Cgroups CPU control.
 :::
 
 ```text
@@ -37,7 +60,6 @@ CONFIG_LWTUNNEL_BPF=y
 # CONFIG_HID_BPF is not set
 # end of HID-BPF support
 CONFIG_BPF_EVENTS=y
-CONFIG_TEST_BPF=m
 ```
 
 ## Kernel BTF Generation Must Be Enabled
@@ -45,22 +67,30 @@ CONFIG_TEST_BPF=m
 Select: **Kernel hacking**  
 -> **Compile-time checks and compiler options**  
 -> **Debug information (Generate DWARF Version 5 debuginfo)**  
-Then you can find **Kernel hacking**  
+Then in **Kernel hacking**  
 -> **Compile-time checks and compiler options**  
-and see **Generate BTF type information** Select and install it.
+you can find the **Generate BTF type information** option. Enable it.
 
-## Linux Distributions Compatible with Kernel Version
+## OpenWRT Build Requirements
 
-✅ Kernel version compatible  
-🟢 Some versions have compatible kernel versions  
-❌ Kernel version not compatible
+The [configuration above](#required-kernel-configuration) needs to be enabled in the kernel build options (`make kernel_menuconfig`).  
+Additionally, in the OpenWRT build options (`make menuconfig`), select:
 
-| Distribution | Compatible | Version Requirements | Notes                                     |
-| ------------ | ---------- | -------------------- | ----------------------------------------- |
-| Debian       | ✅         | 13+                  | Lower versions need kernel update to 6.9+ |
-| Armbian      | 🟢         |                      | Requires kernel version 6.9+              |
-| OpenWRT      | ❌         |                      |                                           |
-| Alpine       | ❌         |                      |                                           |
+- **Global build settings** -> **Kernel build options**
+  - **Compile the kernel with BPF event support** _(KERNEL_BPF_EVENTS)_
+  - **Enable kernel cgroups** _(KERNEL_CGROUPS)_
+    - **Support for eBPF programs attached to cgroups** _(KERNEL_CGROUP_BPF)_
+- **Network** -> **Routing and Redirection**
+  - **tc-full** _Traffic control utility (full) (PACKAGE_tc-full)_ _or_
+  - **tc-bpf** _Traffic control utility (bpf) (PACKAGE_tc-bpf)_
 
-<!--⚠️ Compatible after adjustment-->
-<!--🟡 Unknown  -->
+**Deselect**:
+
+- **Global build settings** -> **Kernel build options**
+  - **Compile the kernel with debug information** _(KERNEL_DEBUG_INFO)_
+    - **Reduce debugging information** _(CONFIG_KERNEL_DEBUG_INFO_REDUCED)_
+
+Then under **Global build settings**  
+-> **Kernel build options**  
+-> **Compile the kernel with debug information** _(KERNEL_DEBUG_INFO)_  
+you can see **Enable additional BTF type information** _(CONFIG_KERNEL_DEBUG_INFO_BTF)_ and select it.
