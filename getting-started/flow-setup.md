@@ -1,248 +1,248 @@
-# 分流配置
+# Flow Setup
 
-> 本文引导你完成分流 (Flow) 的配置：创建 Flow、设置入口/出口、配置 DNS 和 IP 分流规则，实现对不同流量按不同路径转发。
+> This guide walks you through configuring flows: creating a Flow, setting its ingress and egress, and adding DNS and IP rules so different traffic takes different paths.
 
-## 核心概念速览
+## The core concepts at a glance
 
-在开始之前，先了解几个核心概念：
+A few concepts to know before starting:
 
-| 概念         | 说明                                                           | 类比               |
-| ------------ | -------------------------------------------------------------- | ------------------ |
-| **Flow**     | 一组流量策略，包含入口规则、出口、分流规则                     | 一条自定义管道     |
-| **入口规则** | 匹配来源设备（设备/MAC/IP），决定「谁的流量」进入这个 Flow     | 管道的入水口过滤器 |
-| **出口**     | 流量的最终出口（WAN 网卡或 Docker 容器），可配置多个并设置权重 | 管道通向的地方     |
-| **分流规则** | DNS 规则和 IP 规则，决定进入 Flow 的流量「具体走哪个出口」     | 管道内部的分岔口   |
+| Concept          | Description                                                                                           | Analogy                        |
+| ---------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------ |
+| **Flow**         | A traffic policy made up of ingress rules, egresses and routing rules                                 | A custom pipe                  |
+| **Ingress rule** | Matches the source device (device / MAC / IP), deciding **whose** traffic enters this Flow            | The filter on the pipe's inlet |
+| **Egress**       | Where traffic finally leaves (a WAN interface or a Docker container); several can be set with weights | Where the pipe leads           |
+| **Routing rule** | DNS and IP rules deciding **which egress** traffic inside the Flow actually takes                     | A fork inside the pipe         |
 
-### 两种 Flow
+### The two kinds of Flow
 
-- **默认 Flow (ID 0)**：系统内置，所有未被其他 Flow 匹配的流量走这里，出口为默认路由。
-- **自定义 Flow (ID 1~255)**：你创建的 Flow，按入口规则匹配设备，支持 DNS/IP 规则对流量做进一步细分。
+- **Default Flow (ID 0)**: built in. Any traffic not matched by another Flow goes here, and its egress is the default route.
+- **Custom Flows (ID 1~255)**: the ones you create. They match devices by ingress rules, and DNS / IP rules can subdivide the traffic further.
 
-::: tip 更多细节
-参考：[分流控制详细文档](../features/traffic-flow)
+::: tip More detail
+See [Traffic Shaping](../features/traffic-flow).
 :::
 
-## 场景设定
+## The scenario
 
-在接下来的配置中，我们假设以下场景贯穿全文：
+The configuration below assumes this scenario throughout:
 
-> 家里有**两条宽带**：电信（WAN1）和联通（WAN2）。
+> The house has **two broadband lines**: carrier A (WAN1) and carrier B (WAN2).
 >
-> - **电视盒子**走电信宽带
-> - **其余设备**走联通宽带
-> - 电视盒子访问 **淘宝** 等部分域名时，切回联通宽带（利用联通线路对国内站点的优化）
+> - The **TV box** goes out over carrier A
+> - **Everything else** goes out over carrier B
+> - When the TV box visits certain domains, it switches back to carrier B (whose route to those sites is better)
 
-这个场景会帮助你理解每一步配置的实际意义。
+Keeping this in mind makes each configuration step easier to place.
 
-## 创建自定义 Flow
+## Creating a custom Flow
 
-### 进入分流设置页面
+### Opening the flow settings page
 
-点击左侧菜单 **分流设置** 进入分流页面，你会看到：
+Click **Flow Settings** in the left-hand menu. You will see:
 
-- **默认 Flow 卡片** — 展示默认流的 DNS / IP 规则入口，底部有「创建一个新 Flow」按钮和「分流追踪」按钮
-- **自定义 Flow 卡片** — 每个你创建的 Flow 对应一张卡片，显示入口规则和出口信息
+- **The default Flow card** — the entry point to the default flow's DNS / IP rules, with "create a new Flow" and "flow trace" buttons at the bottom
+- **Custom Flow cards** — one card per Flow you created, showing its ingress rules and egress
 
-### 新建 Flow
+### Adding a Flow
 
-点击「创建一个新 Flow」按钮：
+Click the "create a new Flow" button:
 
-![创建 Flow](./flow-setup/create-btn.png)
+![Create a Flow](../zh/getting-started/flow-setup/create-btn.png)
 
-弹出的配置窗口如下：
+The configuration dialog looks like this:
 
-![Flow 配置](./flow-setup/flow-modal.png)
+![Flow configuration](../zh/getting-started/flow-setup/flow-modal.png)
 
-配置项说明：
+The fields:
 
-| 配置项       | 说明                                           |
-| ------------ | ---------------------------------------------- |
-| **流 ID**    | Flow 的唯一标识，范围 1~255，不可重复          |
-| **启用**     | 开关控制 Flow 是否生效                         |
-| **备注**     | 便于你自己识别这个 Flow 的用途                 |
-| **入口规则** | 匹配哪些设备进入这个 Flow                      |
-| **出口规则** | 匹配到的流量默认从哪些出口发出，支持多出口加权 |
+| Field             | Description                                                               |
+| ----------------- | ------------------------------------------------------------------------- |
+| **Flow ID**       | The Flow's unique identifier, 1~255, no duplicates                        |
+| **Enable**        | Whether the Flow is in effect                                             |
+| **Note**          | For your own reference, so you remember what this Flow is for             |
+| **Ingress rules** | Which devices enter this Flow                                             |
+| **Egress rules**  | Where matched traffic leaves by default; several egresses can be weighted |
 
-Flow 的配置有三种常见模式：
+There are three common patterns:
 
 ::: tabs
-== 入口规则 + 出口（最常用）
+== Ingress + egress (most common)
 
-入口匹配指定设备，匹配到的设备流量**默认**走设定的出口。还可以通过 DNS/IP 规则将部分流量重定向到其他出口。
+The ingress matches specific devices, and their traffic goes out through the configured egress **by default**. DNS / IP rules can then redirect part of it elsewhere.
 
-在本场景中，为电视盒子创建 Flow 1，入口匹配电视盒子，出口选电信 WAN。
+In our scenario, create Flow 1 for the TV box: ingress matches the TV box, egress is carrier A's WAN.
 
-== 仅配置出口
+== Egress only
 
-只设置出口，不设入口规则。这样的 Flow 本身不直接接收流量，但可被其他 Flow 的 DNS/IP 规则**作为分流目标**引用。
+Set an egress but no ingress rules. Such a Flow does not receive traffic directly, but other Flows' DNS / IP rules can reference it **as a redirect target**.
 
-例如：创建一个 Flow 2（仅出口，指向联通 WAN），供 Flow 1 的域名规则引用，让特定域名切回联通。
+For example, create Flow 2 (egress only, pointing at carrier B's WAN) for Flow 1's domain rules to reference, so specific domains switch back to carrier B.
 
-== 仅配置入口
+== Ingress only
 
-只设置入口，不设出口。匹配进来的流量**默认被丢弃**，除非通过 DNS/IP 规则重定向到其他 Flow 的出口。
+Set an ingress but no egress. Matched traffic is **dropped by default**, unless a DNS / IP rule redirects it to another Flow's egress.
 
 :::
 
-在我们的场景中，选择第一种模式。
+Our scenario uses the first pattern.
 
-### 配置入口规则
+### Configuring ingress rules
 
-入口规则决定**哪些设备**的流量进入这个 Flow。支持三种匹配方式：
+Ingress rules decide **which devices'** traffic enters the Flow. Three matching modes are available:
 
-| 匹配方式 | 说明                                           | 适用场景             |
-| -------- | ---------------------------------------------- | -------------------- |
-| 设备     | 从已登记设备中选择                             | 设备已通过 DHCP 登记 |
-| MAC 地址 | 手动输入 MAC 地址                              | 设备未登记或静态 IP  |
-| IP 地址  | 输入 IP 地址 + 前缀长度（如 `192.168.1.0/24`） | 按子网批量匹配       |
+| Mode        | Description                                            | When to use                           |
+| ----------- | ------------------------------------------------------ | ------------------------------------- |
+| Device      | Pick from already enrolled devices                     | The device is enrolled via DHCP       |
+| MAC address | Enter the MAC address by hand                          | The device is not enrolled, or static |
+| IP address  | Enter an IP plus prefix length (e.g. `192.168.1.0/24`) | Matching a whole subnet at once       |
 
-#### 场景操作
+#### Doing it in our scenario
 
-为电视盒子创建 Flow 1，点击「增加一条入口匹配规则」：
+Create Flow 1 for the TV box and click "add an ingress match rule":
 
-- 选择 **MAC 地址**模式，输入电视盒子的 MAC 地址
-- 流 ID 设为 `1`，备注写「电视盒子 - 电信」
-- 出口类型选 **WAN 网卡**，选择电信对应的 WAN 网卡
+- Choose **MAC address** mode and enter the TV box's MAC
+- Set the Flow ID to `1` and note it as "TV box — carrier A"
+- Choose **WAN interface** as the egress type and pick carrier A's WAN
 
-::: tip 入口规则注意
+::: tip Notes on ingress rules
 
-- 多个入口规则之间是「或」关系，满足任一条即进入此 Flow
-- 匹配优先级：IP > MAC
-- 不同 Flow 的入口规则不应有重叠，否则只有其中一个 Flow 生效
+- Multiple ingress rules are OR'd together — matching any one enters the Flow
+- Match precedence: IP > MAC
+- Ingress rules of different Flows should not overlap, or only one of them takes effect
   :::
 
-### 配置出口
+### Configuring the egress
 
-出口支持两种类型，每种可设置权重（权重越高分配流量越多）：
+Two egress types are supported, each with a weight (a higher weight receives more traffic):
 
-| 出口类型 | 说明                     |
-| -------- | ------------------------ |
-| WAN 网卡 | 选择 WAN 区域的网卡      |
-| Docker   | 选择用作 Flow 出口的容器 |
+| Egress type   | Description                                  |
+| ------------- | -------------------------------------------- |
+| WAN interface | Pick an interface in the WAN zone            |
+| Docker        | Pick a container designated as a Flow egress |
 
-::: info 多出口负载均衡
-如果配置了多个出口，流量将按权重比例分配。例如电信权重 3、联通权重 1，约 75% 的流量走电信。
+::: info Load balancing across egresses
+With several egresses configured, traffic is split in proportion to the weights. For example, weight 3 on carrier A and 1 on carrier B sends roughly 75% of traffic over carrier A.
 :::
 
-配置完成后点击保存。现在电视盒子的流量会走电信宽带。
+Click save when done. The TV box's traffic now goes out over carrier A.
 
-## 配置 DNS 分流规则
+## Configuring DNS routing rules
 
-仅仅把设备指向一条宽带还不够 —— 如果想让**特定域名**走不同出口，需要配置 DNS 分流规则。
+Pointing a device at one broadband line is not the whole story — to send **specific domains** out through a different egress, you need DNS routing rules.
 
-### 规则结构
+### Rule structure
 
-每条 DNS 规则定义：
+Every DNS rule defines:
 
-| 组成部分     | 说明                                                 |
-| ------------ | ---------------------------------------------------- |
-| **域名匹配** | 触发规则的域名（如 `*.taobao.com`）                  |
-| **DNS 上游** | 解析该域名时使用的上游 DNS（可选，不填使用默认上游） |
-| **流量动作** | 匹配后流量如何处理                                   |
-| **优先级**   | 数值越小优先级越高，用于多条规则冲突时的判定         |
+| Part               | Description                                                                       |
+| ------------------ | --------------------------------------------------------------------------------- |
+| **Domain match**   | The domain that triggers the rule (e.g. `*.example.com`)                          |
+| **Upstream DNS**   | The upstream used to resolve it (optional; the default upstream is used if empty) |
+| **Traffic action** | What happens to matched traffic                                                   |
+| **Priority**       | Lower numbers win; used to resolve conflicts between rules                        |
 
-### 为 Flow 添加 DNS 规则
+### Adding a DNS rule to a Flow
 
-1. 在 Flow 1 的卡片上点击 **DNS** 按钮，打开 DNS 规则侧边栏
-2. 点击添加规则，进入编辑窗口：
+1. Click the **DNS** button on Flow 1's card to open the DNS rule sidebar
+2. Click add rule to open the editor:
 
-![DNS 规则编辑](./flow-setup/dns-rule-edit.png)
+![Editing a DNS rule](../zh/getting-started/flow-setup/dns-rule-edit.png)
 
-### 流量动作详解
+### Traffic actions in detail
 
-流量动作决定了匹配到的流量最终怎么走：
+The traffic action decides where matched traffic ultimately goes:
 
-| 动作               | 说明                            |
-| ------------------ | ------------------------------- |
-| **当前流的出口**   | 使用当前 Flow 配置的出口发送    |
-| **默认流的出口**   | 使用默认路由（Flow 0 出口）发送 |
-| **禁止连接**       | 丢弃该流量，禁止访问            |
-| **使用指定流出口** | 重定向到另一个 Flow 的出口      |
+| Action                        | Description                                  |
+| ----------------------------- | -------------------------------------------- |
+| **This Flow's egress**        | Send via the egress configured on this Flow  |
+| **The default Flow's egress** | Send via the default route (Flow 0's egress) |
+| **Block**                     | Drop the traffic, denying access             |
+| **A specific Flow's egress**  | Redirect to another Flow's egress            |
 
-![流量动作选项](./flow-setup/flow-actions.png)
+![Traffic action options](../zh/getting-started/flow-setup/flow-actions.png)
 
-#### 场景操作
+#### Doing it in our scenario
 
-为 Flow 1 添加 DNS 规则，让电视盒子访问淘宝时切回联通宽带：
+Add a DNS rule to Flow 1 so the TV box switches back to carrier B for certain domains:
 
-1. 首先创建 Flow 2 —— 仅配置出口，指向联通对应的 WAN 网卡
-2. 回到 Flow 1，点击 DNS 进入 DNS 规则侧边栏
-3. 添加规则：域名匹配 `*.taobao.com`，流量动作选「**使用指定流出口**」→ Flow 2
-4. 优先级设为 `1000`
+1. First create Flow 2 — egress only, pointing at carrier B's WAN interface
+2. Go back to Flow 1 and click DNS to open the DNS rule sidebar
+3. Add a rule: domain match `*.example.com`, traffic action **a specific Flow's egress** → Flow 2
+4. Set the priority to `1000`
 
-### 兜底规则（必须配置）
+### The catch-all rule (required)
 
-每个 Flow 至少需要一条**兜底 DNS 规则**，处理那些**没匹配到任何域名规则**的流量。Flow 1 需要加一条：
+Every Flow needs at least one **catch-all DNS rule** to handle traffic that **matched no domain rule**. Flow 1 needs one:
 
-- 域名匹配保持**为空**（匹配所有域名）
-- 流量动作选**当前流的出口**
-- 优先级设较大值（如 `10000`），确保在所有具体域名规则之后才被命中
+- Leave the domain match **empty** (matches every domain)
+- Set the traffic action to **this Flow's egress**
+- Give it a high priority value (e.g. `10000`) so it is only reached after every specific domain rule
 
-![兜底规则示例](./flow-setup/catch-all.png)
+![A catch-all rule](../zh/getting-started/flow-setup/catch-all.png)
 
-::: tip 匹配顺序
+::: tip Match order
 
-1. DNS 规则按优先级从小到大依次匹配
-2. 命中第一条匹配的规则后即停止
-3. 无匹配时，流量走该 Flow 的默认出口
+1. DNS rules are matched by priority, lowest number first
+2. Matching stops at the first rule that hits
+3. With no match, traffic takes the Flow's default egress
    :::
 
-## 配置 IP 分流规则（可选）
+## Configuring IP routing rules (optional)
 
-IP 规则与 DNS 规则类似，但匹配的是**目标 IP 地址**而非域名。
+IP rules work like DNS rules, but match the **destination IP address** rather than a domain.
 
-### 什么时候用 IP 规则？
+### When to use IP rules
 
-- 已知目标服务的 IP 段且较为固定
-- 需要按 IP 归属地分流（配合 GeoIP 标签）
-- 不需要经过 DNS 解析即可确定流量归属
+- The target service's IP ranges are known and reasonably stable
+- You want to route by IP geography (together with GeoIP labels)
+- The traffic can be classified without waiting on DNS resolution
 
-### 场景操作
+### Doing it in our scenario
 
-在 Flow 1 中添加一条 IP 规则，让到 `1.1.1.0/24` 网段的流量直连默认路由：
+Add an IP rule to Flow 1 so traffic to `1.1.1.0/24` goes out over the default route:
 
-1. 在 Flow 1 卡片上点击 **目标 IP** 按钮
-2. 添加规则，目标 IP 填写 `1.1.1.0/24`
-3. 流量动作选择**默认流的出口**
-4. 优先级设为 `500`
+1. Click the **Destination IP** button on Flow 1's card
+2. Add a rule with destination IP `1.1.1.0/24`
+3. Set the traffic action to **the default Flow's egress**
+4. Set the priority to `500`
 
-::: warning DNS 与 IP 规则冲突
-当同一数据包同时被 DNS 规则和 IP 规则匹配、且优先级相同时，DNS 规则优先。
+::: warning When DNS and IP rules conflict
+If one packet matches both a DNS rule and an IP rule at the same priority, the DNS rule wins.
 :::
 
-## 验证分流效果
+## Verifying the result
 
-配置完成后，Landscape 提供**分流追踪**工具帮助你在发送实际流量之前验证规则效果。
+Landscape ships a **flow trace** tool so you can check your rules before sending real traffic.
 
-在默认 Flow 卡片上点击**分流追踪**按钮，工具分为两步：
+Click the **flow trace** button on the default Flow card. The tool works in two steps:
 
-### 第一步：匹配源客户端
+### Step 1: match the source client
 
-选择或手动输入客户端（设备 / MAC / IP），点击「查询 Flow 匹配」，查看该客户端会被哪个 Flow 处理。
+Pick or type a client (device / MAC / IP) and click "query Flow match" to see which Flow will handle it.
 
-### 第二步：查询目标
+### Step 2: query a target
 
-输入域名或 IP 地址，系统会：
+Enter a domain or IP address, and the system will:
 
-1. 对域名进行 DNS 解析
-2. 展示解析到的每个 IP 分别命中哪条 DNS 规则 / IP 规则
-3. 展示最终的出口动作
-4. 对比路由缓存与当前配置是否一致
+1. Resolve the domain
+2. Show which DNS rule / IP rule each resolved IP hits
+3. Show the resulting egress action
+4. Compare the route cache against the current configuration
 
-::: tip 缓存一致性
-如果追踪结果提示缓存与配置不一致，点击「清除路由缓存」按钮让新规则立即生效。
+::: tip Cache consistency
+If the trace reports that the cache and the configuration disagree, click "clear route cache" so the new rules take effect immediately.
 :::
 
-#### 场景验证
+#### Verifying our scenario
 
-1. 第一步选择电视盒子 → 确认匹配到 **Flow 1**
-2. 第二步输入 `www.taobao.com` → 确认出口指向 **Flow 2**（联通 WAN）
-3. 第二步输入 `www.baidu.com` → 确认走 Flow 1 的**默认出口**（电信 WAN）
+1. In step 1, pick the TV box → confirm it matches **Flow 1**
+2. In step 2, enter a domain covered by the rule → confirm the egress points at **Flow 2** (carrier B's WAN)
+3. In step 2, enter any other domain → confirm it takes Flow 1's **default egress** (carrier A's WAN)
 
-也可以在设备上实际访问后，打开**指标监控 → 连接信息**查看实时连接的 Flow 归属。
+You can also browse to something on the device and then check **Metrics → Connection Info** to see which Flow live connections belong to.
 
-## 下一步
+## Next steps
 
-- [分流控制详细文档](../features/traffic-flow) — 了解 Flow 的完整设计和高级用法（多出口加权、Docker 容器出口等）
-- [DNS 配置](./dns-setup) — 配置上游 DNS 服务器
-- [基础上网配置](./basic-network-setup) — 回顾基础网络配置
+- [Traffic Shaping](../features/traffic-flow) — the full design and advanced usage (weighted egresses, Docker container egresses, and so on)
+- [DNS Setup](./dns-setup) — configure upstream DNS servers
+- [Basic Network Setup](./basic-network-setup) — revisit the basic network configuration

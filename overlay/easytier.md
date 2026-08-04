@@ -1,16 +1,16 @@
 # Easytier
 
-Easytier 的部署使用的步骤大致如下:
+Deploying Easytier roughly comes down to:
 
-1. 创建一个easytier容器
-2. 启动 easytier 容器, 并以此容器为出口创建一个 Flow.
-3. 在easytier-web端添加配置
-4. 开启 NAT1 映射
-5. 设置路由让内网中的程序可以访问 easytier 中的 IP / 网段.
+1. Build an easytier container
+2. Start the easytier container and create a Flow that uses it as the egress
+3. Add the configuration on the easytier web side
+4. Set up NAT1 mapping
+5. Set up routing so programs on the LAN can reach the IPs / subnets inside easytier
 
-## 创建easytier容器
+## Building the easytier container
 
-首先需要创建一个dockerfile文件
+First create a dockerfile:
 
 ```dockerfile
 FROM debian:bookworm
@@ -40,7 +40,7 @@ RUN chmod +x /start.sh
 ENTRYPOINT ["/start.sh"]
 ```
 
-在同目录创建start.sh文件，注意修改启动参数，参照easytier官方文档搭建web端，或者直接[使用官方web端](https://easytier.cn/web#/auth)创建账号，这里使用官方web端，只填写账号即可
+Create a `start.sh` in the same directory. Mind the startup arguments — either set up the web side following easytier's own documentation, or [use the official web console](https://easytier.cn/web#/auth) and create an account. This example uses the official console, where filling in the account name is enough.
 
 ```bash
 #!/bin/bash
@@ -49,8 +49,8 @@ set -eo pipefail
 echo "[redirect_pkg_handler] starting..."
 /redirect_pkg_handler -m route &
 
-# 启动easytier，请在-w后替换自己的用户名
-/easytier-core -w <用户名> --machine-id <机器码> --hostname <web端显示的名称> &
+# Start easytier; replace the value after -w with your own username
+/easytier-core -w <username> --machine-id <machine id> --hostname <name shown in the web console> &
 
 for i in $(seq 1 10); do
     ip link show tun0 && break
@@ -62,7 +62,7 @@ iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
 wait
 ```
 
-在landscape和easytier的release下载redirect_pkg_handler和easytier文件，此时当前文件夹下有以下内容
+Download `redirect_pkg_handler` and the easytier binary from the landscape and easytier releases. The directory should then contain:
 
 ```bash
 tree
@@ -73,34 +73,35 @@ tree
 └── start.sh
 ```
 
-然后执行，进行镜像编译
+Then build the image:
 
 ```shell
-docker build -t <标签名称> .
+docker build -t <tag> .
 ```
 
-## 启动容器
+## Starting the container
 
 ::: warning
-网桥中的名称一定要设置 !!!
+You must set the bridge name!
 
 ```yaml
 networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # 一定要设置, 否则默认会使用动态网卡名称, 重启后网卡名称变动导致 LAN 服务不能正常开启
+      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
+      # which stops the LAN service from starting properly.
       com.docker.network.bridge.name: easytier-br0
 ```
 
 :::
 
-然后按照你的 compose 配置进行启动即可.
+Then start it with your own compose configuration.
 
 ```yaml
 services:
   tailscale:
-    image: <编译镜像的标签名>
+    image: <tag of the image you built>
     container_name: easytier
     restart: unless-stopped
     cap_add:
@@ -119,9 +120,9 @@ services:
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       easytier-bridge:
-        ipv4_address: 172.189.0.10 # 可选指定容器 IP
+        ipv4_address: 172.189.0.10 # optionally pin the container IP
     dns:
-      - 172.189.0.1 # 设置为 bridge IP 可以使用默认流的 DNS 配置
+      - 172.189.0.1 # setting this to the bridge IP lets it use the default flow's DNS configuration
 
 networks:
   easytier-bridge:
@@ -135,40 +136,40 @@ networks:
           gateway: 172.189.0.1
 ```
 
-然后创建一个 Flow 并使用这个容器作为出口. ![](./easytier/1.png)
+Then create a Flow that uses this container as its egress. ![](../zh/overlay/easytier/1.png)
 
-## 在easytier-web端添加配置
+## Adding the configuration on the easytier web side
 
-登陆[官方web端](https://easytier.cn/web#/auth) 在设备列表找到设备，点击齿轮图表
+Sign in to the [official web console](https://easytier.cn/web#/auth), find the device in the device list, and click the gear icon.
 
-![](./easytier/2.png)
+![](../zh/overlay/easytier/2.png)
 
-打开管理页面
+Open the management page.
 
-![](./easytier/3.png)
+![](../zh/overlay/easytier/3.png)
 
-选择创建网络
+Choose to create a network.
 
-![](./easytier/4.png)
+![](../zh/overlay/easytier/4.png)
 
-根据实际情况填写
+Fill it in to match your setup.
 
-## 设置 NAT1
+## Setting up NAT1
 
-先在容器所属的 `网桥` 开启 `Lan 路由转发服务`. 如下图. ![](./easytier/5.png)
+First enable the `Route LAN` service on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/easytier/5.png)
 
-> 静态NAT配置 (内网目标端口为容器端口, IP 为容器 IP) ![](./easytier/6.png)
+> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/easytier/6.png)
 
-> 在防火墙放开相应端口 ![](./easytier/7.png)
+> Open the matching port in the firewall ![](../zh/overlay/easytier/7.png)
 
-## 配置 "路由" 规则
+## Configuring the "route" rules
 
-点击相应 Flow 的 `目标 IP` 按钮进行配置. 只有添加相应规则的 Flow 才会生效. ![](./easytier/8.png)
+Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/easytier/8.png)
 
-比如我当前 LAN 客户端的 MAC 地址是 `00:a0:98:27:41:47`, 这个客户端当前被 `Flow 11` 规则所管理. 所以我需要在 `Flow 11` 的 `目标 IP` 进行配置. 并选择流量的出口为刚刚启动容器时创建的 `Flow 252`.
+For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 252`, the one created when starting the container.
 
-![](./easytier/9.png)
+![](../zh/overlay/easytier/9.png)
 
-这样, 当 LAN 客户端访问 `6.6.0.0/16` 时, 这些数据包就会使用 Flow 252 (easytier) 的出口, 也就是被转发到 `easytier` 容器中.
+That way, when the LAN client reaches `6.6.0.0/16`, those packets take the Flow 252 (easytier) egress and are forwarded into the `easytier` container.
 
-> 6.6.0.0/16 这个示例是假设你在对端也部署了 easytier , 那么可以直接配置对方的网段. 这样就能实现互通.
+> The `6.6.0.0/16` example assumes you also deployed easytier on the far side, in which case you can configure the remote subnet directly and reach it both ways.

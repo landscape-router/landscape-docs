@@ -1,9 +1,9 @@
-# 防火墙
+# Firewall
 
 ::: warning
-自[0.16.0]版本起，防火墙改为黑名单模式
+Since [0.16.0], the firewall works in blacklist mode.
 :::
 
-## 防火墙黑名单
+## Firewall blacklist
 
-![](./firewall/blacklist.png)
+![](../zh/reference/firewall/blacklist.png)

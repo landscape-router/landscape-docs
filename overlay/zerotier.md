@@ -1,23 +1,23 @@
 # ZeroTier
 
-ZeroTier 的部署使用的步骤大致如下:
+Deploying ZeroTier roughly comes down to:
 
-1. 开启 NAT1 映射
-2. 启动 ZeroTier 容器, 并以此容器为出口创建一个 Flow.
-3. 设置路由让内网中的程序可以访问 ZeroTier 中的 IP / 网段.
+1. Set up NAT1 mapping
+2. Start the ZeroTier container and create a Flow that uses it as the egress
+3. Set up routing so programs on the LAN can reach the IPs / subnets inside ZeroTier
 
-## 设置 NAT1
+## Setting up NAT1
 
-主要有以下两种方式可进行 FullCone NAT (NAT1), 任选一种配置方式就行.
+There are two ways to get FullCone NAT (NAT1); either one works.
 
-1. 将 ZeroTier 使用的端口（`9993`）, 配置静态 NAT.
-2. 将 ZeroTier 使用的 `PLANET` 添加到 IP 规则中. 并开启 NAT1 开关.
+1. Configure a static NAT mapping for the port ZeroTier uses (`9993`).
+2. Add the `PLANET` addresses ZeroTier uses to an IP rule and turn the NAT1 switch on.
 
-以上两种方式都只在容器所属的 `网桥` 开启 `Lan 路由转发服务` 时才生效. 如下图. ![](./zerotier/1.png)
+Both only take effect once the `Route LAN` service is enabled on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/zerotier/1.png)
 
-> 静态NAT配置 (内网目标端口为容器端口, IP 为容器 IP) ![](./zerotier/2.png)
+> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/zerotier/2.png)
 
-> IP 规则配置 (注意是在 `默认流` 的 `目标 IP 规则` 中进行配置, 假设你没有将该容器的 MAC 或者 IP 配置为某个流的入口) ![](./zerotier/3.png) 可复制下列 JSON 并粘贴到规则中
+> IP rule configuration (note this goes in the `destination IP rules` of the `default flow`, assuming you have not made the container's MAC or IP the ingress of some other flow) ![](../zh/overlay/zerotier/3.png) You can copy the JSON below and paste it into the rule
 >
 > ```json
 > [
@@ -49,25 +49,26 @@ ZeroTier 的部署使用的步骤大致如下:
 > ]
 > ```
 
-## 启动容器
+## Starting the container
 
 ::: warning
-网桥中的名称一定要设置 !!!
+You must set the bridge name!
 
 ```yaml
 networks:
   my-zerotier-bridge:
     driver: bridge
     driver_opts:
-      # 一定要设置, 否则默认会使用动态网卡名称, 重启后网卡名称变动导致 LAN 服务不能正常开启
+      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
+      # which stops the LAN service from starting properly.
       com.docker.network.bridge.name: zero-br0
 ```
 
 :::
 
-使用 [apps](https://github.com/landscape-router/landscape-apps) 仓库编译的[镜像](https://github.com/landscape-router/landscape-apps/pkgs/container/landscape-apps%2Fzerotier)进行启动容器. 下方展示的 compose 配置可能过时, 最新配置文件请访问 [docker-compose](https://github.com/landscape-router/landscape-apps/blob/main/zerotier/docker-compose.yaml).
+Start the container from the [image](https://github.com/landscape-router/landscape-apps/pkgs/container/landscape-apps%2Fzerotier) built in the [apps](https://github.com/landscape-router/landscape-apps) repository. The compose file below may be out of date; for the latest, see [docker-compose](https://github.com/landscape-router/landscape-apps/blob/main/zerotier/docker-compose.yaml).
 
-然后按照你的 compose 配置进行启动即可.
+Then start it with your own compose configuration.
 
 ```yaml
 services:
@@ -99,7 +100,8 @@ networks:
   my-zerotier-bridge:
     driver: bridge
     driver_opts:
-      # 一定要设置, 否则默认会使用动态网卡名称, 重启后网卡名称变动导致 LAN 服务不能正常开启
+      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
+      # which stops the LAN service from starting properly.
       com.docker.network.bridge.name: zero-br0
     ipam:
       config:
@@ -107,10 +109,10 @@ networks:
           gateway: 10.101.1.1
 ```
 
-容器启动成功后可见.
+Once the container is up you should see:
 
 ```
-docker exec <容器名称> zerotier-cli peers
+docker exec <container name> zerotier-cli peers
 200 peers
 <ztaddr>   <ver>  <role> <lat> <link>   <lastTX> <lastRX> <path>
 68bea79acf 1.15.3 LEAF     274 DIRECT   13477    13477    xxx.xxx.xxx.xxx/21049
@@ -120,18 +122,18 @@ cafe80ed74 -      PLANET   192 DIRECT   25175    29795    185.152.67.145/9993
 cafefd6717 -      PLANET   137 DIRECT   172      25038    79.127.159.187/9993
 ```
 
-然后创建一个 Flow 并使用这个容器作为出口. ![](./zerotier/4.png)
+Then create a Flow that uses this container as its egress. ![](../zh/overlay/zerotier/4.png)
 
-## 配置 "路由" 规则
+## Configuring the "route" rules
 
-点击相应 Flow 的 `目标 IP` 按钮进行配置. 只有添加相应规则的 Flow 才会生效. ![](./zerotier/5.png)
+Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/zerotier/5.png)
 
-比如我当前 LAN 客户端的 MAC 地址是 `00:a0:98:27:41:47`, 这个客户端当前被 `Flow 11` 规则所管理. 所以我需要在 `Flow 11` 的 `目标 IP` 进行配置. 并选择流量的出口为刚刚启动容器时创建的 `Flow 21`. ![](./zerotier/6.png)
+For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 21`, the one created when starting the container. ![](../zh/overlay/zerotier/6.png)
 
-除此之外要记得
+Beyond that, remember to check:
 
 ```text
-docker exec <容器名称> ip add
+docker exec <container name> ip add
 ...
 3: zt6jy55lqy: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 2800 qdisc fq_codel state UNKNOWN group default qlen 1000
     link/ether d6:46:9c:3c:ed:45 brd ff:ff:ff:ff:ff:ff
@@ -141,24 +143,24 @@ docker exec <容器名称> ip add
        valid_lft forever preferred_lft forever
 ```
 
-将你的 内网 (我这是 `10.10.10.0/24`) 配置到 zerotier 中, via 字段填的是 上方查询到的 容器内的 IP `(172.26.161.171)` ![](./zerotier/7.png)
+Add your internal subnet (mine is `10.10.10.0/24`) to ZeroTier, with the `via` field set to the container's IP you just looked up `(172.26.161.171)`. ![](../zh/overlay/zerotier/7.png)
 
-此时你再使用另一个客户端连接上, 就可以访问你的内网资源了.
+Connect from another client now and you will be able to reach resources on your LAN.
 
-## 结果验证
+## Verifying the result
 
-设备说明:
+The devices involved:
 
-- `设备1`: 172.26.172.71, `非` 路由部署的 `ZeroTier 客户端`
-- `设备2`: 172.26.161.171, 路由部署的 `ZeroTier 客户端`
-- `设备3`: 10.10.10.112, 路由 LAN 下的一台主机
+- `Device 1`: 172.26.172.71, a `ZeroTier client` **not** deployed on the router
+- `Device 2`: 172.26.161.171, the `ZeroTier client` deployed on the router
+- `Device 3`: 10.10.10.112, a host on the router's LAN
 
-1. 从 `设备1` ping `设备3` 通过 `设备2` 处理. ![](./zerotier/8.png)
-2. 从 `设备3` ping `设备1` 通过 `设备2` 处理. ![](./zerotier/9.png)
+1. Ping `Device 3` from `Device 1`, handled through `Device 2`. ![](../zh/overlay/zerotier/8.png)
+2. Ping `Device 1` from `Device 3`, handled through `Device 2`. ![](../zh/overlay/zerotier/9.png)
 
-## 附：ZeroTier 使用的 PLANET
+## Appendix: the PLANET addresses ZeroTier uses
 
-IP 规则配置中填入的 IP 地址为这些域名查询后得到的 IP
+The IPs to put in the IP rule are whatever these domains resolve to:
 
 ```text
 root-mia-01.zerotier.com

@@ -1,232 +1,126 @@
-# 分流控制
+# Traffic Shaping
 
-分流可以`定义`一组目标 IP 行为，`应用`在一组客户端。
+Traffic shaping can `define` a set of target IP behaviors and `apply` them to a group of clients.
 
-> 有任何想法欢迎在此发布评论：https://github.com/ThisSeanZhang/landscape/discussions/88
+> Any ideas are welcome to be posted here, or create a new one: https://github.com/ThisSeanZhang/landscape/discussions/88
 
-## 快速导航
+## Basic Concepts
 
-- [基础概念](#基础概念) - 了解 Flow、入口、出口等核心概念
-- [流的定义](#流的定义) - 如何创建和配置 Flow
-- [流怎么分](#流怎么分) - DNS 规则和 IP 规则详解
-- [规则设置位置](#规则设置的位置) - 在界面中的配置位置
-- [Docker 容器作为出口](#如何使用-docker-容器作为流出口) - 高级用法
+- `Flow`: A set of policies with entry and exit points, Chinese "流"
+- `Entry`: A set of filter rules for screening clients, matching using `IP address` or `MAC`
+- `Exit`: Docker container (the program in the container needs to work with the [relay program](#relay-program-image)), or a certain WAN network card. Currently, there is no multi-exit load balancing, only a single exit.
+- `Default Flow`: Flow **_ID 0_**, all `unmatched` traffic defaults to this flow, exit is the `default route` set in the topology, such as enabling the `Set as default route` switch in [PPPoE](../zh/reference/ipv4.md#pppoe)
+- `Other Flows`: Flow **_ID 1~255_**, matched according to entry rules, if matched successfully, enters this flow
+- `Rule matching within flow`: Will check DNS rules and IP rules. When both types of rules are satisfied, select by priority (the smaller the priority value, the higher), once matched, send to the exit, subsequent rules are no longer matched (only matches one rule)
+- `Priority`: Defined by the index value of DNS / IP rules, total number of entries is 2^32. When this value is duplicate, DNS action processing is prioritized.
 
----
+## Flow Definition
 
-## 基础概念
+When we discuss traffic shaping, our focus is generally on: from `what client` the traffic comes, to `which exit` it goes out. The choice of exit depends on the client's access `target`, that is, **_domain name_** or **_IP_**. (Of course, domain names will eventually become **_target IP_** when accessed)
 
-### 核心术语
+Click the button in the image below to create a new Flow ![](../zh/features/traffic-flow/flow-10.png)
 
-| 术语           | 说明                                                  |
-| -------------- | ----------------------------------------------------- |
-| **Flow（流）** | 一组策略，拥有入口和出口                              |
-| **入口**       | 一组过滤筛选客户端的规则，使用 IP 地址或 MAC 进行匹配 |
-| **出口**       | Docker 容器或 WAN 网卡，流量最终发送的目标            |
-| **优先级**     | 数值越小优先级越高（取值范围：0 ~ 65535）             |
+This window will pop up ![](../zh/features/traffic-flow/flow-8.png)
 
-### Flow 类型
+Entry defines which qualifying clients will use this flow
 
-#### 默认流（Flow ID 0）
+Exit defines which exit will be used when traffic is determined to be handled by this flow, when the rules in it `have not changed` the target's action. That is, the default exit of this flow.
 
-所有`未匹配`的流量默认进入此流，出口为拓扑中设置的`默认路由`。
-
-> **示例**：在 [PPPoE 配置](../reference/ipv4.md#pppoe)中启用"设置默认路由"开关
-
-#### 其他流（Flow ID 1~255）
-
-按入口规则匹配，匹配成功则进入此流。
-
-### 规则匹配机制
-
-::: tip
-匹配逻辑
-
-1. 检查 DNS 规则和 IP 规则
-2. 当同时满足两类规则时，按优先级选择（数值越小越高）
-3. 匹配上即发送至出口，后续规则不再匹配
-4. 每个数据包只会匹配一条规则
-   :::
-
-::: warning
-优先级冲突当 DNS 规则和 IP 规则的优先级值相同时，优先使用 DNS 规则。
-:::
-
----
-
-## 流的定义
-
-### 核心问题
-
-分流关注三个问题：
-
-1. **谁**：从哪个客户端来的流量？
-2. **去哪**：流量要到哪个出口出去？
-3. **怎么选**：根据什么（域名/IP）选择出口？
-
-### 创建 Flow
-
-点击下图的按钮，可以创建一个新的 Flow：
-
-![创建 Flow](./traffic-flow/flow-10.png)
-
-将会弹出这个配置窗口：
-
-![Flow 配置](./traffic-flow/flow-8.png)
-
-### 入口和出口配置
-
-**入口**：定义哪些符合条件的客户端将使用这个流
-
-**出口**：当流量被这个流处理时，如果规则`没有改变`目标动作，则使用此出口发送（流的默认出口）
+Not all traffic from this entry goes out through this exit. How to determine these exceptions is generally distinguished by domain name or IP.
 
 ::: info
-灵活配置并不是该入口的所有流量都从默认出口发出，可以通过域名或 IP 规则指定特定流量使用其他出口。
-:::
 
-### 特殊配置场景
-
-::: details
-入口/出口可选配置
-
-- **仅配置出口**（入口为空）  
-  该流可作为其他流的转发目标，虽然没有直接进入的客户端，但可以被其他流的规则引用
-
-- **仅配置入口**（出口为空）  
-  进入这个流的流量默认被丢弃，除非规则指定使用其他流的出口
-
-- **都不配置**  
-  可作为其他流转发过来的流量丢弃点
+- Entry / Exit can be left unconfigured
+- When the entry is empty, only the exit is defined. Although there are no entry rules, other flow rules can forward to this flow, equivalent to using the exit
+- When the exit is empty, only the entry is defined. Equivalent to traffic entering this flow is discarded by default, unless using another flow's exit
+- If neither is defined, it can be used to discard traffic forwarded from other flows
   :::
 
----
+## How Flows Divide
 
-## 流怎么分
-
-### DNS 规则
+### DNS Rule Description
 
 ::: info
-独立缓存每个流都有独立的 DNS 缓存，不用担心同域名在不同流中的缓存冲突。
+Each flow has independent DNS cache, no need to worry that the same domain name will cause caches in different flows to overwrite each other.
 :::
 
-#### DNS 规则组成
+- For each DNS rule, these parts can be defined:
+  1. When encountering `what domain name` this rule `takes effect` -- Domain name matching rules
+  2. When `resolving` these configured domain names, which `upstream` to use -- DNS upstream selection
+  3. When `clients matching Flow entry` access this domain name, which `exit` to use for sending -- Traffic action
+  4. When the DNS resolution result conflicts with IP rules, which takes effect? -- Priority (will compare who has higher priority between IP rules and DNS rules (the smaller the value, the higher))
 
-每条 DNS 规则可以定义以下部分：
+  ![](../zh/features/traffic-flow/flow-7.png)
 
-| 组成部分     | 说明                                       |
-| ------------ | ------------------------------------------ |
-| **域名匹配** | 定义什么域名触发此规则                     |
-| **DNS 上游** | 解析该域名时使用哪个上游服务器             |
-| **流量动作** | 匹配的客户端访问此域名时，使用哪个出口     |
-| **优先级**   | 与 IP 规则冲突时，哪个生效（数值越小越高） |
+- Any Flow should have at least one fallback DNS rule, used for processing when the current domain name does not match any rule, looks like this
 
-![DNS 规则配置](./traffic-flow/flow-7.png)
+![](../zh/features/traffic-flow/flow-11.png)
 
-#### 兜底规则
+### Target IP Rule Description
 
-::: warning
-必须配置每个 Flow 应当至少有一条兜底 DNS 规则，用于处理没有匹配任何规则的域名。
-:::
+Target IP rule configuration is actually just missing the upstream definition compared to DNS rules. Other concepts like traffic action and priority are the same, so they will not be repeated.
 
-兜底规则示例：
+### Traffic Actions
 
-![兜底 DNS 规则](./traffic-flow/flow-11.png)
+The core concept in Flow is this, controlling the specific behavior of the current rule's target. ![](../zh/features/traffic-flow/flow-3.png)
 
-### 目标 IP 规则
-
-IP 规则与 DNS 规则类似，但少了"DNS 上游"配置：
-
-- ✅ 流量动作
-- ✅ 优先级
-- ❌ DNS 上游（不需要）
-
-### 流量动作
-
-流量动作是 Flow 的核心概念，控制匹配规则的流量行为。
-
-![流量动作选项](./traffic-flow/flow-3.png)
-
-#### 动作类型
-
-| 动作               | 说明                         |
-| ------------------ | ---------------------------- |
-| **当前流的出口**   | 使用当前 Flow 定义的默认出口 |
-| **默认流的出口**   | 使用默认流（Flow 0）的出口   |
-| **禁止连接**       | 丢弃该数据包                 |
-| **使用指定流出口** | 使用其他指定 Flow 的出口     |
-
-#### 流量转发示例
-
-假设有 Flow A 和 Flow B，配置客户端 C 访问网站 D 时使用 B 的出口：
+- `Current flow's exit`: Domain names or IPs matched by the current rule use the exit defined in the `current Flow`
+- `Default flow's exit`: Domain names or IPs matched by the current rule are sent out using the exit of the `default flow`
+- `Block connection`: Discard the packet
+- `Use specified flow exit`: Domain names or IPs matched by the current rule are sent out using the exit of the `selected flow`.  
+  For example, you have flows A / B, A defines that when C accesses website D, use B's exit. In this case, when C accesses non-D websites, it will use the exit defined in Flow A, and when accessing D, it will use the exit defined in B.
 
 ```text
-┌─────────────────────────────── Flow A（默认出口）────────────────────────────────┐
-│                                                                                 │
-│   [C 发起访问] ───► 判断：目标 == D？───► 否 ───► 使用 A 出口发送                │
-│                     │                                                           │
-│                     │ 是                                                        │
-│                     ▼                                                           │
-└─────────────────────────────────────────────────────────────────────────────────┘
-                      │
-┌─────────────────────────────── Flow B（特殊出口）────────────────────────────────┐
-│                     └──► 使用 B 出口发送                                         │
-└─────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────── Flow A (default exit) ────────────────────────────────┐
+│                                                                                       │
+│   [C initiates access] ───► Determine: target == D ? ───► No ───► Use A exit to send │
+│                              │                                                        │
+│                              │ Yes                                                    │
+│                              ▼                                                        │
+└────────────────────────────────────────────────────────────────────────────────────────┘
+                               │
+┌─────────────────────────────── Flow B (special exit) ─────────────────────────────────┐
+│                               └──► Use B exit to send                                  │
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-::: tip
-使用场景
+## Rule Setting Location
 
-- C 访问 D 网站 → 使用 B 出口
-- C 访问其他网站 → 使用 A 出口
-  :::
+### Default Flow Flow 0 Destination Matching Rule Settings
 
----
+Access configuration through `DNS card` in the upper right of the homepage  
+![Default flow](../zh/features/traffic-flow/flow-6.png)
 
-## 规则设置的位置
+### Other Flows Flow 1~255 Destination Matching Rule Settings
 
-### 默认流（Flow 0）目的匹配规则
+Access configuration through `Traffic Shaping Settings` in the sidebar
 
-通过主页右上方的 **DNS 卡片** 进入配置：
+![Other flows](../zh/features/traffic-flow/flow-9.png)
 
-![默认流配置入口](./traffic-flow/flow-6.png)
+<!-- # Multiple Flow Combination
+After traffic enters the container, assuming traffic becomes the container's IP for sending, you can create a new Flow configuration, add the container IP, so you can control the behavior of traffic sent out from this container.
+(In most cases, this should be unnecessary) -->
 
-### 其他流（Flow 1~255）目的匹配规则
+## How to Use Docker Container as Flow Exit
 
-通过侧边栏的 **分流设置** 进入配置：
+Programs mentioned in the tutorial below:
 
-![其他流配置入口](./traffic-flow/flow-9.png)
+1. Relay program: Download from [release](https://github.com/ThisSeanZhang/landscape/releases/latest), select the needed version redirect_pkg_handler.
+2. Worker program: Can be any program, such as network program, packet analysis program, proxy program. (Different programs need to use different working modes to start)
 
----
-
-## 如何使用 Docker 容器作为流出口
-
-### 前置准备
-
-需要两个程序配合使用：
-
-1. **接应程序**（`redirect_pkg_handler`）  
-   从 [Release](https://github.com/ThisSeanZhang/landscape/releases/latest) 下载
-
-2. **工作程序**  
-   可以是任意程序：组网程序、数据包分析程序等
-
-::: danger
-重要提示只有搭配 [**接应程序**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs) 打包的容器，才能作为有效的流出口容器！
+::: info
+Only containers packaged with the [**relay program**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs) can be used as effective flow **exit containers**
 :::
 
-### 使用官方镜像
+### Relay Program (Image)
 
-项目提供了测试用的接应程序镜像：[landscape-edge](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge)
+The project provides a **test relay program** for testing, [image with **relay program** is here](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge):
 
-#### UI 界面启动
+If using the UI's image run interface to run, remember to enable `Use as Flow exit`. Only then can it be used as an effective Flow exit. ![](../zh/features/traffic-flow/flow-5.png)
 
-如果使用 UI 界面运行，记得勾选 **用作 Flow 出口**：
+If you don't want to use the UI to start, using third-party or manual start requires manually adding the following parameters:
 
-![开启 Flow 出口选项](./traffic-flow/flow-5.png)
-
-#### 命令行启动
-
-**Docker Run 方式**
+- docker run
 
 ```shell
 docker run -d \
@@ -236,16 +130,17 @@ docker run -d \
   --cap-add=BPF \
   --cap-add=PERFMON \
   --privileged \
-  -v /root/.landscape-router/unix_link/:/ld_unix_link/:ro \ # 必要映射
-  ghcr.io/thisseanzhang/landscape-edge:amd64-xx # xx 需修改为合适版本
+  -v /root/.landscape-router/unix_link/:/ld_unix_link/:ro \ # Required mapping
+  # Can mount any worker program and its startup scripts etc. required files :/app/server
+  ghcr.io/thisseanzhang/landscape-edge:amd64-xx # xx needs to be modified to appropriate version
 ```
 
-**Docker Compose 方式**
+- compose
 
 ```yaml
 services:
   your_service:
-    image: ghcr.io/thisseanzhang/landscape-edge:amd64-xx # xx 需修改为合适版本
+    image: ghcr.io/thisseanzhang/landscape-edge:amd64-xx # xx needs to be modified to appropriate version
     sysctls:
       - net.ipv4.conf.lo.accept_local=1
     cap_add:
@@ -254,116 +149,47 @@ services:
       - PERFMON
     privileged: true
     volumes:
-      - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # 必要映射
-      # 挂载 任意工作程序及其启动脚本等所需文件 :/app/server
+      - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # Required mapping
+      # Can mount any worker program and its startup scripts etc. required files :/app/server
 ```
 
-### 工作程序说明
+The packaged `landscape-edge:amd64-xx` image includes a [**demo worker program**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_demo_server.rs) placed in `/app/server`, the program's function is to create TProxy listening on port `12345`.
 
-镜像内置了 [演示工作程序](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_demo_server.rs)：
+The **relay program** is placed in `/app`. By default, it forwards traffic to be processed to the listening port `12345` of the demo **worker program**. You can change the forwarding listening port by setting the container's environment variable: `LAND_PROXY_SERVER_PORT`.
 
-- **位置**：`/app/server`
-- **功能**：创建 TProxy 监听端口 `12345`
-- **接应程序位置**：`/app/redirect_pkg_handler`
-- **默认转发端口**：`12345`（可通过环境变量 `LAND_PROXY_SERVER_PORT` 修改）
-
-### 自定义工作程序
-
-#### 替换工作程序
-
-将你的工作程序挂载到 `/app/server` 目录：
+You can mount any **worker program** in the `/app/server` directory to replace the **demo worker program** inside the container.  
+For example, you can put the **worker program** in a certain directory, as shown below.
 
 ```text
-本地目录结构：
-/xx/flow/
+root@landscape-router:/xx/flow# tree
+.
 ├── config.json
-├── run.sh          # 启动脚本
-└── server          # 你的工作程序
+├── run.sh  // Your worker program's startup script
+└── server // Your worker program
+1 directory, 3 files
 ```
 
-映射到容器：
+Then map `/xx/flow` to the container's `/app/server`. When the container starts, `/app/start.sh` will execute `/app/server/run.sh`, thus executing your needed program according to the script in run.
 
-```yaml
-volumes:
-  - /xx/flow:/app/server
-```
-
-容器启动时会自动执行 `/app/server/run.sh`。
-
-::: tip
-提示 [测试接应程序镜像](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge)已包含接应程序，无需额外添加或挂载。
+::: info
+**[Test relay program](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge) image already includes, no need to add/mount yourself**, just start directly.
 :::
 
-### 自定义镜像集成
+### Custom Image
 
-如果要在现有镜像中集成接应程序：
+When you don't want to use the image already packaged by Landscape, and want to integrate Landscape's relay program in an existing image, you can do this.
 
-1. **下载接应程序**  
-   从 [Release](https://github.com/ThisSeanZhang/landscape/releases) 获取 `redirect_pkg_handler`
-
-2. **配置启动脚本**
+1. First copy the relay program version you need: find `redirect_pkg_handler` in [Release](https://github.com/ThisSeanZhang/landscape/releases).
+2. Need to prepare some environment with scripts. For example, this is the script executed at startup in the original image
 
 ```bash
-#!/bin/bash
+  #!/bin/bash
 
-# 配置路由表
-ip rule add fwmark 0x1/0x1 lookup 100
-ip route add local default dev lo table 100
+  ip rule add fwmark 0x1/0x1 lookup 100
+  ip route add local default dev lo table 100
 
-# 启动工作程序
-/app/server/run.sh /app/server &
+  /app/server/run.sh /app/server &
+  /app/redirect_pkg_handler &
 
-# 启动接应程序
-/app/redirect_pkg_handler &
-
-wait
+  wait
 ```
-
----
-
-## 接应程序参数
-
-`redirect_pkg_handler` 的参数, 每项都有对应环境变量:
-
-| 参数                        | 环境变量                             | 默认值    | 说明                                   |
-| --------------------------- | ------------------------------------ | --------- | -------------------------------------- |
-| `-s`, `--saddr`             | `LAND_PROXY_SERVER_ADDR`             | `0.0.0.0` | 工作程序的 IPv4 监听地址               |
-| `--saddr6`                  | `LAND_PROXY_SERVER_ADDR_V6`          | `::`      | 工作程序的 IPv6 监听地址               |
-| `-p`, `--sport`             | `LAND_PROXY_SERVER_PORT`             | `12345`   | 工作程序的监听端口                     |
-| `-m`, `--mode`              | `LAND_PROXY_HANDLE_MODE`             | `tproxy`  | `tproxy` / `route` / `multiple_tproxy` |
-| `--enable-icmp-passthrough` | `LAND_PROXY_ENABLE_ICMP_PASSTHROUGH` | `false`   | 见下方 ICMP 放行                       |
-| `--icmp-mark-value`         | `LAND_PROXY_ICMP_MARK_VALUE`         | `2`       | ICMP 放行时打的 mark                   |
-| `--sock_path`               | `LAND_SOCK_PATH`                     | -         | 注册用的 unix socket 路径              |
-| `--log-level`               | `LAND_REDIRECT_LOG_LEVEL`            | `INFO`    | 日志级别                               |
-
-### ICMP 放行
-
-TProxy 机制本身只接管 TCP / UDP. 接应程序对进入的 **ICMP 包默认直接丢弃**,
-所以走分流出口容器的链路上 **`ping` 不通** —— 这是设计如此, 不是故障.
-
-打开 `--enable-icmp-passthrough` 后, ICMP 包会被打上 `--icmp-mark-value` 的 mark
-并放行给本机协议栈, 从而可以 `ping`.
-
-::: warning 光开开关还不够
-放行只解决"包不被丢", 出站还需要容器内自己配转发与 NAT, 且 **mark 必须与
-`--icmp-mark-value` 一致**:
-
-```sh
-echo 1 > /proc/sys/net/ipv4/ip_forward
-echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
-iptables  -t nat -A POSTROUTING -m mark --mark 0x2/0x2 -j MASQUERADE
-ip6tables -t nat -A POSTROUTING -m mark --mark 0x2/0x2 -j MASQUERADE
-```
-
-官方镜像的 `start.sh` 里已经写好这几行但**默认注释掉**, 需要时取消注释,
-或者放进自己的 `/app/server/run.sh`.
-:::
-
----
-
-## 相关资源
-
-- [GitHub 讨论区](https://github.com/ThisSeanZhang/landscape/discussions/88)
-- [Release 下载](https://github.com/ThisSeanZhang/landscape/releases)
-- [接应程序源码](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs)
-- [官方镜像](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge)

@@ -1,28 +1,31 @@
-# 网卡区域
+# Interface Zones
 
-在 Landscape 路由中, 不同的网卡有各自独特的服务, 所以需要先切换网卡的区域才能进行配置
+In Landscape Router, different zones offer different services, so you have to switch an interface to the right zone before you can configure it.
 
-## 切换按钮位置
+## Where the switch button is
 
-![](./zone-switching/1.png)
+![](../zh/reference/zone-switching/1.png)
 
-![](./zone-switching/2.png)
+![](../zh/reference/zone-switching/2.png)
 
-## WAN 可开启的服务
+## Services available on WAN
 
-如无特殊要求, 可按照默认配置直接启动  
-1-1 TCP MSS 钳制  
-1-2 防火墙服务配置  
-1-3 网卡NAT配置  
-2-1 IPV6-PD 客户端配置  
-2-2 Wan 路由转发服务
+Unless you have special requirements, the defaults are fine to start with.
 
-![](./zone-switching/10.png)
+1-1 TCP MSS clamping  
+1-2 Firewall service  
+1-3 Interface NAT  
+2-1 IPv6-PD client  
+2-2 WAN route forwarding
 
-## LAN 可开启的服务
+![](../zh/reference/zone-switching/10.png)
 
-按需配置  
-1-1 DHCPv4 服务配置 （包含 Mac IP 地址绑定）  
-1-2 ICMPV6-RA 服务配置  
-1-3 Lan 路由 转发 （应当启用）  
-![](./zone-switching/11.png)
+## Services available on LAN
+
+Configure as needed.
+
+1-1 DHCPv4 server (including MAC-to-IP binding)  
+1-2 ICMPv6-RA service  
+1-3 LAN route forwarding (should be enabled)
+
+![](../zh/reference/zone-switching/11.png)

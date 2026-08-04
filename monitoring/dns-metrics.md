@@ -1,9 +1,9 @@
-# DNS指标
+# DNS Metrics
 
-显示各项DNS数据指标，如：
+Shows various DNS figures, such as:
 
-1. 总查询量
-2. 缓存命中率
-3. 拦截率
+1. Total query volume
+2. Cache hit rate
+3. Block rate
 
-![](./dns-metrics/dnsmetrics.png)
+![](../zh/monitoring/dns-metrics/dnsmetrics.png)

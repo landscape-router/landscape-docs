@@ -1,51 +1,51 @@
-# 手工部署
+# Manual Deployment
 
-## 文件准备
+## File Preparation
 
 ::: warning
 
-1. 部署之前需要先确认当前的系统是否满足, [注意事项](./requirements.md) 中的要求
-2. 不进行任何配置是可以直接启动的, 唯一的副作用是会将 `/etc/resolv.conf` 修改为 `127.0.0.1`, 如停止后发现无法访问网络, 可以检查这个文件
-3. 以下的可选是在没有使用到时可选
+1. Before deployment, please confirm that your system meets the requirements outlined in [System Requirements](./requirements.md)
+2. The system can start without any configuration, but the only side effect is that `/etc/resolv.conf` will be modified to `127.0.0.1`. If you cannot access the network after stopping the service, please check this file
+3. The following items marked as "optional" can be skipped if not needed
 
 :::
 
 ::: warning
-记得先使用 `ss -lutp` 检查当前主机是否有 DNS 服务已经占用了 `53` 端口，如果已被占用则无法启动。
+Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start.
 
-如果安装了 `NetworkManager`，请先卸载该软件，否则会影响网络管理： `apt remove network-manager`
+If `NetworkManager` is installed, please uninstall it first, as it conflicts with network management: `apt remove network-manager`
 
-如果启用了 `SELinux`，需要开放相关权限。
+If `SELinux` is enabled, you need to grant the relevant permissions.
 :::
 
-1. Landscape Router 文件主体, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载
-2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
-3. (可选) 安装 PPP，用于 pppoe 拨号
-4. (可选) 安装 Docker. 如需分流至容器则必安装.
-5. (_假如有桌面环境, 并有浏览器时可选_) 准备初始化配置文件  
-   (注意, 此配置文件只在第一次运行被读取):  
-   放置在 -> `/root/.landscape-router/landscape_init.toml`
-6. (可选) geosite / geoip 文件
+1. Landscape Router main executable, download from [here](https://github.com/ThisSeanZhang/landscape/releases/)
+2. Static page files, download from [here](https://github.com/ThisSeanZhang/landscape/releases/), and extract to `/root/.landscape-router/static` folder
+3. (Optional) Install PPP for PPPoE dial-up
+4. (Optional) Install Docker. Required if you want to divert traffic into containers.
+5. (_Optional if you have a desktop environment with a browser_) Prepare initialization configuration file  
+   (Note: This configuration file is only read on the first run):  
+   Place it in -> `/root/.landscape-router/landscape_init.toml`
+6. (Optional) geosite / geoip files
 
-## 关闭本机自动配置 IP 服务
+## Disable Automatic IP Configuration on Host Machine
 
-1. Debian: 修改文件: `/etc/network/interfaces`  
-   将 LAN 网卡全设置为 manual 后, 将 WAN 的网卡额外在配置文件中设置一个静态 IP, 方便即使路由程序出现故障时, 使用另外一台机器设置静态 IP 后也能进行访问.
+1. Debian: Modify file: `/etc/network/interfaces`  
+   Set all LAN network cards to manual, and additionally set a static IP for the WAN network card in the configuration file, so that even if the router program fails, you can still access it from another machine with a static IP.
 
 ```text
-auto <第一张网卡名> <- 比如设置为 WAN
-iface <第一张网卡名> inet static
+auto <first_network_card_name> <- For example, set as WAN
+iface <first_network_card_name> inet static
     address 192.168.22.1
     netmask 255.255.255.0
 
-auto <第二张网卡名> <- 以下都是 LAN
-iface <第二张网卡名> inet manual
+auto <second_network_card_name> <- All others are LAN
+iface <second_network_card_name> inet manual
 
-auto <第三张网卡名>
-iface <第三张网卡名> inet manual
+auto <third_network_card_name>
+iface <third_network_card_name> inet manual
 ```
 
-效果:
+Example:
 
 ```text
 auto ens3
@@ -60,11 +60,11 @@ auto ens5
 iface ens5 inet manual
 ```
 
-这样即使路由出现故障后, 使用另外一台主机设置为 192.168.22.0/24 网段的任意地址 (比如: 192.168.22.2/24) , 直连这个网口, 就能连上路由器.
+This way, even if the router fails, you can use another machine set to any address in the 192.168.22.0/24 network segment (for example: 192.168.22.2/24), directly connect to this network card, and be able to connect to the router.
 
-> 其他系统待添加... 欢迎 PR 分享部署过程
+> Other systems to be added... PRs welcome to share deployment processes
 
-## 关闭本机 DNS 服务 (如果不存在此服务可忽略)
+## Disable DNS Service on Host Machine (ignore if this service doesn't exist)
 
 ```shell
 systemctl stop systemd-resolved
@@ -72,9 +72,9 @@ systemctl disable systemd-resolved
 systemctl mask systemd-resolved
 ```
 
-## 手动启动验证
+## Manual Start Verification
 
-在配置 systemd 服务之前, 可以先手动直接运行 `/root/landscape-webserver`, 确认是否能够执行. 运行成功时会输出如下内容, 展示当前的配置, 可以验证下 Auth 以及对应的 Web 路径是否正确:
+Before configuring the systemd service, you can manually run `/root/landscape-webserver` first to confirm it can execute. When running successfully, it will output the following content displaying the current configuration. You can verify if Auth and the corresponding Web path are correct:
 
 ```text
 ██╗      █████╗ ███╗   ██╗██████╗ ███████╗ ██████╗ █████╗ ██████╗ ███████╗
@@ -112,9 +112,9 @@ Listen HTTPS on: https://[::]:6443
 Database Connect: sqlite://./db.sqlite?mode=rwc
 ```
 
-## 创建 systemd 服务文件
+## Create systemd Service File
 
-创建 `/etc/systemd/system/landscape-router.service` 文件内容:
+Create `/etc/systemd/system/landscape-router.service` File content:
 
 ```text
 [Unit]
@@ -131,17 +131,17 @@ WantedBy=multi-user.target
 ```
 
 ```shell
-# 启动服务
+# Start service
 systemctl start landscape-router.service
-# 开机启动服务 ( 确认没有问题之后执行 )
+# Enable service on boot (execute after confirming everything is working)
 systemctl enable landscape-router.service
-# 停止服务
+# Stop service
 systemctl stop landscape-router.service
 ```
 
-## 升级 landscape-router
+## Upgrading landscape-router
 
-1. 下载新版 `landscape-webserver` 与 `static` 并解压
-2. 停止 landscape-router.service
-3. 换入新版 `landscape-webserver` 与 `static`
-4. 重启服务，如有异常再重启系统
+1. Download new version of `landscape-webserver` and `static` and extract
+2. Stop landscape-router.service
+3. Replace with new version of `landscape-webserver` and `static`
+4. Restart the service; if any issues occur, reboot the system

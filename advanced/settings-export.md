@@ -1,47 +1,35 @@
-# 系统配置
+# System Configuration
 
 ::: warning
-导出的配置只能用于`相同`版本的恢复.  
-如导出后需要升级, 需要先在`导出时的版本`启动, 完成 init 版本的数据恢复之后, 再启动最新版本, landscape 启动时发现当前配置版本`低于`当前版本会自动升级, 升级不用担心配置丢失.
+An exported configuration can only be restored on the `same` version.  
+If you need to upgrade after exporting, first start the `version you exported from` and let it restore the init data, then start the latest version. When Landscape starts and finds the configuration version is `lower` than its own, it upgrades automatically — no configuration is lost in the process.
 :::
 
-## 导出/导入 配置文件
+## Exporting / importing the configuration file
 
-1、导出，获得 `landscape_init.toml` 文件  
-2、复制文件到 `.landscape-router` 目录  
-3、删除 `landscape_init.lock` 文件  
-4、重启 landscape-router，导入完成  
-![](./settings-export/1.png)
+1. Export, which gives you a `landscape_init.toml` file
+2. Copy the file into the `.landscape-router` directory
+3. Delete the `landscape_init.lock` file
+4. Restart landscape-router — the import is done
 
-<!-- ## 系统降级
-当要回退之前的版本时, 可以使用 `landscape-webserver db -r` 进行配置降级, 注意降级后使用特定的版本进行启动, 使用当前的版本启动的话还是会自动升级.
-```shell
-root@landscape-router:~# ./landscape-webserver db  --help
-Database-related operations
+![](../zh/advanced/settings-export/1.png)
 
-Usage: landscape-webserver db [OPTIONS]
-
-Options:
-  -r, --rollback
-  -t, --times <TIMES>  [default: 1]
-  -h, --help           Print help
-````
- -->
+For a field-by-field description of everything in that file, see [landscape_init.toml Reference](../configuration/init-config).
 
 ---
 
 ::: tip
-系统配置更新，现已加入更多内容。
+System configuration has been extended and now covers more ground.
 :::
 
-1. 系统偏好设置
+1. System preferences
 
-![](./settings-export/2.png)
+![](../zh/advanced/settings-export/2.png)
 
-2. DNS全局配置
+2. Global DNS configuration
 
-![](./settings-export/3.png)
+![](../zh/advanced/settings-export/3.png)
 
-3. 指标监控配置
+3. Metrics configuration
 
-![](./settings-export/4.png)
+![](../zh/advanced/settings-export/4.png)

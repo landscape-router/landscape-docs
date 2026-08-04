@@ -1,27 +1,25 @@
-# 与 Armbian 集成
+# Integrating with Armbian
 
-本页面说明了如何与 Armbian 组合进行编译
+This page explains how to build together with Armbian.
 
-可参考项目: https://github.com/ThisSeanZhang/landscape-build
+Reference project: https://github.com/ThisSeanZhang/landscape-build
 
-# 初始配置文件
+# Initial configuration file
 
-文件位置：
+File location:
 
 ```text
 userpatches/overlay/landscape_init.toml
 ```
 
-配置需根据目标开发板的硬件配置进行决定
+The configuration depends on the hardware of the board you are targeting.
 
 ::: warning
-`version` 必须**等于**你下载的 landscape 版本号 —— 这是严格相等校验, 不匹配会直接启动失败.
-用 `latest` 下载二进制时记得同步改这里. 完整字段说明见
-[landscape_init.toml 参考](../configuration/init-config).
+`version` must **equal** the version of landscape you downloaded — the check is for exact equality, and a mismatch fails at startup. If you fetch the binary via `latest`, remember to keep this in sync. For every available field see [landscape_init.toml Reference](../configuration/init-config).
 :::
 
 ```toml
-version = "0.22.2"   # 必须与实际部署的版本一致
+version = "0.22.2"   # must match the version you actually deploy
 
 # Config Interface
 [[ifaces]]
@@ -53,8 +51,9 @@ server_ip_addr = "192.168.7.1"
 ip_range_start = "192.168.7.100"
 network_mask = 24
 
-# LAN 绑定的 MAC 地址.
-# 注意: 旧版的 dhcpv4_services.config.mac_binding_records 已移除, 现在写在 enrolled_devices
+# MAC bindings on the LAN.
+# Note: the old dhcpv4_services.config.mac_binding_records has been removed;
+# bindings now live in enrolled_devices
 [[enrolled_devices]]
 name = "device-1"
 mac = "00:11:22:33:44:55"
@@ -68,9 +67,9 @@ ipv4 = "192.168.7.51"
 iface_name = "br_lan"
 ```
 
-# 脚本
+# The script
 
-放置位置：
+Where it goes:
 
 ```text
 userpatches/customize-image.sh
@@ -104,7 +103,7 @@ Main() {
 
 	rm -f /etc/apt/sources.list
     cat <<EOF > /etc/apt/sources.list
-# 默认注释了源码镜像以提高 apt update 速度，如有需要可自行取消注释
+# Source mirrors are commented out by default to speed up apt update; uncomment if you need them
 deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm main contrib non-free non-free-firmware
 
@@ -114,14 +113,14 @@ deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-updates main contrib n
 deb https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/debian/ bookworm-backports main contrib non-free non-free-firmware
 
-# 以下安全更新软件源包含了官方源与镜像站配置，如有需要可自行修改注释切换
+# The security repositories below cover both the official source and a mirror; switch by editing the comments
 deb https://mirrors.tuna.tsinghua.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware
 # deb-src https://mirrors.tuna.tsinghua.edu.cn/debian-security bookworm-security main contrib non-free non-free-firmware
 EOF
 	apt update -y
 	apt install -y ppp tcpdump bpftool iptables zip unzip
 
-	# docker instell start
+	# docker install start
 	sudo apt-get install ca-certificates curl
 	sudo install -m 0755 -d /etc/apt/keyrings
 	sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
@@ -144,15 +143,15 @@ EOF
 	systemctl start docker
 
 	if [ "$BOARD" = "uefi-x86" ]; then
-		# 当 BOARD 为 "uefi-x86" 时执行的操作
+		# What to do when BOARD is "uefi-x86"
 		curl -L -o /root/landscape-webserver https://github.com/ThisSeanZhang/landscape/releases/latest/download/landscape-webserver-x86_64
 		sudo sed -i 's/^GRUB_CMDLINE_LINUX="/GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0 /' /etc/default/grub
 		sudo update-grub
 	else
 		curl -L -o /root/landscape-webserver https://github.com/ThisSeanZhang/landscape/releases/latest/download/landscape-webserver-aarch64
-		# 当 BOARD 为其他值时执行的操作
+		# What to do for any other BOARD value
 		cat /boot/armbianEnv.txt
-		# 使用默认的方式进行命名
+		# Use the default naming scheme
 		echo "extraargs=net.ifnames=0 biosdevname=0" | sudo tee -a /boot/armbianEnv.txt
 	fi
 
@@ -177,15 +176,15 @@ EOF
 
 	cat <<EOF > /root/.not_logged_in_yet
 # /root/.not_logged_in_yet
-# 自动配置 Armbian 首次启动设置
+# Automatically configure Armbian's first-boot settings
 #
-# 设置根用户密码（注意：密码以明文存储，建议使用 SSH 密钥替代密码）
+# Set the root password (note: it is stored in plain text; SSH keys are recommended instead)
 PRESET_ROOT_PASSWORD="123456"
 
-# 设置系统语言和区域
+# Set the system language and locale
 PRESET_LOCALE="en_US.UTF-8"
 
-# 设置系统时区
+# Set the system timezone
 PRESET_TIMEZONE="Asia/Shanghai"
 
 PRESET_NET_CHANGE_DEFAULTS="0"
@@ -195,7 +194,7 @@ PRESET_CONNECT_WIRELESS="n"
 PRESET_NET_USE_STATIC="0"
 SET_LANG_BASED_ON_LOCATION="n"
 
-# 创建其他用户
+# Create an additional user
 # PRESET_USER_NAME="test"
 # PRESET_DEFAULT_REALNAME="Test"
 # PRESET_USER_PASSWORD="123456"
@@ -207,11 +206,11 @@ EOF
 Main "$@"
 ```
 
-# 编译命令
+# Build command
 
-> 需要检查 [注意事项](/intro/requirements) 中的内核编译参数是否开启
+> Check that the kernel build options in [System Requirements](/intro/requirements) are enabled
 
-需要保持 `KERNEL_CONFIGURE=yes` 需要开启内核 BTF 文件生成
+`KERNEL_CONFIGURE=yes` has to stay on so that kernel BTF generation can be enabled.
 
 ```shell
 ./compile.sh \

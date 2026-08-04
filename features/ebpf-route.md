@@ -1,140 +1,142 @@
-# eBPF 路由加速
+# eBPF Routing Acceleration
 
-## 概述
+## Overview
 
-Landscape Router 使用 eBPF 技术在内核层面实现高性能数据包转发，绕过传统的 Netfilter 框架，大幅提升路由性能。
+Landscape Router uses eBPF to implement high-performance packet forwarding in the kernel, bypassing the traditional Netfilter path and significantly improving routing performance.
 
-## 前置要求
+## Prerequisites
 
-当前 LAN 和 WAN 要能正常通信，需要开启对应网卡的路由转发功能。
+For LAN and WAN to communicate normally, route forwarding must be enabled on the corresponding interfaces.
 
-![开启路由转发](./ebpf-route/route-1.png)
+![Enable route forwarding](../zh/features/ebpf-route/route-1.png)
 
 ::: tip
-配置位置在网卡配置界面中，找到对应的 WAN 和 LAN 网卡，开启"路由转发服务"选项。
+Where to configure it Open the interface configuration page, find the relevant WAN and LAN interfaces, and enable the `Route Forwarding Service` option.
 :::
 
 ---
 
-## 加速原理
+## How the Acceleration Works
 
-### Netfilter 数据包流程
+### Netfilter Packet Flow
 
-下图展示了 Netfilter 的完整数据包处理流程：
+The diagram below shows the full Netfilter packet flow:
 
-![Netfilter 数据包流程](./ebpf-route/route-2.png)
+![Netfilter packet flow](../zh/features/ebpf-route/route-2.png)
 
-> 图片来源：[Wikipedia - Netfilter](https://en.wikipedia.org/wiki/Netfilter#/media/File:Netfilter-packet-flow.svg)（CC BY-SA 3.0 许可）
+> Image source: [Wikipedia - Netfilter](https://en.wikipedia.org/wiki/Netfilter#/media/File:Netfilter-packet-flow.svg) (CC BY-SA 3.0)
 
-### 传统路由 vs eBPF 路由
+### Traditional Routing vs eBPF Routing
 
-#### 传统方式（Netfilter/iptables/nftables）
+#### Traditional approach (Netfilter / iptables / nftables)
 
-数据包转发需经过 Netfilter 的多个 Hook 点，以 LAN → WAN 为例：
-
-```text
-网卡接收 → Pre-routing（连接跟踪）
-        → 路由判断
-        → Forward（防火墙过滤）
-        → Post-routing（SNAT / Masquerade）
-        → 发送
-```
-
-WAN → LAN 方向同理，区别在于 DNAT（端口映射）发生在 Pre-routing 阶段，由连接跟踪保证回包自动还原。
-
-#### TC（Traffic Control）层方案
-
-Landscape Router 的转发工作在 **Ingress/Egress (qdisc)** 层完成，即在进入 Netfilter **之前**就决定转发目标并直接发送到网卡，完全绕过后续的 Netfilter 处理链路。
-
-加速路径：
+Forwarded packets must pass through multiple Netfilter hook points. Taking LAN → WAN as an example:
 
 ```text
-网卡接收 → 驱动 → SKB 分配 → eBPF 处理（TC 层）→ bpf_redirect() → 目标网卡
+NIC receive → Pre-routing (connection tracking)
+            → Routing decision
+            → Forward (firewall filtering)
+            → Post-routing (SNAT / Masquerade)
+            → Transmit
 ```
 
-#### XDP（eXpress Data Path）方案
+The WAN → LAN direction is symmetric, except DNAT (port forwarding) occurs in the Pre-routing stage, with connection tracking ensuring reply packets are automatically restored.
 
-XDP 在内核网络栈的**最早入口**——网卡驱动层——接管数据包处理。它在 SKB（Socket Buffer）分配之前执行，能够实现远高于 TC 的转发性能。
+#### TC (Traffic Control) layer approach
 
-加速路径：
+Landscape Router completes forwarding at the **Ingress / Egress (qdisc)** layer — it decides the destination **before** packets enter Netfilter and sends them directly to the target interface, completely bypassing the Netfilter processing chain.
+
+Acceleration path:
 
 ```text
-网卡接收 → XDP 处理（驱动层，SKB 分配前） → bpf_redirect() 直接转发到目标网卡
+NIC receive → driver → SKB alloc → eBPF processing (TC layer) → bpf_redirect() → target NIC
 ```
 
-### XDP 启用方式
+#### XDP (eXpress Data Path) approach
 
-在启动 Landscape Router 时传入 `--try-xdp` 参数即可尝试启用 XDP 加速：
+XDP intercepts packets at the **earliest entry point** of the kernel network stack — the NIC driver layer — before SKB (Socket Buffer) allocation. This enables significantly higher forwarding performance than TC.
+
+Acceleration path:
+
+```text
+NIC receive -> XDP processing (driver layer, before SKB alloc) -> bpf_redirect() to target NIC
+```
+
+### Enabling XDP
+
+Pass the `--try-xdp` flag when starting Landscape Router:
 
 ```bash
 landscape-webserver --try-xdp
 ```
 
-也可限制为指定网卡：
+Or restrict to specific interfaces:
 
 ```bash
 landscape-webserver --try-xdp=eth0,eth1
 ```
 
-如果网卡驱动不支持 native XDP，会自动降级到 TC 路径，不影响正常运行。
+If the NIC driver does not support native XDP, the system automatically falls back to the TC path.
 
-## 性能测试
+## Performance Tests
 
-### 测试指标说明
+### Metric Definitions
 
-- **RX-PPS**：每秒接收数据包数量（Received Packets Per Second）
-- **RX-BPS**：每秒接收数据速率（Received Bits Per Second）
+- **RX-PPS**: received packets per second
+- **RX-BPS**: received bits per second
 
-### 测试环境 1
+### Test Environment 1
 
-**配置**：
+**Configuration**:
 
-- 操作系统：Arch Linux（内核 6.12.63-1-lts）
-- CPU：AMD 2700X（PVE 虚拟 4 物理核心）
-- 网卡：直通 X520-DA2（10Gbps）
+- Operating system: Arch Linux (kernel 6.12.63-1-lts)
+- CPU: AMD 2700X (PVE virtual machine with 4 physical cores)
+- NIC: Passthrough X520-DA2 (10Gbps)
 
-**测试结果**：
+**Results**:
 
-#### 小包性能（64 字节）
+#### Small packet performance (64 bytes)
 
-![64字节小包测试](./ebpf-route/4-64.png)
+![64-byte packet test](../zh/features/ebpf-route/4-64.png)
 
-#### 大包性能（1500 字节）
+#### Large packet performance (1500 bytes)
 
-![1500字节大包测试](./ebpf-route/4-1500.png)
-
----
-
-### 测试环境 2
-
-**配置**：
-
-- 操作系统：Arch Linux（内核 6.12.63-1-lts）
-- CPU：AMD 2700X（PVE 虚拟 4 物理核心 / 8 线程）
-- 网卡：直通 X520-DA2（10Gbps）
-
-**测试结果**：
-
-#### 小包性能（64 字节）
-
-![64字节小包测试](./ebpf-route/8-64.png)
-
-#### 大包性能（1500 字节）
-
-![1500字节大包测试](./ebpf-route/8-1500.png)
+![1500-byte packet test](../zh/features/ebpf-route/4-1500.png)
 
 ---
 
-### 测试环境 3（XDP + NAT 转发）
+### Test Environment 2
 
-**配置**：
+**Configuration**:
 
-- 操作系统：Arch Linux（ChachyOS Server）
-- CPU：Intel 9100T（4 核心 / 4 线程）
-- 网卡：直通 X520-DA2（10Gbps）
+- Operating system: Arch Linux (kernel 6.12.63-1-lts)
+- CPU: AMD 2700X (PVE virtual machine with 4 physical cores / 8 threads)
+- NIC: Passthrough X520-DA2 (10Gbps)
 
-**测试工具**：TRex ASTF（状态化流量）
+**Results**:
 
-**测试结果**（双向 64 字节小包）：
+#### Small packet performance (64 bytes)
 
-![XDP NAT 64字节小包转发](./ebpf-route/xdp-has-nat-forward.gif)
+![64-byte packet test](../zh/features/ebpf-route/8-64.png)
+
+#### Large packet performance (1500 bytes)
+
+![1500-byte packet test](../zh/features/ebpf-route/8-1500.png)
+
+---
+
+### Test Environment 3 (XDP + NAT Forwarding)
+
+**Configuration**:
+
+- Operating system: Arch Linux (ChachyOS Server)
+- CPU: Intel 9100T (4 cores / 4 threads)
+- NIC: Passthrough X520-DA2 (10Gbps)
+
+**Tool**: TRex ASTF (stateful traffic)
+
+**Result** (bidirectional 64-byte small packets):
+
+![XDP NAT 64-byte forwarding](../zh/features/ebpf-route/xdp-has-nat-forward.gif)
+
+---

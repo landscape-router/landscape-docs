@@ -1,43 +1,43 @@
-# 区域 (Zone)
+# Zone
 
-区域 (Zone) 是 Landscape 对网卡进行逻辑分组的核心机制。每张网卡在路由操作之前，必须先归属于一个区域。区域的设定决定了网卡的流量管道、服务能力以及拓扑行为。
+A Zone is the core mechanism Landscape uses to group network interfaces logically. Every interface must belong to a zone before it can take part in routing. The zone an interface belongs to determines its traffic pipeline, the services it can run, and how it behaves in the topology.
 
-Landscape 有三种区域：
+Landscape has three zones:
 
-## Wan（广域网区域）
+## Wan
 
-Wan 区域的网卡面向互联网，负责上行流量出口。Landscape 为其挂载 eBPF WAN TC 管道，支持以下 IP 配置方式：
+Interfaces in the Wan zone face the internet and carry upstream traffic. Landscape attaches the eBPF WAN TC pipeline to them. The following IP configuration methods are supported:
 
-- 静态 IP 配置
+- Static IP
 - DHCP Client
 - PPPoE / PPPD
-- DHCPv6-PD（IPv6 前缀委派）
+- DHCPv6-PD (IPv6 prefix delegation)
 
-可开启的服务：
+Services that can be enabled:
 
-- NAT（网络地址转换）
-- 防火墙 (Firewall)
-- MSS 钳制 (MSS Clamp)
-- WAN 路由 (Route WAN)
+- NAT (Network Address Translation)
+- Firewall
+- MSS Clamp
+- Route WAN
 
-> Wan 区域的网卡**不能**作为桥接的成员（控制器或子接口）。
+> Interfaces in the Wan zone **cannot** take part in bridging (neither as controller nor as sub-interface).
 
-## Lan（局域网区域）
+## Lan
 
-Lan 区域的网卡连接内网，面向下游设备。Landscape 为其挂载 eBPF LAN TC 管道。
+Interfaces in the Lan zone connect to the internal network and face downstream devices. Landscape attaches the eBPF LAN TC pipeline to them.
 
-可开启的服务：
+Services that can be enabled:
 
 - DHCP Server
-- LAN 路由 (Route LAN)
-- LAN IPv6 地址分配
-- ICMPv6 RA（路由器通告）
+- Route LAN
+- LAN IPv6 address assignment
+- ICMPv6 RA (Router Advertisement)
 
-## Undefined（未分配）
+## Undefined
 
-新建物理网卡的默认区域。该区域的网卡不能开启任何服务，但可以：
+The default zone for a newly created physical interface. Interfaces in this zone cannot run any service, but they can:
 
-- 作为**桥接**网卡的子接口（只有 Undefined 区域的网卡才能被附加到桥接上）
-- 开启 WiFi AP 模式（将网卡作为无线接入点）
+- Act as a sub-interface of a **bridge** (only interfaces in the Undefined zone can be attached to a bridge)
+- Run in WiFi AP mode (using the interface as a wireless access point)
 
-> 通过 `ChangeZone` API 切换区域时，Landscape 会自动清理旧区域下的所有服务，并调整桥接关系和 eBPF 管道。
+> When you switch zones through the `ChangeZone` API, Landscape automatically tears down every service under the old zone and adjusts the bridge relationships and eBPF pipelines accordingly.

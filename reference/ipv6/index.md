@@ -1,70 +1,69 @@
-# IPv6 相关配置
+# IPv6 Configuration
 
-首先要确定你当前的运营商是否支持客户端进行前缀申请, 并且支持的前缀为 `/60` 以上, 如不支持, 以下的功能都不可使用
+First make sure your ISP lets clients request a prefix, and that the prefix it hands out is `/60` or larger. If it does not, none of the features below can be used.
 
 ## IPv6 PD
 
-首先是前缀的获得, 你需要在对应的网卡进行前缀的申请, 具体的开启方式是在你的 WAN 网卡上开启 PD 服务. 如下图所示, 先找到对应的服务按钮: ![](./pd/1.png)
+Start by obtaining the prefix. You request it on the corresponding interface by enabling the PD service on your WAN interface. Find the service button first, as shown below: ![](../../zh/reference/ipv6/pd/1.png)
 
-点击后如无修改 MAC 地址的需求, 直接更新即可. ![](./pd/2.png)
+After clicking it, just hit update unless you need to change the MAC address. ![](../../zh/reference/ipv6/pd/2.png)
 
-如正常获取到前缀, 可在侧边栏: "服务状态" -> "IPv6-PD 服务" 中查看分配到的前缀信息: ![](./pd/3.png)
+If the prefix was obtained successfully, you can review it in the sidebar under "Service Status" -> "IPv6-PD Service": ![](../../zh/reference/ipv6/pd/3.png)
 
 ## IPv6 RA
 
-通告中的 IP 可以自己通告私有地址, 并非必须申请到 IPv6 前缀. 首先找到通告服务按钮. 注意通告服务只能在区域为 LAN 的网卡上找到该服务:
+The advertised addresses can be private ones you choose yourself — obtaining an IPv6 prefix is not a requirement. Find the advertisement service button first. Note that this service only appears on interfaces in the LAN zone:
 
-![](./ra/1.png)
+![](../../zh/reference/ipv6/ra/1.png)
 
-点击后可展开服务配置界面: ![](./ra/2.png)
+Clicking it opens the service configuration panel: ![](../../zh/reference/ipv6/ra/2.png)
 
-> **通告间隔** 是指服务端 **主动** **定期** 向局域网进行组播的 **时间间隔**
+> **Advertisement interval** is how often the server **proactively** and **periodically** multicasts to the LAN.
 
-通告的前缀有以下两种来源: 静态 / 动态 PD 获取, 点击前缀配置后的添加, 将会弹出添加界面
+An advertised prefix comes from one of two sources: static, or obtained dynamically via PD. Click add next to the prefix configuration to open the dialog.
 
-### 静态前缀添加
+### Adding a static prefix
 
-按照自己的要求配置即可 ![](./ra/3.png)
+Configure it to suit your needs. ![](../../zh/reference/ipv6/ra/3.png)
 
-### PD 获得前缀添加
+### Adding a PD-obtained prefix
 
-选择运行 PD 服务的网卡即可, 在 RA 配置时, 不要求目标网卡已获得前缀, 但是要开启服务 ![](./ra/3.png)
+Just pick the interface running the PD service. When configuring RA, the target interface does not need to have obtained a prefix yet, but the service must be enabled. ![](../../zh/reference/ipv6/ra/3.png)
 
 ::: warning
-`子网索引` 必须 **≥ 1** —— **索引 0 保留给 WAN**, 填 0 会被拒绝
-(`RA pool_index must be >= 1`).
+The `subnet index` must be **>= 1** — **index 0 is reserved for WAN**, and using 0 is rejected (`RA pool_index must be >= 1`).
 
-在 `同一个网卡` 的 RA 配置中, `不同` 前缀的 `子网索引` 不可重复.  
-在 `不同网卡` 的 RA 配置中, 前缀的 `子网索引` 在不同网卡中不可重复.
+Within the RA configuration of `the same interface`, `different` prefixes must not reuse a `subnet index`.  
+Across `different interfaces`, a prefix must not reuse the same `subnet index` either.
 
-例如当前有 A / B 网卡, PD1/2 动态前缀, S1 静态前缀.
+For example, say you have interfaces A and B, dynamic prefixes PD1 and PD2, and a static prefix S1.
 
-A 网卡上的 S1 配置了 `1 子网索引`, PD1 配置了 `2 子网索引`, 那么 A 网卡就不能再添加 `1 或者 2` 子网索引的 `任何` 前缀.  
-B 网卡可以添加的前缀 `子网索引` 是 PD1 子网索引 `除2外` 的其他. PD2 子网索引 可以任意.
+If S1 on interface A uses `subnet index 1` and PD1 uses `subnet index 2`, then interface A cannot add `any` prefix at subnet index `1 or 2`.  
+On interface B, PD1 can use any subnet index `except 2`. PD2 can use any index.
 :::
 
-另外父前缀长度有约束: 静态父前缀只接受 **/56 ~ /63**, 且父前缀长度必须短于 /64.
+There is also a constraint on the parent prefix length: a static parent prefix only accepts **/56 to /63**, and the parent prefix must be shorter than /64.
 
-配置完成后点击更新即可, 需要注意前缀的编辑在没有点击更新按钮前是不生效的
+Once configured, click update. Note that prefix edits do not take effect until you click the update button.
 
 ## IPv6 NPT
 
-当前无论是 _静态配置_ 的前缀还是 _PD 获得_ 的前缀, 在从某个网卡发出时, 会检查当前的前缀是否与**当前网卡** _PD 服务_ 获得前缀相同. 不同的情况下会转为该网卡的前缀发出. 所以可以不用担心使用错误的前缀进行请求
+Currently, whether a prefix is _statically configured_ or _obtained via PD_, Landscape checks on egress whether that prefix matches the one the **outgoing interface** obtained through its _PD service_. If they differ, the packet is rewritten to use that interface's prefix. So there is no need to worry about making requests with the wrong prefix.
 
-## IPv6 静态映射 (从 0.8.1 起生效)
+## IPv6 static mapping (effective from 0.8.1)
 
 ::: warning
-当前需要额外在 [防火墙](../firewall.md) 中开放静态映射端口
+For now you also need to open the mapped ports in the [firewall](../firewall.md).
 :::
 
-在右侧的菜单栏找到: "静态 NAT 管理", 点击页面上的创建, 可以看到如下界面 ![](./staticmapping.png)
+Find "Static NAT Management" in the right-hand menu and click create on the page. You will see the following screen: ![](../../zh/reference/ipv6/staticmapping.png)
 
-IPv6 的分配有三种情况.
+There are three cases for how IPv6 is allocated:
 
-1. 在内网分配了`静态` IPv6 前缀
-2. 在内网只分配了`动态` PD 前缀
-3. 同时分配动态, 静态前缀在内网
+1. A `static` IPv6 prefix is assigned on the LAN
+2. Only a `dynamic` PD prefix is assigned on the LAN
+3. Both dynamic and static prefixes are assigned on the LAN
 
-对于情况 一, 你需要在内网目标 IPv6 中填写`完整 IP`地址, 这样假设你有 WAN1, WAN2 两个网口分别获得了不同的 PD 前缀, 你可以同时使用这两个前缀映射到内部主机.
+For case 1, fill in the `complete IP` address as the internal IPv6 target. That way, if you have two WAN ports, WAN1 and WAN2, each with a different PD prefix, you can map both prefixes to the internal host at once.
 
-对于情况 二/三 , 你只能填写内网`目标 IP 的 /64 后缀` (相对于是 SLAAC 自动生成的部分). 这样***只能***使用主机已分配PD前缀生成的 IP, 其他网口获得的前缀 IP 将无法访问目标主机.
+For cases 2 and 3, you can only fill in the `/64 suffix of the target IP` (the part SLAAC generates automatically). This means **only** the IP generated from the PD prefix already assigned to the host can be used; the host will not be reachable through prefixes obtained by other WAN ports.

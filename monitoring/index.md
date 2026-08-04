@@ -1,5 +1,5 @@
-# 指标监控
+# Metrics
 
-指标监控中可以查看当前网络中连接信息，以及DNS相关的指标
+Metrics let you inspect current connections on the network as well as DNS-related figures.
 
-![](./index/monitor-1.png)
+![](../zh/monitoring/index/monitor-1.png)

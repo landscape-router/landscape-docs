@@ -1,56 +1,56 @@
-# 交叉编译
+# Cross-compiling
 
-如果你需要在 x86 下进行交叉编译
+If you need to cross-compile from x86.
 
-> 目前的步骤仅在 Debian 下进行验证
+> The steps below have only been verified on Debian.
 
-## 通用步骤
+## General steps
 
-1. 确保 Rust 工具链支持交叉编译使用 `rustup` 安装目标架构 Rust 工具链：
+1. Make sure the Rust toolchain supports cross-compilation by installing the target architecture's toolchain with `rustup`:
    ```bash
-   rustup target add <替换成你需要的>
+   rustup target add <the target you need>
    ```
-2. 安装交叉编译依赖
+2. Install the cross-compilation dependencies
 
    ```bash
-   # 启用目标架构支持
-   sudo dpkg --add-architecture <目标架构>
+   # Enable support for the target architecture
+   sudo dpkg --add-architecture <target architecture>
    sudo apt update
 
-   sudo apt install <目标架构 gcc> libelf-dev:<目标架构> zlib1g-dev:<目标架构>
+   sudo apt install <target architecture gcc> libelf-dev:<target architecture> zlib1g-dev:<target architecture>
    ```
 
-   **检查安装是否成功**：
+   **Check that it installed correctly**:
 
    ```bash
-   <目标架构 gcc> --version
+   <target architecture gcc> --version
    ```
 
-3. 进行编译完成依赖安装后，可以运行以下命令进行交叉编译：
+3. Build. Once the dependencies are installed, run:
 
 ```bash
-cargo build --release --target <目标架构>
+cargo build --release --target <target architecture>
 ```
 
 ## ARMv7
 
-1. Rust 工具链支持交叉编译使用 `rustup` 安装 Rust 工具链并添加 `aarch64` 目标：
+1. Install the Rust toolchain and add the target with `rustup`:
 
 ```bash
 rustup target add armv7-unknown-linux-gnueabihf
 ```
 
-2. 安装交叉编译依赖在进行交叉编译时，Rust 会调用目标架构的链接器，因此需要安装对应的工具链。
+2. Install the cross-compilation dependencies. Rust invokes the target architecture's linker when cross-compiling, so the matching toolchain has to be installed.
 
 ```bash
-# 启用 ARM64 架构支持
+# Enable armhf architecture support
 sudo dpkg --add-architecture armhf
 sudo apt update
 
 sudo apt install gcc-arm-linux-gnueabihf libelf-dev:armhf zlib1g-dev:armhf
 ```
 
-**检查安装是否成功**：
+**Check that it installed correctly**:
 
 ```bash
 arm-linux-gnueabihf-gcc --version
@@ -58,27 +58,27 @@ arm-linux-gnueabihf-gcc --version
 
 ## ARM64
 
-#### 确保 Rust 工具链支持交叉编译
+#### Make sure the Rust toolchain supports cross-compilation
 
-使用 `rustup` 安装 Rust 工具链并添加 `aarch64` 目标：
+Install the Rust toolchain and add the `aarch64` target with `rustup`:
 
 ```bash
 rustup target add aarch64-unknown-linux-gnu
 ```
 
-#### 安装交叉编译依赖
+#### Install the cross-compilation dependencies
 
-在进行交叉编译时，Rust 会调用目标架构的链接器，因此需要安装对应的工具链。
+Rust invokes the target architecture's linker when cross-compiling, so the matching toolchain has to be installed.
 
 ```bash
-# 启用 ARM64 架构支持
+# Enable ARM64 architecture support
 sudo dpkg --add-architecture arm64
 sudo apt update
 
 sudo apt install gcc-aarch64-linux-gnu libelf-dev:arm64 zlib1g-dev:arm64
 ```
 
-**检查安装是否成功**：
+**Check that it installed correctly**:
 
 ```bash
 aarch64-linux-gnu-gcc --version
@@ -87,13 +87,13 @@ aarch64-linux-gnu-gcc --version
 ## RISC-V 64
 
 ::: warning
-由于当前需要手动编译一些库才能进行编译项目， 所以就没有进行自动编译.  
-但是如果你是直接在 RISC-V 上直接编译， 那么就正常编译即可
+Some libraries currently have to be built by hand before the project will compile, which is why this is not automated.  
+That said, if you are building directly on RISC-V, a normal build works fine.
 :::
 
-#### 确保 Rust 工具链支持交叉编译
+#### Make sure the Rust toolchain supports cross-compilation
 
-使用 `rustup` 安装 Rust 工具链并添加 `riscv64` 目标：
+Install the Rust toolchain and add the `riscv64` target with `rustup`:
 
 ```bash
 rustup target add riscv64gc-unknown-linux-gnu
@@ -101,52 +101,52 @@ rustup target add riscv64gc-unknown-linux-gnu
 sudo apt install gcc-riscv64-linux-gnu g++-riscv64-linux-gnu binutils-riscv64-linux-gnu m4
 ```
 
-### 手动编译 RISC-V 依赖库
+### Building the RISC-V dependencies by hand
 
-### 1. 准备工作
+### 1. Preparation
 
 ```bash
-# 创建工作目录
+# Create a working directory
 mkdir -p ~/riscv-libs
 cd ~/riscv-libs
 
-# 设置安装目录
+# Set the install prefix
 export PREFIX=/opt/riscv-libs
 sudo mkdir -p $PREFIX
 ```
 
-### 2. 编译 zlib（必须先编译）
+### 2. Build zlib (has to come first)
 
 ```bash
-# 下载和解压
+# Download and unpack
 wget https://zlib.net/zlib-1.3.1.tar.gz
 tar xvf zlib-1.3.1.tar.gz
 cd zlib-1.3.1
 
-# 配置为 RISC-V 交叉编译
+# Configure for RISC-V cross-compilation
 CHOST=riscv64-linux-gnu ./configure --prefix=$PREFIX
 
-# 编译和安装
+# Build and install
 make
 sudo make install
 cd ..
 ```
 
-### 3. 编译 elfutils
+### 3. Build elfutils
 
 ```bash
-# 下载和解压
+# Download and unpack
 wget https://sourceware.org/elfutils/ftp/0.190/elfutils-0.190.tar.bz2
 tar xvf elfutils-0.190.tar.bz2
 cd elfutils-0.190
 
-# 设置环境变量
+# Set the environment
 export CC=riscv64-linux-gnu-gcc
 export CXX=riscv64-linux-gnu-g++
 export LIBRARY_PATH=$PREFIX/lib
 export LD_LIBRARY_PATH=$PREFIX/lib
 
-# 配置
+# Configure
 ./configure \
     --host=riscv64-linux-gnu \
     --prefix=$PREFIX \
@@ -157,7 +157,7 @@ export LD_LIBRARY_PATH=$PREFIX/lib
     LDFLAGS="-L$PREFIX/lib -Wl,-rpath,$PREFIX/lib" \
     LIBS="-lz"
 
-# 只编译和安装库文件，跳过有问题的测试程序
+# Build and install only the libraries, skipping the test programs that fail
 make -C libelf
 sudo make -C libelf install
 
@@ -169,22 +169,22 @@ sudo make -C libasm install
 cd ..
 ```
 
-### 4. 验证安装
+### 4. Verify the installation
 
 ```bash
-# 检查所有库文件
+# Check every library file
 ls -la $PREFIX/lib/libelf*
 ls -la $PREFIX/lib/libdw*
 ls -la $PREFIX/lib/libz*
 ls -la $PREFIX/lib/libasm*
 
-# 检查头文件
+# Check the headers
 ls -la $PREFIX/include/
 ```
 
-# 进行编译
+# Building
 
-添加以下 target 到 `.cargo/config.toml`
+Add the following target to `.cargo/config.toml`:
 
 ```toml
 [target.riscv64gc-unknown-linux-gnu]
@@ -199,14 +199,8 @@ rustflags = [
 ]
 ```
 
-编译 landscape 主体
+Then build landscape itself:
 
 ```shell
 cargo build --release --target riscv64gc-unknown-linux-gnu
 ```
-
-<!-- ```shell
-export LIBRARY_PATH=/opt/riscv-libs/lib:$LIBRARY_PATH
-export LD_LIBRARY_PATH=/opt/riscv-libs/lib:$LD_LIBRARY_PATH
-
-``` -->

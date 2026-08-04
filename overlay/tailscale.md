@@ -1,44 +1,45 @@
 # Tailscale
 
-Tailscale 的部署使用的步骤大致如下:
+Deploying Tailscale roughly comes down to:
 
-1. 开启 NAT1 映射
-2. 启动 tailscale 容器, 并以此容器为出口创建一个 Flow.
-3. 设置路由让内网中的程序可以访问 tailscalse 中的 IP / 网段.
+1. Set up NAT1 mapping
+2. Start the tailscale container and create a Flow that uses it as the egress
+3. Set up routing so programs on the LAN can reach the IPs / subnets inside tailscale
 
-## 设置 NAT1
+## Setting up NAT1
 
-主要有以下两种方式可进行 FullCone NAT (NAT1), 任选一种配置方式就行.
+There are two ways to get FullCone NAT (NAT1); either one works.
 
-1. 固定 tailscale [使用的端口](https://tailscale.com/kb/1278/tailscaled#flags-to-tailscaled), 并使用静态 NAT 进行开放端口.
-2. 动态 tailscale 端口, 但是需要添加 tailscale DERP 的 `域名` 或者 `IP` 到 DNS 或者 IP 规则中. 并开启 NAT1 开关.
+1. Pin [the port tailscale uses](https://tailscale.com/kb/1278/tailscaled#flags-to-tailscaled) and open it with a static NAT mapping.
+2. Leave the tailscale port dynamic, but add the tailscale DERP `domain` or `IP` to a DNS or IP rule and turn the NAT1 switch on.
 
-以上两种方式都只在容器所属的 `网桥` 开启 `Lan 路由转发服务` 时才生效. 如下图. ![](./tailscale/1.png)
+Both only take effect once the `Route LAN` service is enabled on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/tailscale/1.png)
 
-> 静态NAT配置 (内网目标端口为容器端口, IP 为容器 IP) ![](./tailscale/2.png)
+> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/tailscale/2.png)
 
-> 规则配置  
-> 还未进行实际配置, 可参考 ZeroTier 中的配置方式.
+> Rule configuration  
+> Not yet configured in practice; see the ZeroTier page for the approach.
 
-## 启动容器
+## Starting the container
 
 ::: warning
-网桥中的名称一定要设置 !!!
+You must set the bridge name!
 
 ```yaml
 networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # 一定要设置, 否则默认会使用动态网卡名称, 重启后网卡名称变动导致 LAN 服务不能正常开启
+      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
+      # which stops the LAN service from starting properly.
       com.docker.network.bridge.name: tail-br0
 ```
 
 :::
 
-::: 使用 [apps](https://github.com/landscape-router/landscape-apps) 仓库编译的[镜像](https://github.com/landscape-router/landscape-apps/pkgs/container/landscape-apps%2Ftailscale)进行启动容器. 下方展示的 compose 配置可能过时, 最新配置文件请访问 [docker-compose](https://github.com/landscape-router/landscape-apps/blob/main/tailscale/docker-compose.yaml).
+Start the container from the [image](https://github.com/landscape-router/landscape-apps/pkgs/container/landscape-apps%2Ftailscale) built in the [apps](https://github.com/landscape-router/landscape-apps) repository. The compose file below may be out of date; for the latest, see [docker-compose](https://github.com/landscape-router/landscape-apps/blob/main/tailscale/docker-compose.yaml).
 
-然后按照你的 compose 配置进行启动即可. 注意 `--port=41641` 参数. 这是为了固定端口.
+Then start it with your own compose configuration. Note the `--port=41641` argument, which pins the port.
 
 ```yaml
 services:
@@ -74,7 +75,7 @@ networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # 一定要设置, 否则默认会使用动态网卡名称
+      # Must be set, otherwise a dynamic interface name is used
       com.docker.network.bridge.name: tail-br0
     ipam:
       config:
@@ -82,27 +83,27 @@ networks:
           gateway: 10.100.1.1
 ```
 
-然后创建一个 Flow 并使用这个容器作为出口. ![](./tailscale/3.png)
+Then create a Flow that uses this container as its egress. ![](../zh/overlay/tailscale/3.png)
 
-注意，需要在 tailscale 的控制面板中允许此节点的路由。 ![](./tailscale/edit-route.png)
+Note that you have to approve this node's routes in the tailscale admin console. ![](../zh/overlay/tailscale/edit-route.png)
 
-![](./tailscale/allow-route.png) 并且在其他客户端启动时，需要增加 `--accept-routes` 选项, 例如:
+![](../zh/overlay/tailscale/allow-route.png) Other clients also need the `--accept-routes` option when starting, for example:
 
 ```shell
 tailscale up --accept-routes
 ```
 
-## 配置 "路由" 规则
+## Configuring the "route" rules
 
-点击相应 Flow 的 `目标 IP` 按钮进行配置. 只有添加相应规则的 Flow 才会生效. ![](./tailscale/4.png)
+Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/tailscale/4.png)
 
-比如我当前 LAN 客户端的 MAC 地址是 `00:a0:98:27:41:47`, 这个客户端当前被 `Flow 11` 规则所管理. 所以我需要在 `Flow 11` 的 `目标 IP` 进行配置. 并选择流量的出口为刚刚启动容器时创建的 `Flow 20`. ![](./tailscale/5.png)
+For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 20`, the one created when starting the container. ![](../zh/overlay/tailscale/5.png)
 
-这样, 当 LAN 客户端访问 `100.64.0.0/10` 或者 `192.168.2.0/24` 时, 这些数据包就会使用 Flow 20 (tailscale) 的出口, 也就是被转发到 `mytail` 容器中.
+That way, when the LAN client reaches `100.64.0.0/10` or `192.168.2.0/24`, those packets take the Flow 20 (tailscale) egress and are forwarded into the `mytail` container.
 
-> 192.168.2.0/24 这个示例是假设你在对端也部署了 tailscale , 那么可以直接配置对方的网段. 这样就能实现互通.
+> The `192.168.2.0/24` example assumes you also deployed tailscale on the far side, in which case you can configure the remote subnet directly and reach it both ways.
 
-## 结果验证
+## Verifying the result
 
-1. 从 `非` 路由部署的 `tailscale 客户端` (100.118.21.86) ping `00:a0:98:27:41:47` 客户端 通过容器中 `100.76.59.45` 处理. ![](./tailscale/6.png)
-2. 从 `00:a0:98:27:41:47` 客户端, ping `非` 路由部署的 `tailscale 客户端` (100.118.21.86) ![](./tailscale/7.png)
+1. From a `tailscale client` **not** deployed on the router (100.118.21.86), ping the `00:a0:98:27:41:47` client — handled by `100.76.59.45` in the container. ![](../zh/overlay/tailscale/6.png)
+2. From the `00:a0:98:27:41:47` client, ping the `tailscale client` **not** deployed on the router (100.118.21.86). ![](../zh/overlay/tailscale/7.png)

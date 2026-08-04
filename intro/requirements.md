@@ -1,41 +1,18 @@
-# 注意事项
+# System Requirements
 
-## 常见 Linux 发行版兼容性
+## Kernel Version
 
-✅ 内核版本兼容  
-🟢 部分版本的内核版本兼容  
-❌ 内核版本不兼容
+Requires kernel version `6.9.x` or higher for deployment.
 
-| 发行版      | 兼容 | 版本要求       | 备注                                                             |
-| ----------- | ---- | -------------- | ---------------------------------------------------------------- |
-| Debian      | ✅   | 13+            | Debian 13 默认内核已满足要求。避免安装 NetworkManager。          |
-| Arch        | ✅   | 滚动更新       | 内核版本足够新即可。避免安装 NetworkManager。                    |
-| Rocky Linux | 🟢   | 需升级到 6.9+  | 还需卸载 NetworkManager、关闭 `firewalld`，并处理 SELinux 权限。 |
-| Armbian     | 🟢   | 需升级到 6.9+  | 具体取决于所用内核分支。                                         |
-| OpenWRT     | 🟢   | 25+ / snapshot | 需自行编译；官方预编译版本暂不支持。                             |
-| Alpine      | ❌   | -              | 当前不兼容。                                                     |
+## Required Kernel Configuration
 
-<!--⚠️ 调整后可兼容-->
-<!--🟡 未知  -->
-
-## 内存大小限制
-
-当前尚未针对内存占用做专项优化。普通发行版建议至少提供 2 GiB 内存。  
-如果是自行裁剪过的内核, 预计 1.5 GiB 左右即可。
-
-## 内核版本
-
-需要使用内核版本在 `6.9.x` 以上的版本进行部署。
-
-## 需要检查的内核配置
-
-请确认内核编译配置中包含以下选项:
+Check if the kernel compilation configuration file is configured as follows:
 
 ::: warning
-主要检查 `BTF` 信息生成是否开启，并确认 `BPF` 功能已启用。此外还需要开启 `Cgroups` 的 CPU 控制。
+Mainly check if `BTF file` generation is enabled and if `BPF functionality` is enabled.
 :::
 
-```sh
+```text
 CONFIG_BPF=y
 CONFIG_HAVE_EBPF_JIT=y
 CONFIG_ARCH_WANT_DEFAULT_BPF_JIT=y
@@ -60,39 +37,30 @@ CONFIG_LWTUNNEL_BPF=y
 # CONFIG_HID_BPF is not set
 # end of HID-BPF support
 CONFIG_BPF_EVENTS=y
+CONFIG_TEST_BPF=m
 ```
 
-## 内核 BTF 生成需要开启
+## Kernel BTF Generation Must Be Enabled
 
-选择 **Kernel hacking**  
+Select: **Kernel hacking**  
 -> **Compile-time checks and compiler options**  
 -> **Debug information (Generate DWARF Version 5 debuginfo)**  
-即可在 **Kernel hacking**  
+Then you can find **Kernel hacking**  
 -> **Compile-time checks and compiler options**  
-看到 **Generate BTF type information** 选项。启用即可。
+and see **Generate BTF type information** Select and install it.
 
-## OpenWRT 编译需要开启
+## Linux Distributions Compatible with Kernel Version
 
-[上方配置](#需要检查的内核配置) 需在内核编译选项 (`make kernel_menuconfig`) 中开启  
-还需要在 OpenWRT 编译选项 (`make menuconfig`) 中:  
-选择:
+✅ Kernel version compatible  
+🟢 Some versions have compatible kernel versions  
+❌ Kernel version not compatible
 
-- **Global build settings** -> **Kernel build options**
-  - **Compile the kernel with BPF event support** _(KERNEL_BPF_EVENTS)_
-  - **Enable kernel cgroups** _(KERNEL_CGROUPS)_
-    - **Support for eBPF programs attached to cgroups** _(KERNEL_CGROUP_BPF)_
-- **Network** -> **Routing and Redirection**
-  - **tc-full** _Traffic control utility (full) (PACKAGE_tc-full)_ _或_
-  - **tc-bpf** _Traffic control utility (bpf) (PACKAGE_tc-bpf)_
+| Distribution | Compatible | Version Requirements | Notes                                     |
+| ------------ | ---------- | -------------------- | ----------------------------------------- |
+| Debian       | ✅         | 13+                  | Lower versions need kernel update to 6.9+ |
+| Armbian      | 🟢         |                      | Requires kernel version 6.9+              |
+| OpenWRT      | ❌         |                      |                                           |
+| Alpine       | ❌         |                      |                                           |
 
-**取消**选择:
-
-- **Global build settings** -> **Kernel build options**
-  - **Compile the kernel with debug information** _(KERNEL_DEBUG_INFO)_
-    - **Reduce debugging information** _(CONFIG_KERNEL_DEBUG_INFO_REDUCED)_
-
-即可在 **Global build settings**  
--> **Kernel build options**  
--> **Compile the kernel with debug information** _(KERNEL_DEBUG_INFO)_  
-看到 **Enable additional BTF type information** _(CONFIG_KERNEL_DEBUG_INFO_BTF)_  
-选中即可
+<!--⚠️ Compatible after adjustment-->
+<!--🟡 Unknown  -->

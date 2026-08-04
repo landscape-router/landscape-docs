@@ -1,4 +1,4 @@
-# 您的连接不是私密连接
+# Your Connection is Not Private
 
-当访问网页时出现下方图片情况时, 可能是因为当前主机的 IPv4 与 IPv6 的分流情况不一致导致的.  
-可能的情况是流入口 `仅配置了 IPv4` , 将入口配置从 IPV4 改为使用 `MAC 地址匹配` 可解决. ![](./cert-error/1.png)
+When visiting a webpage and encountering the situation in the image below, it may be due to inconsistent traffic shaping settings between IPv4 and IPv6 of the current host.  
+A possible situation is that the flow entry `only configured IPv4`. Changing the entry configuration from IPv4 to using `MAC address matching` can solve this problem. ![](../zh/faq/cert-error/1.png)

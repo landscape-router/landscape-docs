@@ -1,28 +1,28 @@
-# 可使用 Podman 替换 Docker
+# Using Podman instead of Docker
 
-如果宿主机没有安装 Docker, 也可以使用 Podman 提供兼容的容器接口。
+If the host does not have Docker installed, Podman can provide a compatible container interface.
 
-Landscape 当前主要通过 `docker.sock` 与容器运行时通信, 因此需要让 `docker.sock` 指向 Podman 的 Socket。
+Landscape currently talks to the container runtime through `docker.sock`, so `docker.sock` has to point at Podman's socket.
 
-以下示例基于 `rootful Podman`。
+The example below assumes `rootful Podman`.
 
-## 启用 `podman.socket`
+## Enabling `podman.socket`
 
 ```sh
 systemctl enable --now podman.socket
 ```
 
-启用后, Podman 默认会监听 `podman.sock`, 常见路径为 `/run/podman/podman.sock`。
+Once enabled, Podman listens on `podman.sock` by default, commonly at `/run/podman/podman.sock`.
 
-## 创建 `docker.sock` 兼容链接
+## Creating a `docker.sock` compatibility link
 
-为了让 Landscape 能识别到 Podman, 可以额外创建一个 `systemd` 服务, 在开机时自动把 `/var/run/docker.sock` 链接到 `/run/podman/podman.sock`。
+To let Landscape find Podman, add a `systemd` service that symlinks `/var/run/docker.sock` to `/run/podman/podman.sock` at boot.
 
 ```sh
 systemctl edit --force --full podman-docker-socket
 ```
 
-写入以下内容:
+Write the following:
 
 ```ini
 [Unit]
@@ -40,16 +40,16 @@ ExecStart=/bin/ln -s /run/podman/podman.sock /var/run/docker.sock
 WantedBy=multi-user.target
 ```
 
-然后执行:
+Then run:
 
 ```sh
 systemctl daemon-reload
 systemctl enable --now podman-docker-socket.service
 ```
 
-## 让 `landscape-router` 依赖该服务
+## Making `landscape-router` depend on that service
 
-如果 `landscape-router` 通过 `systemd` 启动, 建议增加依赖关系, 避免 Landscape 在 `docker.sock` 创建前启动。
+If `landscape-router` is started by `systemd`, adding the dependency is recommended so Landscape does not start before `docker.sock` exists.
 
 ```ini
 # /etc/systemd/system/landscape-router.service.d/override.conf
@@ -58,19 +58,19 @@ After=podman-docker-socket.service
 Requires=podman-docker-socket.service
 ```
 
-修改完成后执行:
+After editing, run:
 
 ```sh
 systemctl daemon-reload
 systemctl restart landscape-router.service
 ```
 
-## 检查是否生效
+## Checking that it worked
 
 ```sh
 ls -l /var/run/docker.sock
 ```
 
-若输出中可以看到 `/var/run/docker.sock -> /run/podman/podman.sock`, 一般就说明兼容链接已创建成功。
+If the output shows `/var/run/docker.sock -> /run/podman/podman.sock`, the compatibility link has generally been created successfully.
 
-补充参考: [Landscape Router: 基于 openSUSE MicroOS 安装实践 - 2.1.2 Podman](https://xzllll.com/25102301/#212-podman)
+Further reading: [Landscape Router: installation notes on openSUSE MicroOS — 2.1.2 Podman](https://xzllll.com/25102301/#212-podman)

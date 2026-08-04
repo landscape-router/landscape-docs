@@ -1,9 +1,9 @@
-# 与 iptables 的关系
+# Relationship with iptables
 
-没有关系
+No relationship
 
-所有的 DNS 标记, 还有转发均不会改变 iptables 规则, 当前 DNS / IP 标记服务生效的位置是在 **WAN 网卡**.
+All DNS marking and forwarding will not change iptables rules. The current DNS / IP marking service takes effect at the **WAN network interface**.
 
-也就是当 **数据包** 进入了 **开启了标记服务 WAN 网卡** 的 `EGRESS` 时, 才会进行匹配规则处理数据包.
+That is, when **packets** enter the `EGRESS` of the **WAN network interface with marking service enabled**, they will be processed according to matching rules.
 
-具体可以看 [特性/eBPF 路由](../features/ebpf-route.md#加速原理) 中的介绍.
+For details, see the introduction in [Features/eBPF Routing](../zh/features/ebpf-route.md#acceleration-principle).

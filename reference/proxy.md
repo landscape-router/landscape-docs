@@ -1,15 +1,15 @@
-# HTTP 反代
+# HTTP Reverse Proxy
 
 ::: warning
-[0.17.3] 之后的版本可用，功能还在完善。
+Available after [0.17.3]; the feature is still being refined.
 :::
 
-![](./proxy/proxy.png)
+![](../zh/reference/proxy/proxy.png)
 
-## 代理配置
+## Proxy configuration
 
-1. 配合证书管理中证书，实现https访问（对应域名打开'用于网关'开关）
-2. 可配置路径访问
-3. 支持反代后端tls连接 ![](./proxy/proxy-config.png)
+1. Combine with a certificate from Certificate Management to serve HTTPS (turn on the "use for gateway" switch on the matching domain)
+2. Path-based routing is supported
+3. TLS connections to the backend are supported ![](../zh/reference/proxy/proxy-config.png)
 
-4. 支持网关代理开关以及监听端口管理 ![](./proxy/proxy-port-config.png)
+4. The gateway proxy can be toggled on or off, and its listening ports managed ![](../zh/reference/proxy/proxy-port-config.png)

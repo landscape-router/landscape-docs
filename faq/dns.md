@@ -1,16 +1,16 @@
-# DNS 相关问题
+# DNS Related Questions
 
-## 提示 Address already in use
+## Prompt: Address already in use
 
-请检查本机的 `systemd-resolved` 是否存在，检查方式如下：
+Please check if `systemd-resolved` exists on the local machine. Check as follows:
 
-1. 先检查端口是否已经被占用了
+1. First check if the port is already occupied
 
 ```shell
 ss -ltup
 ```
 
-在 `Local Address:Port` 中检查是否有类似 domain 或者程序占用了 53 端口.
+In `Local Address:Port`, check if there is a domain or program occupying port 53.
 
 ```text
 
@@ -21,10 +21,10 @@ tcp       LISTEN   0     4096      127.0.0.53%lo:domain           0.0.0.0:*     
 tcp       LISTEN   0     1024          127.0.0.1:39329            0.0.0.0:*         users:(("code-6609ac3d66",pid=196919,fd=9))
 ```
 
-如果得到类似的结果那就是由于本机的 `systemd-resolved` 服务占用了端口.  
-使用命令 `systemctl stop systemd-resolved` 进行停止后就可以启动.
+If you get similar results, then the local `systemd-resolved` service has occupied the port.  
+Use the command `systemctl stop systemd-resolved` to stop it and then you can start.
 
-如果要完全禁止 **systemd-resolved** 服务, 请使用:
+To completely disable the **systemd-resolved** service, please use:
 
 ```shell
 systemctl stop systemd-resolved
@@ -32,7 +32,7 @@ systemctl disable systemd-resolved
 systemctl mask systemd-resolved
 ```
 
-> 如果要复原配置:
+> To restore configuration:
 >
 > ```shell
 > systemctl unmask systemd-resolved

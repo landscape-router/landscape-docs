@@ -1,9 +1,8 @@
-# 内网主机名与 LAN 后缀
+# LAN Hostnames and the LAN Suffix
 
-给内网设备一个统一的域名后缀, 让 `nas` / `nas.lan` 这样的名字能直接解析到内网 IP,
-同时通过 DHCP 把这个后缀告知客户端, 使客户端只输入短主机名也能补全.
+Gives devices on your LAN a shared domain suffix, so names like `nas` / `nas.lan` resolve straight to internal addresses, and tells clients about that suffix over DHCP so a short hostname alone is enough.
 
-对应配置是 `landscape.toml` 的 `[lan_hostname]` 节:
+The matching configuration is the `[lan_hostname]` section of `landscape.toml`:
 
 ```toml
 [lan_hostname]
@@ -11,79 +10,73 @@ enable = true
 lan_suffix = "lan"
 ```
 
-| 字段         | 类型   | 默认值  | 说明                                   |
-| ------------ | ------ | ------- | -------------------------------------- |
-| `enable`     | bool   | `true`  | 关闭后正解、反解、DHCP option 全部停止 |
-| `lan_suffix` | string | `"lan"` | 域名后缀, 可以多级如 `home.arpa`       |
+| Field        | Type   | Default | Description                                                           |
+| ------------ | ------ | ------- | --------------------------------------------------------------------- |
+| `enable`     | bool   | `true`  | When off, forward resolution, PTR and the DHCP options all stop       |
+| `lan_suffix` | string | `"lan"` | The domain suffix; multi-label values such as `home.arpa` are allowed |
 
-## 主机名从哪来
+## Where hostnames come from
 
-登记表有**两个来源**:
+The registry has **two sources**:
 
-| 来源                | 怎么产生                                                           | 特点                     |
-| ------------------- | ------------------------------------------------------------------ | ------------------------ |
-| **已录入设备**      | 在设备管理里填 `hostname` 字段, 见 [设备管理](./device-management) | 长期有效, 优先级更高     |
-| **DHCP 客户端自报** | 客户端在 DHCP 请求里带 option 12 (Host Name)                       | 随租约来去, 无需手工维护 |
+| Source                    | How it happens                                                                                  | Notes                                    |
+| ------------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------- |
+| **Enrolled devices**      | Fill in the `hostname` field in device management, see [Device Management](./device-management) | Long-lived, and takes priority           |
+| **Self-reported by DHCP** | The client includes option 12 (Host Name) in its DHCP request                                   | Comes and goes with the lease, no upkeep |
 
-::: tip 两者冲突时
-**已录入设备优先**. 如果某个主机名已经由录入设备占用, DHCP 自报同名不会覆盖它;
-反过来, 租约过期只会清掉 DHCP 学来的记录, 不会动录入设备的.
+::: tip When the two collide
+**Enrolled devices win.** If a hostname is already claimed by an enrolled device, a DHCP client reporting the same name will not overwrite it. Conversely, a lease expiring only clears the DHCP-learned record and leaves the enrolled one alone.
 :::
 
-## 正向解析
+## Forward resolution
 
-配置 `lan_suffix = "lan"` 且某设备主机名是 `nas` 时:
+With `lan_suffix = "lan"` and a device whose hostname is `nas`:
 
 ```sh
-dig @<router> nas.lan A       # → 该设备的 IPv4
-dig @<router> nas.lan AAAA    # → 该设备的 IPv6 (仅当登记了 IPv6 时)
+dig @<router> nas.lan A       # → the device's IPv4
+dig @<router> nas.lan AAAA    # → the device's IPv6 (only if one is registered)
 ```
 
 ::: warning
-匹配的是**整个后缀**, 不是最后一个 label. `lan_suffix = "home.lan"` 时只有 `nas.home.lan` 能解析,
-`nas.lan` 不能. 后缀比较忽略大小写.
+The match is against the **entire suffix**, not just the last label. With `lan_suffix = "home.lan"`, only `nas.home.lan` resolves — `nas.lan` does not. Suffix comparison is case-insensitive.
 :::
 
-## 反向解析 (PTR)
+## Reverse resolution (PTR)
 
-反查会返回 `<hostname>.<lan_suffix>.`:
+A reverse lookup returns `<hostname>.<lan_suffix>.`:
 
 ```sh
 dig @<router> -x 192.168.5.10   # → nas.lan.
 ```
 
-同一个 IP 上挂了多个主机名时, 取**已录入设备**里字典序最小的那个; 没有录入设备记录才回落到
-DHCP 学来的名字.
+When several hostnames share one IP, the lexicographically smallest **enrolled device** name wins; only if there is no enrolled record does it fall back to a DHCP-learned name.
 
-::: warning PTR 只对内网地址应答
-只有这些地址范围会返回 PTR, 公网地址一律不应答 (避免污染公网反解):
+::: warning PTR only answers for internal addresses
+Only these ranges return a PTR — public addresses never do, to avoid polluting public reverse DNS:
 
-- IPv4: 私有地址 (10/8、172.16/12、192.168/16)、回环、链路本地 (169.254/16)、
-  运营商共享段 (100.64/10)、未指定地址、广播地址
-- IPv6: 唯一本地地址 (fc00::/7)、回环、链路本地 (fe80::/10)、未指定地址
+- IPv4: private ranges (10/8, 172.16/12, 192.168/16), loopback, link-local (169.254/16), the carrier shared range (100.64/10), the unspecified address, and the broadcast address
+- IPv6: unique local addresses (fc00::/7), loopback, link-local (fe80::/10), and the unspecified address
   :::
 
-## `local` 区始终本地应答
+## The `local` zone is always answered locally
 
-除了配置的后缀, `local` 这个区**永远由本地应答**, 与 `lan_suffix` 设成什么无关.
-这是给 mDNS 留的保护: `local` 属于 mDNS 命名空间, 不应该被转发到上游 DNS.
+Besides the configured suffix, the `local` zone is **always answered locally**, no matter what `lan_suffix` is set to. This protects mDNS: `local` belongs to the mDNS namespace and should never be forwarded upstream.
 
-也因此 `lan_suffix` **不允许**填 `local` (见下方保留后缀).
+That is also why `lan_suffix` **cannot** be set to `local` (see reserved suffixes below).
 
-## DHCP 下发的 option 15 / 119
+## DHCP options 15 / 119
 
-启用后, DHCP 服务会按后缀下发两个 option, 让客户端能只输入 `nas` 就访问到 `nas.lan`:
+Once enabled, the DHCP service advertises two options derived from the suffix, so a client can reach `nas.lan` by typing just `nas`:
 
-| Option | 名称          | 内容                             |
-| ------ | ------------- | -------------------------------- |
-| 15     | Domain Name   | 后缀本身, 如 `lan`               |
-| 119    | Domain Search | 后缀的 DNS 线格式名字, 如 `lan.` |
+| Option | Name          | Content                                           |
+| ------ | ------------- | ------------------------------------------------- |
+| 15     | Domain Name   | The suffix itself, e.g. `lan`                     |
+| 119    | Domain Search | The suffix as a wire-format DNS name, e.g. `lan.` |
 
-::: warning 只在客户端点名请求时下发
-这两个 option 走的是**客户端参数请求列表 (option 55)** 这条路: 客户端没在 option 55 里
-要求 15 / 119, 服务端就不会塞给它. 这一点和 `custom_options` 不同, 后者是无条件注入的.
+::: warning Only sent when the client asks
+These two options travel via the **client parameter request list (option 55)**: if the client does not ask for 15 / 119 there, the server will not include them. This differs from `custom_options`, which are injected unconditionally.
 
-抓包核对时请确认客户端确实请求了这两个 code. 例如 `dhcpcd` 默认会请求:
+When verifying with a capture, confirm the client really did request those codes. For instance, `dhcpcd` asks for them by default:
 
 ```sh
 dhcpcd -T <iface> | grep -E 'new_domain_name|new_domain_search'
@@ -91,68 +84,61 @@ dhcpcd -T <iface> | grep -E 'new_domain_name|new_domain_search'
 
 :::
 
-另外, option 119 需要后缀能解析成合法 DNS 名字. 万一不能, **只跳过 option 119**,
-其余响应内容照常返回, 日志里会有一条 warn.
+Option 119 also requires the suffix to parse as a valid DNS name. If it does not, **only option 119 is skipped** — the rest of the response is returned as usual, with a warning in the log.
 
-## 运行时修改
+## Changing it at runtime
 
-这一节支持热改, **不需要重启服务**:
+This section supports hot updates and **does not need a service restart**:
 
-- DNS 的正解 / 反解立刻按新后缀生效
-- 下一个 DHCP 响应就会带上新的 option 15 / 119
+- Forward and reverse DNS switch to the new suffix immediately
+- The very next DHCP response carries the new options 15 / 119
 
-API 是先取 hash 再带 hash 提交的乐观并发形式:
+The API takes the current hash first, then submits with it, as an optimistic-concurrency check:
 
 ```sh
 B=https://<router>:6443/api/v1/system
-# 1. 读当前配置, 同时拿到 hash
+# 1. Read the current config, which also returns the hash
 H=$(curl -sk $B/config/edit/lan_hostname -H "Authorization: Bearer $TOKEN" | jq -r .data.hash)
-# 2. 带 hash 提交
+# 2. Submit with that hash
 curl -sk -X POST $B/config/edit/lan_hostname -H "Authorization: Bearer $TOKEN" \
   -d "{\"new_lan_hostname\":{\"enable\":true,\"lan_suffix\":\"home.arpa\"},\"expected_hash\":\"$H\"}"
 ```
 
-hash 不匹配说明配置已被别处改过, 会返回冲突错误, 重新取 hash 再提交即可.
-另有一个只读的快速接口 `GET /config/lan_hostname` (不返回 hash).
+A hash mismatch means the config was changed elsewhere and a conflict error is returned; fetch the hash again and resubmit. There is also a read-only fast endpoint, `GET /config/lan_hostname`, which does not return a hash.
 
-## 后缀校验规则
+## Suffix validation rules
 
-提交的后缀会先归一化: 去掉首尾空格与首尾的 `.`, 转小写, 非 ASCII 走 IDNA 转 punycode
-(如 `BÜCHER.` → `xn--bcher-kva`).
+A submitted suffix is normalised first: surrounding whitespace and leading/trailing `.` are stripped, it is lowercased, and non-ASCII input goes through IDNA to punycode (e.g. `BÜCHER.` → `xn--bcher-kva`).
 
-然后按下表校验, 不通过返回 **400**, 且**不会污染现有配置**:
+It is then validated against the table below. Failures return **400** and **leave the existing configuration untouched**:
 
-| error_id                                        | 触发条件                                     |
-| ----------------------------------------------- | -------------------------------------------- |
-| `lan_hostname.invalid_suffix.empty_label`       | 出现空 label, 如 `home..arpa`                |
-| `lan_hostname.invalid_suffix.invalid_idna`      | IDNA 转换失败                                |
-| `lan_hostname.invalid_suffix.too_long`          | 总长 > 253, 或单个 label > 63                |
-| `lan_hostname.invalid_suffix.invalid_hyphen`    | label 以 `-` 开头或结尾, 如 `-lan`           |
-| `lan_hostname.invalid_suffix.invalid_character` | 出现字母数字和 `-` 以外的字符, 如 `lan_name` |
-| `lan_hostname.invalid_suffix.reserved`          | 命中下方保留后缀                             |
+| error_id                                        | Trigger                                                       |
+| ----------------------------------------------- | ------------------------------------------------------------- |
+| `lan_hostname.invalid_suffix.empty_label`       | An empty label, e.g. `home..arpa`                             |
+| `lan_hostname.invalid_suffix.invalid_idna`      | IDNA conversion failed                                        |
+| `lan_hostname.invalid_suffix.too_long`          | Total length > 253, or a single label > 63                    |
+| `lan_hostname.invalid_suffix.invalid_hyphen`    | A label starts or ends with `-`, e.g. `-lan`                  |
+| `lan_hostname.invalid_suffix.invalid_character` | A character other than alphanumerics and `-`, e.g. `lan_name` |
+| `lan_hostname.invalid_suffix.reserved`          | Matches a reserved suffix below                               |
 
-后缀留空 (或只填空格) 不算错误, 会回落到默认值 `lan`.
+An empty suffix (or only whitespace) is not an error — it falls back to the default, `lan`.
 
-### 保留后缀
+### Reserved suffixes
 
-这些后缀会被拒绝, 因为它们属于解析器自己的命名空间, 占用会导致解析行为混乱:
+These are rejected because they belong to the resolver's own namespace, and claiming them makes resolution behave inconsistently:
 
-- **保留 TLD** (含其子域): `invalid`、`test`、`onion`、`localhost`、`local`
-  —— 所以 `corp.test`、`office.local` 也不行
-- **arpa 相关**: `arpa` 本身, 以及 `in-addr.arpa`、`ip6.arpa`、`resolver.arpa`、
-  `ipv4only.arpa` 及其子域
+- **Reserved TLDs** (including subdomains): `invalid`, `test`, `onion`, `localhost`, `local`
+  — so `corp.test` and `office.local` are out too
+- **arpa-related**: `arpa` itself, plus `in-addr.arpa`, `ip6.arpa`, `resolver.arpa`, `ipv4only.arpa` and their subdomains
 
 ::: tip
-`home.arpa` 是**允许**的 —— 它正是 RFC 8375 为家庭网络指定的后缀, 不在上面的保留列表里.
-`mylan.arpa`、`in-addr.home.arpa` 同样可用.
+`home.arpa` **is** allowed — it is precisely the suffix RFC 8375 designates for home networks, and it is not in the reserved list above. `mylan.arpa` and `in-addr.home.arpa` work as well.
 :::
 
-## 从旧版本升级
+## Upgrading from older versions
 
-这一节以前叫 `[hostname_registry]`. 为兼容旧配置文件, 读取时**仍然接受**这个旧键名,
-但程序导出配置时一律写成 `[lan_hostname]`.
+This section used to be called `[hostname_registry]`. The old key is **still accepted** when reading, for compatibility with existing configuration files, but the program always writes `[lan_hostname]` when exporting.
 
 ::: danger
-`[hostname_registry]` 和 `[lan_hostname]` **同时出现会直接解析失败**, 程序起不来.
-手工编辑配置文件时请只保留一个 —— 推荐直接改成新名字.
+`[hostname_registry]` and `[lan_hostname]` appearing **together fails to parse outright**, and the program will not start. When editing the file by hand, keep only one — preferably just rename it to the new key.
 :::

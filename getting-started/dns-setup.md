@@ -1,73 +1,75 @@
-# DNS 配置
+# DNS Setup
 
-> 本文引导你完成 DNS 相关配置：设置上游 DNS 服务器、创建重定向规则，确保内网设备可以正常解析域名。
+> This guide walks you through DNS configuration: setting upstream DNS servers and creating redirect rules, so devices on your LAN can resolve domains properly.
 
-Landscape 默认启用的上游 DNS 服务商是 Cloudflare. 可以进行更换.
+By default Landscape uses Cloudflare as the upstream DNS provider. You can change it.
 
-## 配置上游 DNS 服务器
+## Configuring upstream DNS servers
 
-上游 DNS 是 Landscape Router 用来解析域名的外部 DNS 服务。
+An upstream DNS is the external DNS service Landscape Router uses to resolve domains.
 
-1. 在左侧菜单中选择 **DNS 相关**
-2. 找到 **上游 DNS** 二级菜单
-3. 点击添加新上游, 或是修改已有上游, landscape 提供了多种预设, 以供快速填充.
-   ![上游 DNS 配置](../reference/dns/dns-upstream.png)
-4. 可添加多个上游 DNS 实现不同的域名使用不同的 DNS 进行解析, 如下我添加了一个并修改了默认的. 用于之后的演示
-   ![](./dns-setup/more-dns.png)
+1. Pick **DNS** in the left-hand menu
+2. Find the **Upstream DNS** submenu
+3. Click add to create a new upstream, or edit an existing one. Landscape ships several presets you can use to fill the form quickly.
+   ![Upstream DNS configuration](../zh/reference/dns/dns-upstream.png)
+4. You can add multiple upstreams so different domains resolve through different servers. Below I added one and modified the default, which the rest of this page builds on.
+   ![](../zh/getting-started/dns-setup/more-dns.png)
 
-## 使用刚刚配置的 DNS 上游
+## Using the upstream you just configured
 
-刚刚我们进行了上游的配置, 但是`什么域名`要使用`什么上游`, 是在额外的位置进行配置.
+We have configured an upstream, but `which domain` uses `which upstream` is decided somewhere else.
 
-我们点击左侧菜单 `分流设置` 进入`分流配置`页面. 点击 `默认 Flow` 卡片上的 `DNS` 按钮
-![](./dns-setup/flow.png)
+Click `Flow Settings` in the left-hand menu to open the `flow configuration` page, then click the `DNS` button on the `Default Flow` card.
+![](../zh/getting-started/dns-setup/flow.png)
 
-将会弹出 DNS 规则列表:
-![](./dns-setup/rules1.png)
-这个列表中有一条 `默认` 规则, 我们主要关心这几件事:
+The DNS rule list opens:
+![](../zh/getting-started/dns-setup/rules1.png)
 
-1. 这个规则的优先级是 `10000`
-2. 这条规则的上游是 `A-LI`, 也就上一步配置的 DNS
-3. 这条规则的配置 `规则为空` -> 并且有提示, 将会匹配所有的规则
+There is one `default` rule in this list. Three things matter here:
 
-也就是说明. 当前访问所有的域名都将命中这一条规则.
-我们可以通过点击头部右侧的查询进行查询 DNS 验证规则的生效情况.
-![](./dns-setup/query-dns-btn.png)
+1. The rule's priority is `10000`
+2. Its upstream is `A-LI`, the DNS we configured in the previous step
+3. Its match rules are `empty` — and the hint says it will match everything
 
-打开后可以看到这几个部分:
+In other words, every domain you visit right now hits this one rule.
+You can use the query button at the top right to run a DNS query and check how rules are being applied.
+![](../zh/getting-started/dns-setup/query-dns-btn.png)
 
-1. 是`哪个 Flow` 的 DNS 检查 -> Flow0 也就是默认 Flow
-2. `查询的域名`是什么, 按钮是快速查询的域名
-3. 被查询域名是被`哪条规则所处理` -> 可以看到是刚刚那条默认规则
-4. 上游 DNS 的查询`结果`
-5. 内部缓存结果, 可以用于对比缓存与实时`差别`
-   <img src="./dns-setup/query-result.png" style="width: 48%;" />
+Once open you will see these parts:
 
-可以看到当前 `www.baidu.com` 是被默认流处理了. 那么我们现在增加一个规则.  
-展示两种情况:
+1. `Which Flow` the DNS check runs against — Flow0, i.e. the default Flow
+2. The `domain being queried`; the buttons are shortcuts for common domains
+3. `Which rule handled` the queried domain — here it is that default rule
+4. The `result` from the upstream DNS
+5. The internal cache result, useful for spotting `differences` between cache and live answers
+   <img src="../zh/getting-started/dns-setup/query-result.png" style="width: 48%;" />
+
+So `www.baidu.com` is currently handled by the default flow. Now let us add a rule.  
+Two cases to compare:
+
 ::: tabs
-== 新增规则优先级小于 10000
+== New rule with priority lower than 10000
 
 <div style="display: flex; gap: 10px;">
-  <img src="./dns-setup/less-than-10000.png" style="width: 50%;" />
-  <img src="./dns-setup/less-than-10000-result.png" style="width: 50%;" />
-  <img src="./dns-setup/less-than-10000-other.png" style="width: 50%;" />
+  <img src="../zh/getting-started/dns-setup/less-than-10000.png" style="width: 50%;" />
+  <img src="../zh/getting-started/dns-setup/less-than-10000-result.png" style="width: 50%;" />
+  <img src="../zh/getting-started/dns-setup/less-than-10000-other.png" style="width: 50%;" />
 </div>
 
-1. 查询 `www.baidu.com` -> 被 9999 捕获 -> 结束
-2. 查询 `test.ustc.edu.cn` -> 9999 不能匹配, 跳过 -> 被 10000 捕获 -> 结束
+1. Query `www.baidu.com` -> caught by 9999 -> done
+2. Query `test.ustc.edu.cn` -> 9999 does not match, skipped -> caught by 10000 -> done
 
-== 新增规则优先级大于 10000
+== New rule with priority higher than 10000
 
 <div style="display: flex; gap: 10px;">
-  <img src="./dns-setup/more-than-10000.png" style="width: 50%;" />
-  <img src="./dns-setup/more-than-10000-result.png" style="width: 50%;" />
-  <img src="./dns-setup/more-than-10000-other.png" style="width: 50%;" />
+  <img src="../zh/getting-started/dns-setup/more-than-10000.png" style="width: 50%;" />
+  <img src="../zh/getting-started/dns-setup/more-than-10000-result.png" style="width: 50%;" />
+  <img src="../zh/getting-started/dns-setup/more-than-10000-other.png" style="width: 50%;" />
 </div>
 
-1. 查询 `www.baidu.com` -> 被 10000 捕获 -> 结束
-2. 查询 `test.ustc.edu.cn` -> 被 10000 捕获 -> 结束
+1. Query `www.baidu.com` -> caught by 10000 -> done
+2. Query `test.ustc.edu.cn` -> caught by 10000 -> done
 
 :::
 
-可以看到 DNS 规则的匹配是按照优先级进行的, 当域名从上往下匹配到第一个规则, 则按那个规则进行处理.
+As you can see, DNS rules are matched in priority order: a domain is matched from the top down, and the first rule it hits is the one that handles it.

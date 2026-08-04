@@ -1,43 +1,49 @@
-# NAT4? 不, 比 NAT4 更严格
+# NAT4? No, stricter than NAT4
 
-当前大部分的路由软件，对于 NAT 类型，要么全部 NAT1 要么全部 NAT4.  
-而 Landscape 给你另一个选择: `我全都要.jpg`
+Most router software today gives you only two choices for NAT behavior: either everything is NAT1 or everything is NAT4.  
+Landscape gives you another option: both, but only where you want it.
 
-## 做了什么?
+## What changed?
 
-传统 NAT (即使是 NAT4/Symmetric NAT) 依然遵循一个默认前提:
+Traditional NAT, even NAT4 / Symmetric NAT, still usually follows one default assumption:
 
-> 允许一个内部端口，对多个外部目标建立映射
+> One internal port may create mappings to multiple external targets.
 
-而 Landscape 的策略是:
+Landscape uses a stricter default policy:
 
-> 一个端口，默认只属于发起连接时的服务端
+> One port belongs only to the server it first connected to, unless you explicitly allow otherwise.
 
-具体来说：
+More specifically:
 
-当 `客户端A` → `服务端B` 通信后, NAT 建立映射了 `客户端 A` → `路由 A'` 后
+After `Client A` talks to `Server B`, NAT creates the mapping `Client A` -> `Router A'`.
 
-在连接存活期间：  
-`客户端 A` → `服务端 B` ✅ 允许  
-`服务端 B` → `路由 A'` ✅ 允许, 然后路由转为 B → A  
-`客户端 A` → `另一个服务端 C` ❌ 直接丢弃（不会创建新映射）  
-`另一个服务端 C` → `路由 A'` ❌ 丢弃
+While that connection is alive:
 
-## 为什么要这样设计?
+- `Client A` -> `Server B` ✅ allowed
+- `Server B` -> `Router A'` ✅ allowed, then translated back to `B -> A`
+- `Client A` -> `Another server C` ❌ dropped directly, and no new mapping is created
+- `Another server C` -> `Router A'` ❌ dropped
 
-因为当前许多软件常常会偷偷用你的上行进行 PCDN 等操作.  
-等到你需要使用你的上行时发现上行被限速了.
+## Why design it this way?
 
-## 那我想要进行 NAT1 时该怎么做?
+Because many programs quietly use your uplink for things like PCDN.  
+Then when you actually need your uplink, you discover it has already been rate-limited or consumed.
 
-1. 当你已知端口的情况下, 可通过设置 静态 NAT 映射允许客户端的指定端口使用 NAT1.
-2. 当你已知 目标域名 / IP 地址 时, 那可以通过 UI 上的, DNS 规则 / IP 规则进行控制. ![DNS 规则中](./nat/nat-1.png) ![IP 规则中](./nat/nat-2.png)
+## What if I want NAT1?
 
-## 效果展示
+1. If you already know the port, use a static NAT mapping to allow that specific client port to use NAT1.
+2. If you know the target domain or IP, use DNS rules or IP rules in the UI to control it.
 
-当默认情况下访问 [checkmynat](https://www.checkmynat.com/) 时.  
-会得到 `Error: Failed, process was interrupted` 错误
+![In DNS rules](../zh/features/nat/nat-1.png) ![In IP rules](../zh/features/nat/nat-2.png)
 
-![](./nat/result-1.png)
+## Result Demo
 
-而当你打开了 NAT1 按钮时, 再次点击检测, 将会得到 Full Cone 的提示. ![](./nat/result-2.png)
+When accessing [checkmynat](https://www.checkmynat.com/) with the default behavior, you will get:
+
+`Error: Failed, process was interrupted`
+
+![](../zh/features/nat/result-1.png)
+
+After enabling the NAT1 switch and testing again, the site reports Full Cone:
+
+![](../zh/features/nat/result-2.png)

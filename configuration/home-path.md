@@ -1,29 +1,27 @@
-# 配置存放目录文件介绍
+# Configuration Directory Structure
 
-当你使用命令 `landscape-webserver --help` 时可以看到有个 `-c, --config-dir <CONFIG_DIR>` 配置.
+When you use the command `landscape-webserver --help`, you can see the `-c, --config-dir <CONFIG_DIR>` option.
 
-这个就是指定运行时项目的持久化配置存储路径位置. 检查目录你会看到如下内容:
-
-<!-- 下方 shell 块中的 [配置文件介绍] 非链接，仅作标记 -->
+This is the persistent configuration storage path for the runtime project. When you inspect the directory, you will see something like this:
 
 ```shell
 .
-├── geo_tmp # geo 文件缓存路径
+├── geo_tmp # Geo file cache path
 │   ├── ip
 │   └── site
-├── landscape_api_token # api jwt token, 每次重启刷新
-├── landscape_db.sqlite # sqlite 数据库文件位置
-├── landscape_init.lock # lock 文件, 如果重新刷新配置
-├── landscape_init.toml # 初始化配置文件 ( 仅读取一次 ) 介绍见 [配置文件介绍]
-├── landscape.toml # 配置 日志 / 登录 用户 / 监听端口 等配置 介绍见 [配置文件介绍]
-├── logs # 日志文件夹 ( 默认位置 可被修改 )
+├── landscape_api_token # API JWT token, refreshed on each restart
+├── landscape_db.sqlite # SQLite database file location
+├── landscape_init.lock # Lock file, used when reloading configuration
+├── landscape_init.toml # Initialization config file (read only once) - see [Configuration File Guide]
+├── landscape.toml # Logs / login user / listen ports and related config - see [Configuration File Guide]
+├── logs # Log directory (default location, can be changed)
 │   ├── landscape.log.yyyy-MM-dd
-├── metric # 指标文件目录
+├── metric # Metrics directory
 │   ├── ...
-├── static  # WEB UI 文件夹 ( 默认位置 可被修改 )
+├── static # Web UI directory (default location, can be changed)
 │   ├── assets
 │   │   └── ...
 │   └── index.html
-└── unix_link # 与 docker 容器通信的 sock 文件 忽略即可
+└── unix_link # Socket file for Docker container communication; can be ignored
     └── register.sock
 ```

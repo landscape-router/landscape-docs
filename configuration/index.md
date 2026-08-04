@@ -1,247 +1,260 @@
-# 配置文件介绍
+# Configuration File Guide
 
-程序的配置来源主要有以下:
+The program's configuration sources mainly include:
 
-- `landscape_init.toml`: 全量配置文件, 除了包含各种规则配置还包含完整的 `landscape.toml`, `仅在首次` 进行读取 **_一次_**, 读取后将会创建一个 `landscape_init.lock` 文件, 可在 UI 界面中导出当前的配置的 `init` 文件. 方便使用当前配置进行重新部署. 全部可用字段见 [landscape_init.toml 参考](./init-config)
-- `landscape.toml`: 每次启动进行读取, 只包含*监听地址*. _登录用户名_ 和 _密码_, _日志_ 等配置.
+- `landscape_init.toml`: Full configuration file, which not only contains all rule definitions but also includes the complete `landscape.toml`. It is read `only once` on the **_first run_**. After being read, a `landscape_init.lock` file will be created. You can export the current configuration as an `init` file from the UI, which is convenient for redeploying with the current configuration. For every available field, see [landscape_init.toml Reference](./init-config)
+- `landscape.toml`: Read on every startup. It only contains configuration such as _listen addresses_, _login username_ and _password_, and _logs_.
 
-启动时可以不进行任何文件的配置即可启动.  
-如果第一次启动时想要达到开机即使用, 可以配置 `landscape_init.toml`.
+The program can start without any file configuration.  
+If you want it to be ready to use on the first boot, you can configure `landscape_init.toml`.
 
-## 配置优先级
+## Configuration priority
 
-同一项配置可能来自多处, 优先级从高到低:
+The same setting can come from several places. From highest priority to lowest:
 
-1. **命令行参数** — 如 `--port 6300`
-2. **环境变量** — 如 `LANDSCAPE_WEB_HTTP_PORT=6300`
+1. **Command-line arguments** — e.g. `--port 6300`
+2. **Environment variables** — e.g. `LANDSCAPE_WEB_HTTP_PORT=6300`
 3. **`landscape.toml`**
-4. **内置默认值** — 即下方各表的「默认值」列
+4. **Built-in defaults** — i.e. the "Default" column in the tables below
 
 ::: warning
 
-- 当删除了 `landscape_init.lock` 文件后, 启动将会清空所有的已有配置, 然后使用 `landscape_init.toml` 中的内容刷新整个配置包含 `landscape.toml` 中的配置. 所以谨慎删除此文件.
-- 配置文件中关于路径的配置只能使用 **绝对路径** 或者 **相对路径**. 不能使用 **~** 开头的地址
-- `landscape_init.toml` 文件只能用于当前版本的恢复, 跨版本会导致失败. 所以可以先在`适合的版本`恢复后, 再使用`新版本启动`, 新版本的文件能`自动迁移`旧版本的配置. (注, 版本文件导出是在 `v0.6.7` 版本之后支持的)
-  :::
-
-下文的 `<HOME>` 指配置目录, 默认是 `/root/.landscape-router`, 可用 `-c` / `LANDSCAPE_CONF_PATH` 更改.
-
-## landscape.toml 完整参考
-
-所有节与字段都可以省略, 省略时取「默认值」列的值.
-
-### `[auth]` 管理凭据
-
-| 字段         | 类型   | 默认值   | 说明     |
-| ------------ | ------ | -------- | -------- |
-| `admin_user` | string | `"root"` | 登录用户 |
-| `admin_pass` | string | `"root"` | 登录密码 |
-
-### `[web]` 管理界面监听
-
-| 字段         | 类型   | 默认值            | 说明                                          |
-| ------------ | ------ | ----------------- | --------------------------------------------- |
-| `web_root`   | path   | `<HOME>/static`   | 前端静态文件目录                              |
-| `port`       | u16    | `6300`            | HTTP 监听端口                                 |
-| `https_port` | u16    | `6443`            | HTTPS 监听端口                                |
-| `address`    | ip     | `"::"`            | 监听地址. 仅监听 IPv4 时填 `0.0.0.0`          |
-
-### `[log]` 日志
-
-| 字段                     | 类型   | 默认值        | 说明                                     |
-| ------------------------ | ------ | ------------- | ---------------------------------------- |
-| `log_path`               | path   | `<HOME>/logs` | 日志目录                                 |
-| `debug`                  | bool   | `false`       | 调试模式. debug 构建默认为 `true`        |
-| `log_output_in_terminal` | bool   | `false`       | 是否同时输出到终端. debug 构建默认 `true` |
-| `max_log_files`          | usize  | `7`           | 保留的日志文件数量上限                   |
-
-### `[store]` 数据库
-
-| 字段            | 类型   | 默认值                                             | 说明               |
-| --------------- | ------ | -------------------------------------------------- | ------------------ |
-| `database_path` | string | `sqlite://<HOME>/landscape_db.sqlite?mode=rwc`     | 数据库连接串       |
-
-::: warning
-`database_path` 对应的环境变量是 **`DATABASE_URL`**. 这个变量名很通用, 如果 shell 里已经存在
-(例如仓库根目录的 `.env`, 或 CI 环境), 它会**覆盖 `-c` 指定的目录**, 导致数据库落到意料之外的位置.
-排查「配置改了但数据没落库」时优先检查这一项.
+- When the `landscape_init.lock` file is deleted, startup will clear all existing configuration, and then refresh the entire configuration from `landscape_init.toml`, including the configuration in `landscape.toml`. So delete this file carefully.
+- Path configuration in config files can only use **absolute paths** or **relative paths**. Paths beginning with **~** are not supported.
+- The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration. (Note: exporting versioned files is supported after `v0.6.7`)
 :::
 
-### `[metric]` 指标采集
+Below, `<HOME>` refers to the configuration directory, `/root/.landscape-router` by default, changeable with `-c` / `LANDSCAPE_CONF_PATH`.
 
-指标数据落在 `<HOME>/metric/`. 这一节也可以在前端修改.
+## Full landscape.toml reference
 
-| 字段                             | 类型   | 默认值     | 说明                                             |
-| -------------------------------- | ------ | ---------- | ------------------------------------------------ |
-| `mode`                           | enum   | `"duckdb"` | `off` 完全关闭 / `memory` 仅内存 / `duckdb` 落盘 |
-| `connect_second_window_minutes`  | u64    | `5`        | 秒级连接数据保留的时间窗口 (分钟)                |
-| `connect_1m_retention_days`      | u64    | `1`        | 1 分钟粒度连接数据保留天数                       |
-| `connect_1h_retention_days`      | u64    | `7`        | 1 小时粒度连接数据保留天数                       |
-| `connect_1d_retention_days`      | u64    | `30`       | 1 天粒度连接数据保留天数                         |
-| `dns_retention_days`             | u64    | `7`        | DNS 查询记录保留天数                             |
-| `write_batch_size`               | usize  | `20000`    | 批量写入的条数阈值                               |
-| `write_flush_interval_secs`      | u64    | `30`       | 批量写入的时间阈值 (秒)                          |
-| `db_max_memory_mb`               | usize  | `256`      | DuckDB 内存上限 (MB)                             |
-| `db_max_threads`                 | usize  | `4`        | DuckDB 线程数上限                                |
-| `cleanup_interval_secs`          | u64    | `300`      | 过期数据清理间隔. debug 构建默认 `60`            |
-| `cleanup_time_budget_ms`         | u64    | `2000`     | 单轮清理的耗时预算 (毫秒), 超时让出               |
-| `cleanup_slice_window_secs`      | u64    | `300`      | 单轮清理处理的时间切片宽度 (秒)                  |
+Every section and field may be omitted; omitted ones take the value in the "Default" column.
+
+### `[auth]` management credentials
+
+| Field        | Type   | Default  | Description    |
+| ------------ | ------ | -------- | -------------- |
+| `admin_user` | string | `"root"` | Login user     |
+| `admin_pass` | string | `"root"` | Login password |
+
+### `[web]` management interface
+
+| Field        | Type | Default         | Description                                     |
+| ------------ | ---- | --------------- | ----------------------------------------------- |
+| `web_root`   | path | `<HOME>/static` | Frontend static file directory                  |
+| `port`       | u16  | `6300`          | HTTP listen port                                |
+| `https_port` | u16  | `6443`          | HTTPS listen port                               |
+| `address`    | ip   | `"::"`          | Listen address. Use `0.0.0.0` for IPv4 only     |
+
+### `[log]` logging
+
+| Field                    | Type  | Default       | Description                                            |
+| ------------------------ | ----- | ------------- | ------------------------------------------------------ |
+| `log_path`               | path  | `<HOME>/logs` | Log directory                                          |
+| `debug`                  | bool  | `false`       | Debug mode. Defaults to `true` in debug builds         |
+| `log_output_in_terminal` | bool  | `false`       | Also log to the terminal. `true` in debug builds        |
+| `max_log_files`          | usize | `7`           | Maximum number of log files kept                       |
+
+### `[store]` database
+
+| Field           | Type   | Default                                        | Description               |
+| --------------- | ------ | ---------------------------------------------- | ------------------------- |
+| `database_path` | string | `sqlite://<HOME>/landscape_db.sqlite?mode=rwc` | Database connection string |
+
+::: warning
+The environment variable for `database_path` is **`DATABASE_URL`**. That name is very generic, so if it already exists in your shell (for example from a repo-root `.env`, or in CI), it **overrides the directory given with `-c`** and the database ends up somewhere unexpected. Check this first when "I changed the config but nothing was persisted".
+:::
+
+### `[metric]` metrics collection
+
+Metrics land in `<HOME>/metric/`. This section can also be edited from the frontend.
+
+| Field                           | Type  | Default    | Description                                            |
+| ------------------------------- | ----- | ---------- | ------------------------------------------------------ |
+| `mode`                          | enum  | `"duckdb"` | `off` disabled / `memory` in-memory only / `duckdb` on disk |
+| `connect_second_window_minutes` | u64   | `5`        | Retention window for per-second connection data (minutes) |
+| `connect_1m_retention_days`     | u64   | `1`        | Retention for 1-minute granularity connection data (days) |
+| `connect_1h_retention_days`     | u64   | `7`        | Retention for 1-hour granularity connection data (days) |
+| `connect_1d_retention_days`     | u64   | `30`       | Retention for 1-day granularity connection data (days) |
+| `dns_retention_days`            | u64   | `7`        | Retention for DNS query records (days)                 |
+| `write_batch_size`              | usize | `20000`    | Row-count threshold for a batch write                  |
+| `write_flush_interval_secs`     | u64   | `30`       | Time threshold for a batch write (seconds)             |
+| `db_max_memory_mb`              | usize | `256`      | DuckDB memory ceiling (MB)                             |
+| `db_max_threads`                | usize | `4`        | DuckDB thread ceiling                                  |
+| `cleanup_interval_secs`         | u64   | `300`      | Interval between expiry sweeps. `60` in debug builds    |
+| `cleanup_time_budget_ms`        | u64   | `2000`     | Time budget per sweep (ms); yields when exceeded         |
+| `cleanup_slice_window_secs`     | u64   | `300`      | Width of the time slice handled per sweep (seconds)     |
 
 ::: tip
-`metric` 目录会随运行时间持续增长, 且清理只作用于上表的保留天数. 低配设备或小容量根盘上,
-建议按需下调 `connect_*_retention_days` / `dns_retention_days`, 或直接 `mode = "memory"`.
+The `metric` directory keeps growing the longer the router runs, and cleanup only honours the retention days above. On low-spec devices or a small root disk, lower `connect_*_retention_days` / `dns_retention_days` as needed, or just set `mode = "memory"`.
 :::
 
-### `[dns]` DNS 服务
+### `[dns]` DNS service
 
-| 字段                 | 类型   | 默认值         | 说明                                     |
-| -------------------- | ------ | -------------- | ---------------------------------------- |
-| `cache_capacity`     | u32    | `4096`         | 缓存条目上限                             |
-| `cache_ttl`          | u32    | `86400`        | 正向结果缓存 TTL 上限 (秒), 默认 24 小时 |
-| `negative_cache_ttl` | u32    | `120`          | 空结果 (NXDOMAIN / NODATA) 缓存 TTL (秒) |
-| `doh_listen_port`    | u16    | `6053`         | DoH 监听端口                             |
-| `doh_http_endpoint`  | string | `"/dns-query"` | DoH 的 HTTP 路径                         |
+| Field                | Type   | Default        | Description                                          |
+| -------------------- | ------ | -------------- | ---------------------------------------------------- |
+| `cache_capacity`     | u32    | `4096`         | Maximum cache entries                                |
+| `cache_ttl`          | u32    | `86400`        | TTL ceiling for positive results (seconds), 24h default |
+| `negative_cache_ttl` | u32    | `120`          | TTL for empty results (NXDOMAIN / NODATA) in seconds |
+| `doh_listen_port`    | u16    | `6053`         | DoH listen port                                      |
+| `doh_http_endpoint`  | string | `"/dns-query"` | HTTP path for DoH                                    |
 
-### `[lan_hostname]` 内网主机名解析
+### `[lan_hostname]` LAN hostname resolution
 
-把内网设备的主机名拼上统一后缀提供 DNS 解析, 并通过 DHCP 告知客户端该后缀.
-完整说明见 [内网主机名与 LAN 后缀](../reference/lan-hostname).
+Serves DNS for LAN device hostnames under a shared suffix, and advertises that suffix over DHCP. See [LAN Hostnames and the LAN Suffix](../reference/lan-hostname) for the full story.
 
-| 字段         | 类型   | 默认值  | 说明                                     |
-| ------------ | ------ | ------- | ---------------------------------------- |
-| `enable`     | bool   | `true`  | 是否启用内网主机名解析                   |
-| `lan_suffix` | string | `"lan"` | 内网域名后缀, 支持多级如 `home.arpa`     |
+| Field        | Type   | Default | Description                                                     |
+| ------------ | ------ | ------- | --------------------------------------------------------------- |
+| `enable`     | bool   | `true`  | Whether LAN hostname resolution is enabled                      |
+| `lan_suffix` | string | `"lan"` | LAN domain suffix; multi-label values such as `home.arpa` work    |
 
-::: warning 升级注意
-这一节旧名是 `[hostname_registry]`. 为兼容旧配置, 读取时仍接受该键名, 但**导出/序列化一律写
-`[lan_hostname]`**. 两个键**同时出现会直接解析失败**, 手工改配置时请只保留一个.
+::: warning Upgrade note
+This section used to be named `[hostname_registry]`. The old key is still accepted when reading, for compatibility, but exports and serialisation always write `[lan_hostname]`. Having **both keys present fails to parse outright**, so keep only one when editing by hand.
 :::
 
-### `[ui]` 前端偏好
+### `[ui]` frontend preferences
 
-这三项由前端写入并持久化, 通常不需要手工配置. 未设置时由前端自行决定.
+These three are written and persisted by the frontend and rarely need to be set by hand. When unset, the frontend decides.
 
-| 字段       | 类型   | 说明     |
-| ---------- | ------ | -------- |
-| `language` | string | 界面语言 |
-| `timezone` | string | 时区     |
-| `theme`    | string | 主题     |
+| Field      | Type   | Description      |
+| ---------- | ------ | ---------------- |
+| `language` | string | Interface language |
+| `timezone` | string | Timezone         |
+| `theme`    | string | Theme            |
 
-### `[time]` NTP 时间同步
+### `[time]` NTP time synchronisation
 
-| 字段                 | 类型      | 默认值                                                              | 说明                               |
-| -------------------- | --------- | ------------------------------------------------------------------- | ---------------------------------- |
-| `enabled`            | bool      | `false`                                                             | 是否启用时间同步                   |
-| `servers`            | [string]  | `["ntp.aliyun.com:123", "time.cloudflare.com:123", "pool.ntp.org:123"]` | NTP 服务器列表, 需带端口       |
-| `sync_interval_secs` | u64       | `3600`                                                              | 同步间隔 (秒)                      |
-| `timeout_secs`       | u64       | `3`                                                                 | 单次查询超时 (秒)                  |
-| `step_threshold_ms`  | u64       | `500`                                                               | 偏差超过该值时直接跳变而非渐进调整 |
-| `samples_per_server` | u8        | `3`                                                                 | 每台服务器采样次数                 |
+| Field                | Type     | Default                                                                 | Description                                                    |
+| -------------------- | -------- | ----------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `enabled`            | bool     | `false`                                                                 | Whether time sync is enabled                                   |
+| `servers`            | [string] | `["ntp.aliyun.com:123", "time.cloudflare.com:123", "pool.ntp.org:123"]` | NTP server list; ports required                                |
+| `sync_interval_secs` | u64      | `3600`                                                                  | Sync interval (seconds)                                        |
+| `timeout_secs`       | u64      | `3`                                                                     | Per-query timeout (seconds)                                    |
+| `step_threshold_ms`  | u64      | `500`                                                                   | Step the clock instead of slewing when the offset exceeds this   |
+| `samples_per_server` | u8       | `3`                                                                     | Samples taken per server                                       |
 
-### `[gateway]` HTTP 反向代理
+### `[gateway]` HTTP reverse proxy
 
-用于把 80/443 的请求按域名转发到内网服务. 默认关闭, 也可通过前端修改.
+Forwards requests on 80/443 to internal services by domain. Disabled by default, and also editable from the frontend.
 
-| 字段          | 类型 | 默认值  | 说明               |
-| ------------- | ---- | ------- | ------------------ |
-| `enable`      | bool | `false` | 是否启用反代       |
-| `http_port`   | u16  | `80`    | 反代 HTTP 监听端口 |
-| `https_port`  | u16  | `443`   | 反代 HTTPS 监听端口 |
+| Field        | Type | Default | Description               |
+| ------------ | ---- | ------- | ------------------------- |
+| `enable`     | bool | `false` | Whether the proxy is on   |
+| `http_port`  | u16  | `80`    | Proxy HTTP listen port    |
+| `https_port` | u16  | `443`   | Proxy HTTPS listen port   |
 
-## landscape.toml 配置示例 (可以仅配置需要的)
+## landscape.toml Configuration Example (configure only what you need)
 
 ```toml
 [auth]
-# 登录用户名
+# Login username
 admin_user = "root"
-# 登录密码
+# Login password
 admin_pass = "root"
 
 [web]
-# Web 根目录路径
+# Web root directory path
 web_root = "/root/.landscape-router/static"
-# HTTP 监听端口
+# HTTP listen port
 port = 6300
-# HTTPS 监听端口
+# HTTPS listen port
 https_port = 6443
-# 监听地址 仅监听 IPV4 时使用 0.0.0.0
+# Listen address, use 0.0.0.0 for IPv4 only
 address = "::"
 
 [log]
-# 日志文件路径
+# Log file path
 log_path = "/root/.landscape-router/logs"
-# 是否启用调试模式
+# Enable debug mode
 debug = false
-# 是否在终端输出日志
+# Output logs to terminal
 log_output_in_terminal = false
-# 最大日志文件数量
-max_log_files = 7
+# Maximum number of log files
+max_log_files = 10
 
 [store]
-# 数据库路径
+# Database path
 database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 
-[metric] # 指标配置，可通过前端修改
+[gateway] # HTTP reverse proxy is disabled by default, but can be changed in the UI
+enable = true
+http_port = 80 # Reverse proxy HTTP listen port
+https_port = 443 # Reverse proxy HTTPS listen port
+
+[metric] # Metrics configuration, can be changed in the UI
 mode = "duckdb"
-dns_retention_days = 7
 
-[dns]
-cache_capacity = 4096
-negative_cache_ttl = 120
-
-[lan_hostname]
-enable = true
-lan_suffix = "lan"
-
-[time]
-enabled = true
-servers = ["ntp.aliyun.com:123", "pool.ntp.org:123"]
-
-[gateway] # HTTP 反代默认为关闭，可通过前端修改
-enable = true
-http_port = 80 # 反代 HTTP 监听地址
-https_port = 443 # 反代 HTTPS 监听地址
 ```
 
-## 命令行参数与环境变量
+## landscape_init.toml Configuration Example
 
-命令行参数优先于 `landscape.toml`. 每个参数都有对应的环境变量, 方便容器部署.
+### config Definition
 
-| 参数                         | 环境变量                     | 对应配置项                 |
-| ---------------------------- | ---------------------------- | -------------------------- |
-| `-c`, `--config-dir`         | `LANDSCAPE_CONF_PATH`        | 配置目录 (`<HOME>`)        |
-| `-w`, `--web`                | `LANDSCAPE_WEB_ROOT`         | `web.web_root`             |
-| `-p`, `--port`               | `LANDSCAPE_WEB_HTTP_PORT`    | `web.port`                 |
-| `-s`, `--https`              | `LANDSCAPE_WEB_HTTPS_PORT`   | `web.https_port`           |
-| `-a`, `--address`            | `LANDSCAPE_WEB_ADDR`         | `web.address`              |
-| `--user`                     | `LANDSCAPE_ADMIN_USER`       | `auth.admin_user`          |
-| `--pass`                     | `LANDSCAPE_ADMIN_PASS`       | `auth.admin_pass`          |
-| `--log_path`                 | `LANDSCAPE_LOG_PATH`         | `log.log_path`             |
-| `--debug`                    | `LANDSCAPE_DEBUG`            | `log.debug`                |
-| `-o`, `--log-output-in-terminal` | `LANDSCAPE_LOG_TERMINAL` | `log.log_output_in_terminal` |
-| `--max-log-files`            | `LANDSCAPE_LOG_FILE_LIMIT`   | `log.max_log_files`        |
-| `--db_url`                   | `DATABASE_URL`               | `store.database_path`      |
+Configuration details are the same as above. The only difference is that you need to add the **config.** prefix, for example:
 
-仅命令行可用 (无对应 `landscape.toml` 字段):
+```toml
+[config.auth]
+admin_user = "root"
+admin_pass = "root"
 
-| 参数                    | 环境变量                  | 说明                                                                     |
-| ----------------------- | ------------------------- | ------------------------------------------------------------------------ |
-| `--log-filter`          | `LANDSCAPE_LOG_FILTER`    | 逗号分隔关键字. 指定后只输出 ERROR/WARN 及命中关键字的日志, 如 `dhcp,dns` |
-| `--auto`                | `LANDSCAPE_AUTO`          | 自动初始化默认网络. 会自动把现有网卡划入区域                             |
-| `-e`, `--export-manager` | -                        | 允许从 WAN IP 访问管理界面                                               |
-| `--try-xdp`, `--txdp`   | -                         | 尝试 native XDP 挂载. 不带值=所有网卡, 也可给逗号分隔的 ifindex 如 `3,5`. 默认只用 TC (SKB) 模式 |
-| `--ebpf_map_space`      | `LANDSCAPE_EBPF_MAP_SPACE` | eBPF map 命名空间, 默认 `default`                                       |
+[config.web]
+web_root = "/root/.landscape-router/static"
 
-::: danger
-`--auto` 会**自动把检测到的网卡划入区域**. 在已有配置的机器上、或在只想隔离测试的机器上使用,
-可能把正在用的管理网卡一并接管导致失联. 非首次初始化场景不要带这个参数.
-:::
+[config.log]
+log_path = "/root/.landscape-router/logs"
 
-### 子命令
+[config.store]
+database_path = "sqlite:///root/.landscape-router/landscape_db.sqlite?mode=rwc"
 
-```sh
-# 交互式回滚数据库到某个发布边界
-landscape-webserver db rollback
-# 或使用别名
-landscape-webserver db rb
+```
+
+### Network Interface Definition
+
+```toml
+[[ifaces]]
+name = "ens3" # Interface name
+create_dev_type = "no_need_to_create" # Physical interface does not need to be created
+zone_type = "wan" # Zone
+enable_in_boot = true # Start this interface on boot
+wifi_mode = "undefined" # Whether it is a WiFi interface
+
+# xps_rps configuration for CPU soft load balancing, useful when a single CPU core is weak
+[ifaces.xps_rps]
+xps = "4"
+rps = "4"
+```
+
+### Interface IP Configuration Method
+
+```toml
+[[ipconfigs]]
+iface_name = "ens3" # Which interface to apply to
+enable = true # Whether to enable
+
+[ipconfigs.ip_model] # Specific IP configuration method
+t = "static" # Static IP configuration
+default_router_ip = "10.1.1.10" # Router IP
+default_router = true # Whether to set default_router_ip as the default route
+ipv4 = "10.1.1.237" # Static IP to configure on the current interface
+ipv4_mask = 24
+```
+
+### DHCP Service Configuration
+
+```toml
+[[dhcpv4_services]]
+iface_name = "test"
+enable = false
+
+[dhcpv4_services.config]
+ip_range_start = "192.168.5.2"
+ip_range_end = "192.168.5.255"
+server_ip_addr = "192.168.5.1"
+network_mask = 24
+
+# MAC address bindings for IPs
+mac_binding_records = [
+    { mac = "00:11:22:33:44:55", ip = "192.168.5.100" },
+    { mac = "00:11:22:33:44:55", ip = "192.168.5.200" },
+]
 ```

@@ -1,28 +1,29 @@
-# 系统基本信息
+# Basic System Settings
 
-## 创建网桥
+## Creating a bridge
 
-1、创建网桥  
-2、为网桥绑定网卡  
-![](./basic-settings/13.png)
+1. Create the bridge
+2. Attach interfaces to it
 
-## 开启/关闭 网卡
+![](../zh/reference/basic-settings/13.png)
 
-![](./basic-settings/3.png)
+## Enabling / disabling an interface
 
-## 无线网卡
+![](../zh/reference/basic-settings/3.png)
 
-将 hostapt 配置填入输入框中即可
+## Wireless interfaces
 
-## 启用 Wan 和 Lan 网卡的路由转发功
+Paste your hostapd configuration into the input box.
 
-![](./basic-settings/12.png)
+## Enabling route forwarding on WAN and LAN interfaces
 
-## vlan 配置
+![](../zh/reference/basic-settings/12.png)
 
-> 当前为临时方案, 如果之后页面上支持创建 vlan 网卡后, 需要再手动删除添加的 vlan 配置
+## VLAN configuration
 
-以 Debian 为例在 /etc/network/interfaces 中创建 vlan 网卡，设置为 manual 即可。↓ 示例
+> This is a temporary approach. Once creating VLAN interfaces is supported in the UI, you will need to remove the VLAN configuration added here manually.
+
+Using Debian as an example, create the VLAN interfaces in `/etc/network/interfaces` and set them to `manual`. Example:
 
 ```shell
 # This file describes the network interfaces available on your system
@@ -37,14 +38,14 @@ iface lo inet loopback
 auto eth0
 iface eth0 inet manual
 
-# 创建 vlan id 为 10 的网卡，绑定到 物理接口 eth0
+# Create a VLAN interface with VLAN id 10, bound to the physical interface eth0
 auto eth0.10
 iface eth0.10 inet manual
-    vlan-raw-device eth0       # 绑定物理接口
+    vlan-raw-device eth0       # bind the physical interface
 
-# 创建 vlan id 为 20 的网卡，绑定到 物理接口 eth0
+# Create a VLAN interface with VLAN id 20, bound to the physical interface eth0
 auto eth0.20
 iface eth0.20 inet manual
-    vlan-raw-device eth0       # 绑定物理接口
+    vlan-raw-device eth0       # bind the physical interface
 
 ```

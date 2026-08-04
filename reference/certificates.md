@@ -1,21 +1,21 @@
-# 证书管理
+# Certificate Management
 
 ::: warning
-[0.17.3] 及以后的版本支持，功能还在完善
+Supported from [0.17.3] onwards; the feature is still being refined.
 :::
 
-![](./certificates/certificate.png)
+![](../zh/reference/certificates/certificate.png)
 
-## ACME账户配置
+## ACME account setup
 
-![](./certificates/acme.png)
+![](../zh/reference/certificates/acme.png)
 
-## 证书管理
+## Managing certificates
 
-1. 支持acme账户申请 ![](./certificates/certificates-1.png)
-2. 支持自签证书 ![](./certificates/certificates-2.png)
-3. 支持本地证书上传 ![](./certificates/certificates-3.png)
+1. Request certificates through an ACME account ![](../zh/reference/certificates/certificates-1.png)
+2. Self-signed certificates ![](../zh/reference/certificates/certificates-2.png)
+3. Upload a local certificate ![](../zh/reference/certificates/certificates-3.png)
 
-### 证书作用域
+### Certificate scope
 
-可以用于api认证，以及用于 HTTP 反代域名的证书 ![](./certificates/certificates-4.png)
+A certificate can be used for API authentication, and for domains served by the HTTP reverse proxy ![](../zh/reference/certificates/certificates-4.png)

@@ -1,131 +1,134 @@
-# 基础上网配置
+# Basic Network Setup
 
-> 本文引导你完成 Landscape Router 的基础网络配置：为网卡分配区域、设置 IP 地址、启用防火墙，让你的路由器可以正常上网。
+> This guide takes you through the minimum configuration needed to get online: assign interface zones → configure how WAN connects → configure LAN and DHCP.
 
-## 起始状态介绍
+## Prerequisites
 
-当前虚拟机中有两张网卡: `ens18`, `ens19`
-![当前的初始状态](./basic-network-setup/start.png)
+- You have finished [Manual Deployment](../intro/manual-deployment.md) and can reach the management interface
+- At least two interfaces: one facing the modem / upstream router (WAN), one facing your internal switch or PC (LAN)
 
-## 切换网卡区域
-
-首先需要将网卡切换到具体的区域之后才能进行配置.
-
-::: tip 简单理解
-**WAN** = 接光猫/外网的网口，**LAN** = 接电脑/交换机的网口。
-
-详细说明参考：[区域 (Zone)](../reference/interface-zone)
+::: tip
+Landscape will start with only one interface, but it cannot perform routing that way.
 :::
 
-点击对应的网卡, 网卡将会高亮. 并在右侧展开`网卡面板`, 点击 `ZONE` 即可打开区域切换设置.
+## Step 1: Assign interface zones
 
-![网卡面板](./basic-network-setup/iface-info.png)
-![区域切换](./basic-network-setup/change-zone.png)
+In Landscape every interface must belong to a **Zone** before any service can be configured on it.
 
-最终效果, 两张网卡在正确的区域, 并且都处于 UP 状态.
+There are three zones; see [Zone](../reference/interface-zone.md) for the details:
 
-![](./basic-network-setup/zone-result.png)
+| Zone          | Purpose                                                                           |
+| ------------- | --------------------------------------------------------------------------------- |
+| **WAN**       | The interface that reaches the internet                                           |
+| **LAN**       | The interface that serves the internal network                                    |
+| **Undefined** | Unassigned; the default for a new interface, and usable as a bridge sub-interface |
 
-::: details 我的网卡状态为 `DOWN` 怎么办
-当网卡的状态是处于 `DOWN` 时, 需要将网卡启动, 并设置开机启动. 点击网卡面板左侧的 `ON` / `BOOT` 按钮. 依次开启即可.
-![](./basic-network-setup/boot-iface.png)
+Find the zone switch button in the interface list:
 
-如果设置了之后网卡还是 DOWN. 请确保网线是否已接入
+![](../zh/reference/zone-switching/1.png)
+
+Set the interface facing the modem to **WAN**, and the one facing your internal network to **LAN**.
+
+::: warning
+An interface in the WAN zone cannot be a bridge member. If you intend to bridge several internal ports into one LAN, leave those ports Undefined and attach them to the bridge — see [Creating a bridge](../reference/basic-settings.md#creating-a-bridge).
 :::
 
-## 配置 WAN 口让路由自己能上网
+## Step 2: Configure how WAN connects
 
-点击所在网卡的卡片下方的 `IP` 按钮:
-![](./basic-network-setup/ip.png)
-
-WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网络环境选择一种。
+The WAN interface needs an IP before it can reach the internet. Pick one of the three methods to match your line; see [Interface IP Settings](../reference/ipv4.md) for the UI details.
 
 ::: tabs
-== DHCP 自动获取
+== PPPoE (most common for home broadband)
 
-适合光猫拨号、上级路由器已开启 DHCP 的场景。
+Add a PPPoE account on the WAN interface, fill in the credentials your ISP gave you, and tick the option to make it the default route.
 
-1. 确保网卡已分配为 **WAN** 区域
-2. 选择 **DHCP 客户端** 配置方式
-3. 填写主机名称（可选，留空则使用当前主机名）
-4. 点击保存
+![](../zh/reference/ipv4/pppoe_edit.png)
 
-![DHCP 客户端](./basic-network-setup/dhcp_v4_client.png)
+AC Name can normally be left empty.
 
-== PPPoE 拨号
+== DHCP client
 
-适合光猫桥接模式，需要用宽带账号密码拨号。
+Use this when the upstream device is already a router. Once enabled, the address is obtained automatically.
 
-1. 确保网卡已分配为 **WAN** 区域
-2. 进入页面 **IPv4 相关**，点击 **PPPoE** 标签
-3. 在 WAN 网卡上添加 PPPoE 账号
-4. 填入宽带账号和密码
-5. 在 PPPoE 账号中开启 **设为默认路由**
-6. AC Name 通常留空即可
+![](../zh/reference/ipv4/dhcp_v4_client.png)
 
-![PPPoE 配置](./basic-network-setup/4.png)
+The hostname is optional and defaults to the machine's own hostname.
 
-![PPPoE 账号编辑](./basic-network-setup/pppoe_edit.png)
+== Static IP
 
-== 静态 IP
+Use this when your ISP or upstream gave you a fixed address. Fill in the IP, mask and gateway.
 
-适合企业专线、需要固定 IP 的场景。
+![](../zh/reference/ipv4/static_ip.png)
 
-1. 确保网卡已分配为 **WAN** 区域
-2. 选择 **静态 IP** 方式
-3. 填入 IP 地址、子网掩码、网关
-4. 如需作为默认路由，开启 **IPv4 默认路由**
-5. 点击保存
-
-![静态 IP](./basic-network-setup/static_ip.png)
-
+Remember to tick the default route option.
 :::
 
-到目前为止我们配置了路由自己的上网方式. 接下来我们配置对 LAN 侧的 IP 分配
+## Step 3: Enable the necessary WAN-side services
 
-## 配置 LAN 口, 为内网分配 IP
+After getting an address, a few services still need enabling before internal traffic can get out. Find the service buttons on the WAN interface:
 
-LAN 口连接内网设备，通常启用 DHCPv4 服务。
+![](../zh/reference/zone-switching/10.png)
 
-1. 确保网卡已分配为 **LAN** 区域
+| Service       | Required?            | Notes                                                               |
+| ------------- | -------------------- | ------------------------------------------------------------------- |
+| **NAT**       | Required             | Internal addresses must be translated to the WAN address to get out |
+| **Route WAN** | Required             | The forwarding service; should be enabled                           |
+| **Firewall**  | Recommended          | Blocks inbound connections initiated from outside                   |
+| **MSS clamp** | Recommended on PPPoE | Prevents large packets being dropped, which breaks some sites       |
 
-2. 点击网卡下方的 `DHCPv4` 服务按钮
-   ![](./basic-network-setup/dhcpv4-server.png)
+Unless you have special requirements, enabling them with the defaults is fine.
 
-3. 配置所使用的子网
-   ![](./basic-network-setup/dhcpv4-config.png)
-4. 点击保存
+## Step 4: Configure LAN
 
-## 配置 WAN / LAN 转发路由服务
+### Give the LAN interface a static IP
 
-在进行了以上步骤配置后. 当前的网络状态:
+The LAN interface needs a fixed address, which becomes the gateway for internal devices. For example `192.168.5.1`:
 
-1. LAN 可以通过 DHCPv4 的配置访问路由
-2. 当前路由可以上网.
-3. LAN 侧的设备无法进行上网.
+![](../zh/reference/ipv4/static_ip.png)
 
-::: danger 开启 WAN NAT 服务需注意!!!
-打开 `NAT 服务` 前, 假设您是从 `WAN 网卡` 访问的, 需要设置 `静态 NAT 映射`. 否则将会`失联`!
+::: tip
+This address has to match the `server address` in the DHCP step below.
 :::
 
-::: details 静态 NAT 映射方式
-点击左侧菜单 `静态 NAT` 进入 静态 NAT 配置页面.
-点击添加按钮, 按照如下配置, 即可在 wan 进行访问. 如果通过 lan 连接. 则可以忽略
-![](./basic-network-setup/static-nat.png)
+### Enable the DHCP service
 
-:::
+This lets internal devices obtain addresses automatically. Find the DHCPv4 service on the LAN interface:
 
-这是需要打开 WAN/LAN 的路由转发服务, 以及 NAT 服务:
-![](./basic-network-setup/wr-lr.png)
+![](../zh/reference/dhcpv4/1.png)
 
-## 验证网络连通性
+The configuration screen:
 
-配置完成后，检查网络是否正常工作：
+![](../zh/reference/dhcpv4/2.png)
 
-1. 打开 **指标监控 → 连接信息** 查看当前连接状态
-2. 在内网设备上执行 `ping 8.8.8.8` 测试外网连通
-3. 执行 `nslookup baidu.com` 测试 DNS 解析
+The fields that matter:
 
-::: tip 下一步
-基础网络配置完成后，建议继续配置 [DNS 配置](./dns-setup) 和 [分流配置](./flow-setup)。
-:::
+| Field          | Example         | Notes                                   |
+| -------------- | --------------- | --------------------------------------- |
+| Pool start     | `192.168.5.100` | Allocation begins at this address       |
+| Pool end       | `192.168.5.200` | Allocation stops at this address        |
+| Server address | `192.168.5.1`   | The gateway address; matches the LAN IP |
+| Mask           | `24`            | Equivalent to 255.255.255.0             |
+| Lease time     | `43200`         | Seconds; 12 hours by default            |
+
+### Enable LAN route forwarding
+
+Also in the LAN interface's services, enable **Route LAN**:
+
+![](../zh/reference/zone-switching/11.png)
+
+## Verifying
+
+Once connected, an internal device should be able to:
+
+1. Obtain a `192.168.5.x` address automatically
+2. Resolve domains (Landscape ships with a Cloudflare upstream DNS already configured)
+3. Reach the internet normally
+
+If domain resolution misbehaves, see [DNS Setup](./dns-setup.md) and [DNS Related](../faq/dns.md).
+
+## Next steps
+
+- [DNS Setup](./dns-setup.md) — change the upstream DNS, configure redirects
+- [Flow Setup](./flow-setup.md) — send different devices out through different egresses
+- [LAN Hostnames and the LAN Suffix](../reference/lan-hostname.md) — reach internal devices as `nas.lan`
+- [IPv6 Configuration](../reference/ipv6/index.md) — enable IPv6

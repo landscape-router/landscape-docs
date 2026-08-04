@@ -1,9 +1,9 @@
-# 连接信息
+# Connection Info
 
-包括不限于：
+Includes, among other things:
 
-1. 活跃连接查看
-2. 来自源IP地址或发往目的IP地址的流速统计、PPS统计
-3. 历史流量信息统计。
+1. A view of active connections
+2. Throughput and PPS statistics per source or destination IP address
+3. Historical traffic statistics
 
-![](./connection-info/connection-info-1.png)
+![](../zh/monitoring/connection-info/connection-info-1.png)

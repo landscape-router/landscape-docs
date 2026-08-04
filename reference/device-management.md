@@ -1,3 +1,3 @@
-# 设备管理
+# Device Management
 
-![](./device-management/devices-1.png)
+![](../zh/reference/device-management/devices-1.png)

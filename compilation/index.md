@@ -1,22 +1,22 @@
-# 编译
+# Building
 
-## 依赖安装
+## Installing dependencies
 
-请确保安装以下依赖：
+Make sure the following are installed:
 
 ```shell
 sudo apt install build-essential clang libelf1 libelf-dev zlib1g-dev make pkg-config
 ```
 
-## 编译步骤
+## Build steps
 
-确保系统已安装 `node`、`yarn` 和 `rust`，然后运行以下命令进行编译：
+Make sure `node`, `yarn` and `rust` are installed, then run:
 
 ```shell
 ./build.sh
 ```
 
-选择需要编译的架构
+Pick the architecture you want to build for:
 
 ```text
 No target specified.
@@ -27,6 +27,6 @@ Supported architectures:
 Please select a target architecture by entering the corresponding number [default = x86_64]:
 ```
 
-编译完成后，产物将存放在 `output` 文件夹中。
+Once the build finishes, the artefacts are placed in the `output` directory.
 
-如果需要在 x86 主机上进行交叉编译，请参考 [交叉编译 aarch64](cross-compile.md)
+If you want to cross-compile on an x86 host, see [Cross-compiling for aarch64](cross-compile.md).

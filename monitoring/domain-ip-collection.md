@@ -1,29 +1,30 @@
-# 地理关系库管理
+# Geo Database Management
 
-## 概述
+## Overview
 
-支持 IP、域名 两种形式  
-支持 dat 格式文件  
-自动定时更新
+Both IP and domain forms are supported.  
+`dat` format files are supported.  
+Updates run automatically on a schedule.
 
-## 添加配置
+## Adding a source
 
-1、点击 `Geo IP配置`  
-2、点击右侧弹窗 `添加规则`  
-![](./domain-ip-collection/2.png) ![](./domain-ip-collection/3.png)
+1. Click `Geo IP config`
+2. Click `Add rule` in the dialog on the right
 
-## 从 URL 获取
+![](../zh/monitoring/domain-ip-collection/2.png) ![](../zh/monitoring/domain-ip-collection/3.png)
 
-![](./domain-ip-collection/4.png)
+## Fetching from a URL
 
-## 上传文件更新
+![](../zh/monitoring/domain-ip-collection/4.png)
 
-![](./domain-ip-collection/5.png)
+## Updating by uploading a file
 
-## 强制更新文件
+![](../zh/monitoring/domain-ip-collection/5.png)
 
-![](./domain-ip-collection/6.png)
+## Forcing an update
 
-## 支持TXT格式文件
+![](../zh/monitoring/domain-ip-collection/6.png)
 
-![](./domain-ip-collection/7.png)
+## TXT files are supported too
+
+![](../zh/monitoring/domain-ip-collection/7.png)
