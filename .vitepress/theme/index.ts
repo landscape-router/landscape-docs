@@ -3,7 +3,8 @@ import 'viewerjs/dist/viewer.min.css';
 import Viewer from 'viewerjs';
 import { useRoute } from 'vitepress';
 import { enhanceAppWithTabs } from 'vitepress-plugin-tabs/client';
-import { onMounted, watch, nextTick } from 'vue';
+import { h, nextTick, onMounted, watch } from 'vue';
+import HomePreview from './components/HomePreview.vue';
 import './style.css';
 
 let viewer = null;
@@ -29,8 +30,16 @@ function setViewer(el = '.vp-doc', option?) {
   }
 }
 
+function refreshViewer() {
+  setViewer(document.querySelector('.VPHome') ? '.VPHome' : '.vp-doc');
+}
+
 export default {
   extends: DefaultTheme,
+  Layout: () =>
+    h(DefaultTheme.Layout, null, {
+      'home-features-before': () => h(HomePreview),
+    }),
   enhanceApp({ app }) {
     enhanceAppWithTabs(app);
   },
@@ -38,14 +47,14 @@ export default {
     const route = useRoute();
 
     onMounted(() => {
-      setViewer();
+      refreshViewer();
 
       const container = document.querySelector('.vp-doc');
       if (container) {
         let debounceTimer = null;
         const observer = new MutationObserver(() => {
           if (debounceTimer) clearTimeout(debounceTimer);
-          debounceTimer = setTimeout(() => setViewer(), 200);
+          debounceTimer = setTimeout(() => refreshViewer(), 200);
         });
         observer.observe(container, { childList: true, subtree: true });
       }
@@ -53,7 +62,7 @@ export default {
 
     watch(
       () => route.path,
-      () => nextTick(() => setViewer()),
+      () => nextTick(() => refreshViewer()),
     );
   },
 };

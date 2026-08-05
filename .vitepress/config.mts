@@ -21,12 +21,13 @@ export default defineConfig({
         lastUpdatedText: 'Last Updated',
         nav: [
           { text: 'Home', link: '/' },
-          { text: 'Docs', link: '/intro/' },
+          { text: 'Motivation', link: '/intro/motivation' },
+          { text: 'Docs', link: '/intro/requirements' },
         ],
         sidebar: [
           {
             items: [
-              { text: 'Introduction', link: '/intro/' },
+              { text: 'Why Landscape', link: '/intro/motivation' },
               { text: 'System Requirements (Must Read)', link: '/intro/requirements' },
               { text: 'Manual Deployment', link: '/intro/manual-deployment' },
             ],
@@ -144,12 +145,13 @@ export default defineConfig({
         lastUpdatedText: '最后更新时间',
         nav: [
           { text: '主页', link: '/zh/' },
-          { text: '文档', link: '/zh/intro/' },
+          { text: '动机', link: '/zh/intro/motivation' },
+          { text: '文档', link: '/zh/intro/requirements' },
         ],
         sidebar: [
           {
             items: [
-              { text: '简介', link: '/zh/intro/' },
+              { text: '为什么做 Landscape', link: '/zh/intro/motivation' },
               { text: '系统运行基本要求!!! (必读)', link: '/zh/intro/requirements' },
               { text: '手工部署', link: '/zh/intro/manual-deployment' },
             ],

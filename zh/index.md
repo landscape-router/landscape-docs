@@ -4,30 +4,30 @@ layout: home
 
 hero:
   name: "Landscape Router"
-  text: "将任意 Linux 变为路由"
-  tagline: "DNS 解析就是路由规则. 域名驱动, eBPF 执行"
+  text: "按域名与 IP 路由流量"
+  tagline: "每个 Flow 独立 DNS；DNS 决策，XDP/TC 内核执行"
   actions:
     - theme: brand
-      text: 阅读文档
-      link: "/zh/intro/"
+      text: 开始配置
+      link: "/zh/getting-started/basic-network-setup"
     - theme: alt
-      text: 动手部署试试吧!
+      text: 部署指南
       link: "/zh/intro/manual-deployment"
 
 features:
   - title: Flow 策略组
-    details: "一个 Flow 就是一个独立策略组：DNS、出口、NAT 全部打包 <br> 设备通过 IP / MAC 一键加入，无需分别配置路由表与防火墙 <br> 一套 Flow 替代 dnsmasq + ipset + iptables + ip rule 分散管理"
-  - title: DNS 亲和出口
-    details: "流量走哪条线，DNS 就从哪条线查询 <br> CDN 自动分配当前出口最优 IP <br> 无需 ECS、智能 DNS、最优 IP 测速等额外方案"
+    details: "DNS、出口和 NAT 按 Flow 统一管理，设备可通过 IP 或 MAC 加入不同策略。"
   - title: DNS 驱动分流
-    details: "DNS 解析结果分 Flow 存储，告别 ipset 混装导致的分流混乱 <br> 同一域名在不同 Flow 下也可以走不同出口"
-  - title: Linux 为基础
-    details: "仅依赖 Linux 内核 ≥ 6.9，不绑定特定发行版 <br> x86 / ARM 均支持，替换二进制即升级 <br> Debian、Arch、openSUSE 已实际验证"
-  - title: eBPF 路由
-    details: "NAT、防火墙、转发全在网卡驱动层处理，不用 iptables <br> 数据包不离开内核，不进用户态 <br> 线速转发，零拷贝零开销"
-  - title: 多模 NAT
-    details: "默认严格 NAT4，仅对指定域名或 IP 放开 NAT1"
-  - title: IPv6 多线无感切换
-    details: "多 WAN 场景下流出不同接口时，自动切换为对应前缀 <br> NPTv6 在 eBPF 驱动层完成，不做逐包 iptables 转换"
+    details: "DNS 应答写入每个 Flow 的 eBPF Map，将域名策略直接转化为数据包转发决策。"
+  - title: DNS 亲和出口
+    details: "流量走哪条线路，DNS 就从哪条线路查询，让 CDN 返回与实际出口匹配的解析结果。"
+  - title: 细粒度 NAT
+    details: "默认严格 NAT4，并可按域名或 IP 放通 NAT1，避免对整个网络一刀切。"
+  - title: IPv6 多 WAN
+    details: "流量切换出口时自动切换 IPv6 前缀，NPTv6 在 eBPF 驱动层完成。"
+  - title: eBPF 内核数据平面
+    details: "XDP/TC 在内核态执行转发，无用户态数据路径，无需 iptables。"
   - title: 容器即出口
-    details: "流量可导入 Docker 容器处理后再发出 <br> 在容器中运行任意 TProxy 程序扩展路由能力 <br> 容器就是可编程的路由出口"
+    details: "将指定流量导入运行 TProxy 程序的 Docker 容器；容器故障不影响未导入的直连流量。"
+  - title: 标准 Linux
+    details: "支持 Debian、Arch 和 openSUSE；配置集中在一个目录，替换二进制即可升级。"

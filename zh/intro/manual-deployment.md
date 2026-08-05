@@ -22,10 +22,7 @@
 2. 静态页面文件, 可从 [此处](https://github.com/ThisSeanZhang/landscape/releases/) 下载, 并且解压到 `/root/.landscape-router/static` 文件夹中
 3. (可选) 安装 PPP，用于 pppoe 拨号
 4. (可选) 安装 Docker. 如需分流至容器则必安装.
-5. (_假如有桌面环境, 并有浏览器时可选_) 准备初始化配置文件  
-   (注意, 此配置文件只在第一次运行被读取):  
-   放置在 -> `/root/.landscape-router/landscape_init.toml`
-6. (可选) geosite / geoip 文件
+5. (可选) geosite / geoip 文件
 
 ## 关闭本机自动配置 IP 服务
 
