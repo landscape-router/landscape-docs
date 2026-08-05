@@ -5,7 +5,7 @@ Deploying Easytier roughly comes down to:
 1. Build an easytier container
 2. Start the easytier container and create a Flow that uses it as the egress
 3. Add the configuration on the easytier web side
-4. Set up NAT1 mapping
+4. Set up **Full Cone NAT** mapping
 5. Set up routing so programs on the LAN can reach the IPs / subnets inside easytier
 
 ## Building the easytier container
@@ -154,7 +154,7 @@ Choose to create a network.
 
 Fill it in to match your setup.
 
-## Setting up NAT1
+## Setting up Full Cone NAT
 
 First enable the `Route LAN` service on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/easytier/5.png)
 

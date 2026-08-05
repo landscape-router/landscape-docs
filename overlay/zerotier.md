@@ -2,16 +2,16 @@
 
 Deploying ZeroTier roughly comes down to:
 
-1. Set up NAT1 mapping
+1. Set up **Full Cone NAT** mapping
 2. Start the ZeroTier container and create a Flow that uses it as the egress
 3. Set up routing so programs on the LAN can reach the IPs / subnets inside ZeroTier
 
-## Setting up NAT1
+## Setting up Full Cone NAT
 
-There are two ways to get FullCone NAT (NAT1); either one works.
+There are two ways to get **Full Cone NAT**; either one works.
 
 1. Configure a static NAT mapping for the port ZeroTier uses (`9993`).
-2. Add the `PLANET` addresses ZeroTier uses to an IP rule and turn the NAT1 switch on.
+2. Add the `PLANET` addresses ZeroTier uses to an IP rule and turn the **Full Cone** switch on.
 
 Both only take effect once the `Route LAN` service is enabled on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/zerotier/1.png)
 

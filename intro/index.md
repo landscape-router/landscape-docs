@@ -18,7 +18,7 @@ that helps you turn Linux into a **router**.
 - Independent DNS configuration and cache for each Flow to avoid DNS pollution and leaks
 - Redirect traffic into Docker containers, so TProxy-capable programs can extend behavior
 - Geo database management with DAT and TXT source support
-- A stricter default NAT4 model, while still allowing specified IPs or domains to use NAT1 for scenarios such as overlay networking
+- A stricter default **Symmetric NAT** model, while still allowing specified IPs or domains to use **Full Cone NAT** for scenarios such as overlay networking
 - A full API. Everything available in the UI can also be done through API
 
 ## Why Landscape Exists
@@ -27,6 +27,6 @@ The most direct reason is simple: I wanted to keep using the Linux distribution 
 
 It is absolutely possible to build a router by combining existing Linux programs, and that approach can be stable. But those setups usually scatter configuration across many places, increase maintenance cost, and require extra work for storing and migrating configuration files. Landscape keeps those configurations in a single directory. A new version can replace the old one directly, migrate configuration automatically on startup, and still supports downgrading when needed.
 
-Many LAN environments also contain BT/PT or similar software that needs NAT1, while you may not want other PCDN-style software quietly consuming your uplink. Landscape therefore provides finer-grained NAT control, so NAT behavior can be decided per domain or IP.
+Many LAN environments also contain BT/PT or similar software that needs **Full Cone NAT**, while you may not want other PCDN-style software quietly consuming your uplink. Landscape therefore provides finer-grained NAT control, so NAT behavior can be decided per domain or IP.
 
 Different devices on the same LAN often need different traffic policies, and direct traffic should continue working even if a container used for diversion fails. Landscape is designed around that requirement.

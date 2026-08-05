@@ -25,7 +25,7 @@ features:
   - title: eBPF Routing
     details: 'NAT, firewall and forwarding all handled at the network card driver layer, no iptables <br> Packets never leave the kernel, never enter user space <br> Line-speed forwarding, zero-copy, zero overhead'
   - title: Multi-Mode NAT
-    details: 'Strict NAT4 by default, NAT1 only opened for specified domains or IPs'
+    details: 'Strict <strong>Symmetric NAT</strong> by default, <strong>Full Cone NAT</strong> only opened for specified domains or IPs'
   - title: Seamless IPv6 Multi-WAN Switching
     details: 'When traffic egresses different interfaces in a multi-WAN setup, the prefix switches automatically <br> NPTv6 is done at the eBPF driver layer, no per-packet iptables conversion'
   - title: Container as Egress

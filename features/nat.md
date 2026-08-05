@@ -1,11 +1,11 @@
-# NAT4? No, stricter than NAT4
+# Symmetric NAT? No, stricter than Symmetric NAT
 
-Most router software today gives you only two choices for NAT behavior: either everything is NAT1 or everything is NAT4.  
+Most router software today gives you only two choices for NAT behavior: either everything is **Full Cone NAT** or everything is **Symmetric NAT**.  
 Landscape gives you another option: both, but only where you want it.
 
 ## What changed?
 
-Traditional NAT, even NAT4 / Symmetric NAT, still usually follows one default assumption:
+Traditional NAT, even **Symmetric NAT**, still usually follows one default assumption:
 
 > One internal port may create mappings to multiple external targets.
 
@@ -29,9 +29,9 @@ While that connection is alive:
 Because many programs quietly use your uplink for things like PCDN.  
 Then when you actually need your uplink, you discover it has already been rate-limited or consumed.
 
-## What if I want NAT1?
+## What if I want Full Cone NAT?
 
-1. If you already know the port, use a static NAT mapping to allow that specific client port to use NAT1.
+1. If you already know the port, use a static NAT mapping to allow that specific client port to use **Full Cone NAT**.
 2. If you know the target domain or IP, use DNS rules or IP rules in the UI to control it.
 
 ![In DNS rules](../zh/features/nat/nat-1.png) ![In IP rules](../zh/features/nat/nat-2.png)
@@ -44,6 +44,6 @@ When accessing [checkmynat](https://www.checkmynat.com/) with the default behavi
 
 ![](../zh/features/nat/result-1.png)
 
-After enabling the NAT1 switch and testing again, the site reports Full Cone:
+After enabling the **Full Cone** switch and testing again, the site reports Full Cone:
 
 ![](../zh/features/nat/result-2.png)
