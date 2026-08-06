@@ -47,11 +47,11 @@ Click **Flow Settings** in the left-hand menu. You will see:
 
 Click the "create a new Flow" button:
 
-![Create a Flow](../zh/getting-started/flow-setup/create-btn.png)
+![Create a Flow](./flow-setup/create-btn.png)
 
 The configuration dialog looks like this:
 
-![Flow configuration](../zh/getting-started/flow-setup/flow-modal.png)
+![Flow configuration](./flow-setup/flow-modal.png)
 
 The fields:
 
@@ -146,7 +146,7 @@ Every DNS rule defines:
 1. Click the **DNS** button on Flow 1's card to open the DNS rule sidebar
 2. Click add rule to open the editor:
 
-![Editing a DNS rule](../zh/getting-started/flow-setup/dns-rule-edit.png)
+![Editing a DNS rule](./flow-setup/dns-rule-edit.png)
 
 ### Traffic actions in detail
 
@@ -159,7 +159,7 @@ The traffic action decides where matched traffic ultimately goes:
 | **Block**                     | Drop the traffic, denying access             |
 | **A specific Flow's egress**  | Redirect to another Flow's egress            |
 
-![Traffic action options](../zh/getting-started/flow-setup/flow-actions.png)
+![Traffic action options](./flow-setup/flow-actions.png)
 
 #### Doing it in our scenario
 
@@ -178,7 +178,7 @@ Every Flow needs at least one **catch-all DNS rule** to handle traffic that **ma
 - Set the traffic action to **this Flow's egress**
 - Give it a high priority value (e.g. `10000`) so it is only reached after every specific domain rule
 
-![A catch-all rule](../zh/getting-started/flow-setup/catch-all.png)
+![A catch-all rule](./flow-setup/catch-all.png)
 
 ::: tip Match order
 

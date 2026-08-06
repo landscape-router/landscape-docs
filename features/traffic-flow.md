@@ -68,11 +68,11 @@ Traffic shaping focuses on three questions:
 
 Click the button in the image below to create a new Flow:
 
-![Create Flow](./../zh/features/traffic-flow/flow-10.png)
+![Create Flow](./traffic-flow/create-btn.png)
 
 This configuration window will pop up:
 
-![Flow configuration](./../zh/features/traffic-flow/flow-8.png)
+![Flow configuration](./traffic-flow/flow-modal.png)
 
 ### Entry and Exit Configuration
 
@@ -120,7 +120,7 @@ Each DNS rule can define the following parts:
 | **Traffic action** | Which exit matched clients use when accessing this domain                            |
 | **Priority**       | When conflicting with an IP rule, which one wins (the smaller the value, the higher) |
 
-![DNS rule configuration](../zh/features/traffic-flow/flow-7.png)
+![DNS rule configuration](./traffic-flow/dns-rule-edit.png)
 
 #### Fallback Rule
 
@@ -130,7 +130,7 @@ Mandatory: every flow should have at least one fallback DNS rule, used for proce
 
 Fallback rule example:
 
-![Fallback DNS rule](../zh/features/traffic-flow/flow-11.png)
+![Fallback DNS rule](./traffic-flow/catch-all.png)
 
 ### Target IP Rules
 
@@ -144,7 +144,7 @@ IP rules are similar to DNS rules, minus the "DNS upstream" part:
 
 Traffic actions are the core concept of a Flow, controlling the behavior of matched traffic.
 
-![Traffic action options](../zh/features/traffic-flow/flow-3.png)
+![Traffic action options](./traffic-flow/flow-actions.png)
 
 #### Action Types
 
@@ -188,13 +188,13 @@ Use cases
 
 Access configuration through the **DNS card** in the upper right of the homepage:
 
-![Default flow configuration entry](../zh/features/traffic-flow/flow-6.png)
+![Default flow configuration entry](./traffic-flow/main-dns.png)
 
 ### Other Flows (Flow 1~255) Destination Matching Rules
 
 Access configuration through **Traffic Shaping Settings** in the sidebar:
 
-![Other flows configuration entry](../zh/features/traffic-flow/flow-9.png)
+![Other flows configuration entry](./traffic-flow/other-dns.png)
 
 ---
 
@@ -222,7 +222,7 @@ The project provides a test relay program image: [landscape-edge](https://github
 
 If using the UI's image run interface, remember to check **Use as Flow exit**:
 
-![Enable Flow exit option](../zh/features/traffic-flow/flow-5.png)
+![Enable Flow exit option](./traffic-flow/docker-run.png)
 
 #### Starting from the CLI
 
