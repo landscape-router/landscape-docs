@@ -11,29 +11,29 @@ An upstream DNS is the external DNS service Landscape Router uses to resolve dom
 1. Pick **DNS** in the left-hand menu
 2. Find the **Upstream DNS** submenu
 3. Click add to create a new upstream, or edit an existing one. Landscape ships several presets you can use to fill the form quickly.
-   ![Upstream DNS configuration](../zh/reference/dns/dns-upstream.png)
+   ![Upstream DNS configuration](./dns-setup/dns-upstream.png)
 4. You can add multiple upstreams so different domains resolve through different servers. Below I added one and modified the default, which the rest of this page builds on.
-   ![](../zh/getting-started/dns-setup/more-dns.png)
+   ![](./dns-setup/more-dns.png)
 
 ## Using the upstream you just configured
 
 We have configured an upstream, but `which domain` uses `which upstream` is decided somewhere else.
 
 Click `Flow Settings` in the left-hand menu to open the `flow configuration` page, then click the `DNS` button on the `Default Flow` card.
-![](../zh/getting-started/dns-setup/flow.png)
+![](./dns-setup/flow.png)
 
 The DNS rule list opens:
-![](../zh/getting-started/dns-setup/rules1.png)
+![](./dns-setup/rules1.png)
 
 There is one `default` rule in this list. Three things matter here:
 
 1. The rule's priority is `10000`
-2. Its upstream is `A-LI`, the DNS we configured in the previous step
+2. Its upstream is `Default`
 3. Its match rules are `empty` — and the hint says it will match everything
 
 In other words, every domain you visit right now hits this one rule.
 You can use the query button at the top right to run a DNS query and check how rules are being applied.
-![](../zh/getting-started/dns-setup/query-dns-btn.png)
+![](./dns-setup/query-dns-btn.png)
 
 Once open you will see these parts:
 
@@ -42,33 +42,33 @@ Once open you will see these parts:
 3. `Which rule handled` the queried domain — here it is that default rule
 4. The `result` from the upstream DNS
 5. The internal cache result, useful for spotting `differences` between cache and live answers
-   <img src="../zh/getting-started/dns-setup/query-result.png" style="width: 48%;" />
+   <img src="./dns-setup/query-result.png" style="width: 48%;" />
 
-So `www.baidu.com` is currently handled by the default flow. Now let us add a rule.  
+So `x.com` is currently handled by the default flow. Now let us add a rule.  
 Two cases to compare:
 
 ::: tabs
 == New rule with priority lower than 10000
 
 <div style="display: flex; gap: 10px;">
-  <img src="../zh/getting-started/dns-setup/less-than-10000.png" style="width: 50%;" />
-  <img src="../zh/getting-started/dns-setup/less-than-10000-result.png" style="width: 50%;" />
-  <img src="../zh/getting-started/dns-setup/less-than-10000-other.png" style="width: 50%;" />
+  <img src="./dns-setup/less-than-10000.png" style="width: 50%;" />
+  <img src="./dns-setup/less-than-10000-result.png" style="width: 50%;" />
+  <img src="./dns-setup/less-than-10000-other.png" style="width: 50%;" />
 </div>
 
-1. Query `www.baidu.com` -> caught by 9999 -> done
-2. Query `test.ustc.edu.cn` -> 9999 does not match, skipped -> caught by 10000 -> done
+1. Query `x.com` -> caught by 9999 -> done
+2. Query `store.steampowered.com` -> 9999 does not match, skipped -> caught by 10000 -> done
 
 == New rule with priority higher than 10000
 
 <div style="display: flex; gap: 10px;">
-  <img src="../zh/getting-started/dns-setup/more-than-10000.png" style="width: 50%;" />
-  <img src="../zh/getting-started/dns-setup/more-than-10000-result.png" style="width: 50%;" />
-  <img src="../zh/getting-started/dns-setup/more-than-10000-other.png" style="width: 50%;" />
+  <img src="./dns-setup/more-than-10000.png" style="width: 50%;" />
+  <img src="./dns-setup/more-than-10000-result.png" style="width: 50%;" />
+  <img src="./dns-setup/more-than-10000-other.png" style="width: 50%;" />
 </div>
 
-1. Query `www.baidu.com` -> caught by 10000 -> done
-2. Query `test.ustc.edu.cn` -> caught by 10000 -> done
+1. Query `x.com` -> caught by 10000 -> done
+2. Query `store.steampowered.com` -> caught by 10000 -> done
 
 :::
 
