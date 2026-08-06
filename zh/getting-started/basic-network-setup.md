@@ -1,6 +1,6 @@
 # 基础上网配置
 
-> 本文引导你完成 Landscape Router 的基础网络配置：为网卡分配区域、设置 IP 地址、启用防火墙，让你的路由器可以正常上网。
+> 本文引导你完成 Landscape Router 的基础网络配置：为网卡分配区域、设置 IP 地址，让你的路由器可以正常上网。
 
 ## 起始状态介绍
 
@@ -63,7 +63,7 @@ WAN 口需要配置 IP 才能连上互联网，有三种方式，根据你的网
 5. 在 PPPoE 账号中开启 **设为默认路由**
 6. AC Name 通常留空即可
 
-![PPPoE 配置](./basic-network-setup/4.png)
+![PPPoE 配置](./basic-network-setup/pppd-intro.png)
 
 ![PPPoE 账号编辑](./basic-network-setup/pppoe_edit.png)
 

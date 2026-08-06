@@ -1,143 +1,132 @@
 # Basic Network Setup
 
-> This guide takes you through the minimum configuration needed to get online: assign interface zones → configure how WAN connects → configure LAN and DHCP.
+> This guide walks you through Landscape Router's basic network configuration: assigning zones to your network interfaces and setting up IP addresses, so your router can get online.
 
-## Prerequisites
+## The starting state
 
-- You have finished [Manual Deployment](../intro/manual-deployment.md) and can reach the management interface
-- At least two interfaces: one facing the modem / upstream router (WAN), one facing your internal switch or PC (LAN)
+The virtual machine currently has two network interfaces: `ens32`, `ens33`.
+![The current initial state](./basic-network-setup/start.png)
 
-::: tip
-Landscape will start with only one interface, but it cannot perform routing that way.
+## Switching interface zones
+
+Before anything can be configured, each interface must first be switched to a specific zone.
+
+::: tip In simple terms
+**WAN** = the port connected to the modem / external network  
+**LAN** = the port connected to your PC / switch.
+
+For details, see: [Zone](../reference/interface-zone)
 :::
 
-## Step 1: Assign interface zones
+Click the interface you want; it will highlight. The `interface panel` expands on the right — click `ZONE` to open the zone switching settings.
 
-In Landscape every interface must belong to a **Zone** before any service can be configured on it.
+![Interface panel](./basic-network-setup/iface-info.png)
+![Zone switching](./basic-network-setup/change-zone.png)
 
-There are three zones; see [Zone](../reference/interface-zone.md) for the details:
+The final result: both interfaces are in the correct zones and are both `UP`.
 
-| Zone          | Purpose                                                                           |
-| ------------- | --------------------------------------------------------------------------------- |
-| **WAN**       | The interface that reaches the internet                                           |
-| **LAN**       | The interface that serves the internal network                                    |
-| **Undefined** | Unassigned; the default for a new interface, and usable as a bridge sub-interface |
+![](./basic-network-setup/zone-result.png)
 
-Find the zone switch button in the interface list:
+::: details My interface is `DOWN`, what should I do
+When an interface is `DOWN`, you need to bring it up and set it to start on boot. Click the `ON` / `BOOT` buttons on the left of the interface panel, enabling them one by one.
+![](./basic-network-setup/boot-iface.png)
 
-![](../zh/reference/zone-switching/1.png)
-
-Set the interface facing the modem to **WAN**, and the one facing your internal network to **LAN**.
-
-::: warning
-An interface in the WAN zone cannot be a bridge member. If you intend to bridge several internal ports into one LAN, leave those ports Undefined and attach them to the bridge — see [Creating a bridge](../reference/basic-settings.md#creating-a-bridge).
+If the interface is still DOWN after that, make sure the network cable is plugged in.
 :::
 
-## Step 2: Configure how WAN connects
+## Configuring the WAN port so the router can get online
 
-The WAN interface needs an IP before it can reach the internet. Pick one of the three methods to match your line; see [Interface IP Settings](../reference/ipv4.md) for the UI details.
+Click the `IP` button below the interface card:
+![](./basic-network-setup/ip.png)
+
+The WAN port needs an IP address to reach the internet. There are three ways to do it — pick the one that matches your network environment.
 
 ::: tabs
-== PPPoE (most common for home broadband)
-
-Add a PPPoE account on the WAN interface, fill in the credentials your ISP gave you, and tick the option to make it the default route.
-
-![](../zh/reference/ipv4/pppoe_edit.png)
-
-AC Name can normally be left empty.
-
 == DHCP client
 
-Use this when the upstream device is already a router. Once enabled, the address is obtained automatically.
+For scenarios where the modem dials up or the upstream router already has DHCP enabled.
 
-![](../zh/reference/ipv4/dhcp_v4_client.png)
+1. Make sure the interface is assigned to the **WAN** zone
+2. Select the **DHCP client** configuration method
+3. Fill in a hostname (optional; leave empty to use the current hostname)
+4. Click save
 
-The hostname is optional and defaults to the machine's own hostname.
+![DHCP client](./basic-network-setup/dhcp_v4_client.png)
+
+== PPPoE dial-up
+
+For when the modem is in bridge mode and you need to dial up with your broadband account and password.
+
+1. Make sure the interface is assigned to the **WAN** zone
+2. Go to the **IPv4** section of the page and click the **PPPoE** tab
+3. Add a PPPoE account on the WAN interface
+4. Fill in the broadband account and password
+5. Enable **Set as default route** on the PPPoE account
+6. AC Name can usually be left empty
+
+![PPPoE configuration](./basic-network-setup/pppd-intro.png)
+
+![PPPoE account editing](./basic-network-setup/pppoe_edit.png)
 
 == Static IP
 
-Use this when your ISP or upstream gave you a fixed address. Fill in the IP, mask and gateway.
+For enterprise dedicated lines or scenarios requiring a fixed IP.
 
-![](../zh/reference/ipv4/static_ip.png)
+1. Make sure the interface is assigned to the **WAN** zone
+2. Select the **Static IP** method
+3. Fill in the IP address, subnet mask and gateway
+4. If it should be the default route, enable **IPv4 default route**
+5. Click save
 
-Remember to tick the default route option.
+![Static IP](./basic-network-setup/static_ip.png)
+
 :::
 
-## Step 3: Enable the necessary WAN-side services
+So far we have configured how the router itself gets online. Next, we configure IP assignment on the LAN side.
 
-After getting an address, a few services still need enabling before internal traffic can get out. Find the service buttons on the WAN interface:
+## Configuring the LAN port to assign IPs to the internal network
 
-![](../zh/reference/zone-switching/10.png)
+The LAN port connects internal devices; the DHCPv4 service is usually enabled on it.
 
-| Service       | Required?            | Notes                                                               |
-| ------------- | -------------------- | ------------------------------------------------------------------- |
-| **NAT**       | Required             | Internal addresses must be translated to the WAN address to get out |
-| **Route WAN** | Required             | The forwarding service; should be enabled                           |
-| **Firewall**  | Recommended          | Blocks inbound connections initiated from outside                   |
-| **MSS clamp** | Recommended on PPPoE | Prevents large packets being dropped, which breaks some sites       |
+1. Make sure the interface is assigned to the **LAN** zone
 
-::: danger Enabling WAN NAT: be careful
-If you are accessing the management interface **from the WAN interface**, you must set up a **Static NAT mapping** before enabling the `NAT service`, otherwise you will **lose connection**!
+2. Click the `DHCPv4` service button below the interface
+   ![](./basic-network-setup/dhcpv4-server.png)
+
+3. Configure the subnet to use
+   ![](./basic-network-setup/dhcpv4-config.png)
+4. Click save
+
+## Configuring WAN / LAN forwarding and routing services
+
+After the steps above, the current network state is:
+
+1. LAN devices can reach the router via the DHCPv4 configuration
+2. The router itself can get online
+3. LAN-side devices cannot access the internet
+
+::: danger Enable WAN NAT with care!!!
+Before enabling the `NAT service`, if you access the router **from the WAN interface**, you must set up a `Static NAT mapping`. Otherwise you will **lose connection**!
 :::
 
 ::: details Static NAT mapping
-Click **Static NAT** in the left menu to open the static NAT configuration page. Click the add button and configure as shown below to access from WAN. If you connect via LAN, you can ignore this.
-![](../zh/getting-started/basic-network-setup/static-nat.png)
+Click **Static NAT** in the left menu to open the static NAT configuration page.
+Click the add button and configure as shown below to access the router from WAN. If you connect via LAN, you can ignore this.
+![](./basic-network-setup/static-nat.png)
+
 :::
 
-Unless you have special requirements, enabling them with the defaults is fine.
+Now enable the WAN/LAN routing and forwarding services, as well as the NAT service:
+![](./basic-network-setup/wr-lr.png)
 
-## Step 4: Configure LAN
+## Verifying network connectivity
 
-### Give the LAN interface a static IP
+After configuration, check that the network works normally:
 
-The LAN interface needs a fixed address, which becomes the gateway for internal devices. For example `192.168.5.1`:
+1. Open **Metrics Monitoring → Connection Info** to view the current connection status
+2. Run `ping 8.8.8.8` on an internal device to test internet connectivity
+3. Run `nslookup baidu.com` to test DNS resolution
 
-![](../zh/reference/ipv4/static_ip.png)
-
-::: tip
-This address has to match the `server address` in the DHCP step below.
+::: tip Next steps
+After the basic network configuration, we recommend continuing with [DNS Setup](./dns-setup) and [Flow Setup](./flow-setup).
 :::
-
-### Enable the DHCP service
-
-This lets internal devices obtain addresses automatically. Find the DHCPv4 service on the LAN interface:
-
-![](../zh/reference/dhcpv4/1.png)
-
-The configuration screen:
-
-![](../zh/reference/dhcpv4/2.png)
-
-The fields that matter:
-
-| Field          | Example         | Notes                                   |
-| -------------- | --------------- | --------------------------------------- |
-| Pool start     | `192.168.5.100` | Allocation begins at this address       |
-| Pool end       | `192.168.5.200` | Allocation stops at this address        |
-| Server address | `192.168.5.1`   | The gateway address; matches the LAN IP |
-| Mask           | `24`            | Equivalent to 255.255.255.0             |
-| Lease time     | `43200`         | Seconds; 12 hours by default            |
-
-### Enable LAN route forwarding
-
-Also in the LAN interface's services, enable **Route LAN**:
-
-![](../zh/reference/zone-switching/11.png)
-
-## Verifying
-
-Once connected, an internal device should be able to:
-
-1. Obtain a `192.168.5.x` address automatically
-2. Resolve domains (Landscape ships with a Cloudflare upstream DNS already configured)
-3. Reach the internet normally
-
-If domain resolution misbehaves, see [DNS Setup](./dns-setup.md) and [DNS Related](../faq/dns.md).
-
-## Next steps
-
-- [DNS Setup](./dns-setup.md) — change the upstream DNS, configure redirects
-- [Flow Setup](./flow-setup.md) — send different devices out through different egresses
-- [LAN Hostnames and the LAN Suffix](../reference/lan-hostname.md) — reach internal devices as `nas.lan`
-- [IPv6 Configuration](../reference/ipv6/index.md) — enable IPv6

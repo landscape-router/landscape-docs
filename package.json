@@ -7,7 +7,7 @@
   },
   "packageManager": "pnpm@10.28.0",
   "scripts": {
-    "dev": "vitepress dev",
+    "dev": "vitepress dev --host 0.0.0.0",
     "build": "vitepress build",
     "preview": "vitepress preview",
     "format": "prettier --write .",
