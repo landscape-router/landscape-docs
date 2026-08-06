@@ -34,7 +34,7 @@ Then when you actually need your uplink, you discover it has already been rate-l
 1. If you already know the port, use a static NAT mapping to allow that specific client port to use **Full Cone NAT**.
 2. If you know the target domain or IP, use DNS rules or IP rules in the UI to control it.
 
-![In DNS rules](../zh/features/nat/nat-1.png) ![In IP rules](../zh/features/nat/nat-2.png)
+![In DNS rules](./nat/dns-nat.png) ![In IP rules](./nat/ip-nat.png)
 
 ## Result Demo
 
@@ -42,8 +42,8 @@ When accessing [checkmynat](https://www.checkmynat.com/) with the default behavi
 
 `Error: Failed, process was interrupted`
 
-![](../zh/features/nat/result-1.png)
+![](./nat/result-1.png)
 
 After enabling the **Full Cone** switch and testing again, the site reports Full Cone:
 
-![](../zh/features/nat/result-2.png)
+![](./nat/result-2.png)

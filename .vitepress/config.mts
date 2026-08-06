@@ -44,8 +44,8 @@ export default defineConfig({
             text: 'Features',
             items: [
               { text: 'Traffic Shaping', link: '/features/traffic-flow' },
-              { text: 'NAT Control', link: '/features/nat' },
-              { text: 'API Access', link: '/features/api' },
+              { text: 'Full Cone or Symmetric? Both!', link: '/features/nat' },
+              { text: 'Full API Access', link: '/features/api' },
               { text: 'eBPF Routing Acceleration', link: '/features/ebpf-route' },
             ],
           },

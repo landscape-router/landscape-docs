@@ -8,7 +8,7 @@ Landscape Router uses eBPF to implement high-performance packet forwarding in th
 
 For LAN and WAN to communicate normally, route forwarding must be enabled on the corresponding interfaces.
 
-![Enable route forwarding](../zh/features/ebpf-route/route-1.png)
+![Enable route forwarding](./ebpf-route/route-1.png)
 
 ::: tip
 Where to configure it Open the interface configuration page, find the relevant WAN and LAN interfaces, and enable the `Route Forwarding Service` option.
@@ -22,7 +22,7 @@ Where to configure it Open the interface configuration page, find the relevant W
 
 The diagram below shows the full Netfilter packet flow:
 
-![Netfilter packet flow](../zh/features/ebpf-route/route-2.png)
+![Netfilter packet flow](./ebpf-route/route-2.png)
 
 > Image source: [Wikipedia - Netfilter](https://en.wikipedia.org/wiki/Netfilter#/media/File:Netfilter-packet-flow.svg) (CC BY-SA 3.0)
 
@@ -97,11 +97,11 @@ If the NIC driver does not support native XDP, the system automatically falls ba
 
 #### Small packet performance (64 bytes)
 
-![64-byte packet test](../zh/features/ebpf-route/4-64.png)
+![64-byte packet test](./ebpf-route/4-64.png)
 
 #### Large packet performance (1500 bytes)
 
-![1500-byte packet test](../zh/features/ebpf-route/4-1500.png)
+![1500-byte packet test](./ebpf-route/4-1500.png)
 
 ---
 
@@ -117,11 +117,11 @@ If the NIC driver does not support native XDP, the system automatically falls ba
 
 #### Small packet performance (64 bytes)
 
-![64-byte packet test](../zh/features/ebpf-route/8-64.png)
+![64-byte packet test](./ebpf-route/8-64.png)
 
 #### Large packet performance (1500 bytes)
 
-![1500-byte packet test](../zh/features/ebpf-route/8-1500.png)
+![1500-byte packet test](./ebpf-route/8-1500.png)
 
 ---
 
@@ -137,6 +137,6 @@ If the NIC driver does not support native XDP, the system automatically falls ba
 
 **Result** (bidirectional 64-byte small packets):
 
-![XDP NAT 64-byte forwarding](../zh/features/ebpf-route/xdp-has-nat-forward.gif)
+![XDP NAT 64-byte forwarding](./ebpf-route/xdp-has-nat-forward.gif)
 
 ---
