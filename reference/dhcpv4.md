@@ -2,7 +2,8 @@
 
 ## Service configuration
 
-To enable the DHCP service, first set the interface's zone to Lan, then find the service button below:
+To enable the DHCP service, first assign the interface to the LAN zone, then
+locate the service button shown below:
 
 ![](../zh/reference/dhcpv4/1.png)
 

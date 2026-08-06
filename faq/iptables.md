@@ -1,9 +1,10 @@
-# Relationship with iptables
+# Interaction with iptables
 
-No relationship
+Landscape does not modify iptables rules for DNS or destination-IP marking.
 
-All DNS marking and forwarding will not change iptables rules. The current DNS / IP marking service takes effect at the **WAN network interface**.
+DNS and IP rules are applied by eBPF on the configured **WAN interface**.
 
-That is, when **packets** enter the `EGRESS` of the **WAN network interface with marking service enabled**, they will be processed according to matching rules.
+Packets are evaluated when they reach the egress path of a WAN interface on
+which the marking service is enabled.
 
-For details, see the introduction in [Features/eBPF Routing](../zh/features/ebpf-route.md#acceleration-principle).
+For details, see [eBPF Routing Acceleration](../features/ebpf-route.md#how-the-acceleration-works).

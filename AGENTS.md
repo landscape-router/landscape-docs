@@ -6,7 +6,7 @@ Landscape Router documentation site, built with VitePress. English is the defaul
 
 ## Directory Roles
 
-English (default) docs are at the site root; each Chinese doc mirrors its path under `zh/` (e.g. Chinese `getting-started/` → `zh/getting-started/`). The table below lists the English paths.
+English (default) docs are at the site root; Chinese docs live under `zh/` and are expected to have a corresponding English doc at the same path (e.g. `zh/getting-started/` ↔ `getting-started/`). The two versions do not need to be identical in expression — each language may be written for its own audience, and differences in wording and detail are allowed. The table below lists the English paths.
 
 | Directory          | Purpose                                                                      | Sidebar Section                  |
 | ------------------ | ---------------------------------------------------------------------------- | -------------------------------- |
@@ -21,7 +21,7 @@ English (default) docs are at the site root; each Chinese doc mirrors its path u
 | `compilation/`     | Build and integration guides                                                 | Build                            |
 | `configuration/`   | `.landscape-router` directory and config file reference                      | Directory & Configuration        |
 | `faq/`             | Frequently asked questions                                                   | FAQ                              |
-| `zh/`              | Chinese documentation mirror (URLs `/zh/...`)                                | 中文 locale                      |
+| `zh/`              | Chinese documentation (URLs `/zh/...`)                                       | 中文 locale                      |
 
 ## Documentation Design
 

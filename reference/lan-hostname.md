@@ -140,5 +140,7 @@ These are rejected because they belong to the resolver's own namespace, and clai
 This section used to be called `[hostname_registry]`. The old key is **still accepted** when reading, for compatibility with existing configuration files, but the program always writes `[lan_hostname]` when exporting.
 
 ::: danger
-`[hostname_registry]` and `[lan_hostname]` appearing **together fails to parse outright**, and the program will not start. When editing the file by hand, keep only one — preferably just rename it to the new key.
+Using `[hostname_registry]` and `[lan_hostname]` together makes the
+configuration invalid and prevents startup. When editing the file manually,
+keep only one section, preferably by renaming the old key.
 :::

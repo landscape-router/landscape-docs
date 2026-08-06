@@ -4,9 +4,11 @@ A Zone is the core mechanism Landscape uses to group network interfaces logicall
 
 Landscape has three zones:
 
-## Wan
+## WAN
 
-Interfaces in the Wan zone face the internet and carry upstream traffic. Landscape attaches the eBPF WAN TC pipeline to them. The following IP configuration methods are supported:
+Interfaces in the WAN zone face the internet and carry upstream traffic.
+Landscape attaches the eBPF WAN TC pipeline to them. The following IP
+configuration methods are supported:
 
 - Static IP
 - DHCP Client
@@ -20,11 +22,13 @@ Services that can be enabled:
 - MSS Clamp
 - Route WAN
 
-> Interfaces in the Wan zone **cannot** take part in bridging (neither as controller nor as sub-interface).
+> Interfaces in the WAN zone **cannot** take part in bridging, either as a
+> controller or as a sub-interface.
 
-## Lan
+## LAN
 
-Interfaces in the Lan zone connect to the internal network and face downstream devices. Landscape attaches the eBPF LAN TC pipeline to them.
+Interfaces in the LAN zone connect to the internal network and serve
+downstream devices. Landscape attaches the eBPF LAN TC pipeline to them.
 
 Services that can be enabled:
 

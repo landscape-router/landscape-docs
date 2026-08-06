@@ -1,6 +1,6 @@
 # Connection Info
 
-Includes, among other things:
+The connection view includes:
 
 1. A view of active connections
 2. Throughput and PPS statistics per source or destination IP address

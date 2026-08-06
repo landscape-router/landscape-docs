@@ -1,8 +1,8 @@
 # Cross-compiling
 
-If you need to cross-compile from x86.
+This guide covers cross-compiling Landscape on an x86 host.
 
-> The steps below have only been verified on Debian.
+> The steps below have been verified on Debian only.
 
 ## General steps
 
@@ -87,8 +87,8 @@ aarch64-linux-gnu-gcc --version
 ## RISC-V 64
 
 ::: warning
-Some libraries currently have to be built by hand before the project will compile, which is why this is not automated.  
-That said, if you are building directly on RISC-V, a normal build works fine.
+Some libraries must currently be built separately before cross-compiling the
+project. A native RISC-V build can use the standard build process instead.
 :::
 
 #### Make sure the Rust toolchain supports cross-compilation

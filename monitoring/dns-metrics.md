@@ -1,6 +1,6 @@
 # DNS Metrics
 
-Shows various DNS figures, such as:
+The DNS metrics view includes:
 
 1. Total query volume
 2. Cache hit rate

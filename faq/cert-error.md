@@ -1,4 +1,8 @@
 # Your Connection is Not Private
 
-When visiting a webpage and encountering the situation in the image below, it may be due to inconsistent traffic shaping settings between IPv4 and IPv6 of the current host.  
-A possible situation is that the flow entry `only configured IPv4`. Changing the entry configuration from IPv4 to using `MAC address matching` can solve this problem. ![](../zh/faq/cert-error/1.png)
+This browser warning can occur when IPv4 and IPv6 traffic from the same device
+match different Flow rules.
+
+One common cause is an ingress rule that matches only the device's IPv4
+address. If both protocol families should use the same Flow, match the device
+by MAC address instead. ![](../zh/faq/cert-error/1.png)

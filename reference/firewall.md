@@ -1,7 +1,7 @@
 # Firewall
 
 ::: warning
-Since [0.16.0], the firewall works in blacklist mode.
+Since v0.16.0, the firewall uses blacklist mode.
 :::
 
 ## Firewall blacklist

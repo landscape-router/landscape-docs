@@ -2,7 +2,8 @@
 
 `landscape_init.toml` is the **full configuration file**: it holds everything in `landscape.toml` (under `[config]`) plus every rule stored in the database. Its purpose is to **rebuild a whole machine from one file**.
 
-How it divides up against `landscape.toml`:
+The responsibilities are divided between this file and `landscape.toml` as
+follows:
 
 |           | `landscape.toml`                                          | `landscape_init.toml`                           |
 | --------- | --------------------------------------------------------- | ----------------------------------------------- |
@@ -29,7 +30,10 @@ It is only read on first startup, i.e. while `landscape_init.lock` does **not** 
 If `landscape_init.toml` is absent and the lock is too, it initialises with an empty configuration.
 
 ::: danger
-Deleting `landscape_init.lock` makes the next startup **wipe all current configuration**. If `landscape_init.toml` is missing or incomplete at that moment, that configuration is gone. Confirm the init file in your hands is complete before deleting the lock.
+Deleting `landscape_init.lock` makes the next startup **replace the current
+configuration** with the contents of `landscape_init.toml`. If the init file is
+missing or incomplete, current settings will be lost. Verify the file before
+deleting the lock.
 :::
 
 ## The `version` field (required)

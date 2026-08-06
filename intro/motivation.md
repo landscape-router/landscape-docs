@@ -24,6 +24,6 @@ I first chose Rust and eBPF simply because I was learning them. Rust is used for
 
 That choice shaped the boundary of Landscape. It is not another router distribution. It runs directly on standard Linux systems such as Debian, Arch, and openSUSE. Configuration stays in one directory, an upgrade can be a binary replacement, and the program handles data migration at startup.
 
-Flows provide the policy boundary. Devices join a Flow by IP or MAC, and each Flow manages its own DNS, egress, and NAT policy. Landscape starts with a policy stricter than Symmetric NAT, then allows Full Cone NAT for the ports, domains, or IP addresses that need it. Selected traffic can enter a container while everything else remains on the normal Linux path, so a failed container does not take direct traffic down with it.
+Flows provide the policy boundary. Devices join a Flow by IP or MAC, and each Flow manages its own DNS, egress, and NAT policy. Landscape starts with a destination-locked NAT policy, then allows Full Cone NAT for the ports, domains, or IP addresses that need it. Selected traffic can enter a container while everything else remains on the normal Linux path, so a failed container does not take direct traffic down with it.
 
 There was no complete design document at the beginning. These problems had bothered me for a long time, so I decided to build a router I would actually run myself. Landscape started with that thought and grew through continued use.

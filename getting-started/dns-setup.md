@@ -15,9 +15,10 @@ An upstream DNS is the external DNS service Landscape Router uses to resolve dom
 4. You can add multiple upstreams so different domains resolve through different servers. Below I added one and modified the default, which the rest of this page builds on.
    ![](./dns-setup/more-dns.png)
 
-## Using the upstream you just configured
+## Assigning domains to an upstream
 
-We have configured an upstream, but `which domain` uses `which upstream` is decided somewhere else.
+The upstream configuration defines the available resolvers. DNS rules decide
+which resolver handles each domain.
 
 Click `Flow Settings` in the left-hand menu to open the `flow configuration` page, then click the `DNS` button on the `Default Flow` card.
 ![](./dns-setup/flow.png)
@@ -25,30 +26,30 @@ Click `Flow Settings` in the left-hand menu to open the `flow configuration` pag
 The DNS rule list opens:
 ![](./dns-setup/rules1.png)
 
-There is one `default` rule in this list. Three things matter here:
+The initial list contains one `default` rule. Three fields matter here:
 
 1. The rule's priority is `10000`
 2. Its upstream is `Default`
-3. Its match rules are `empty` — and the hint says it will match everything
+3. Its match rules are empty, so it matches every domain
 
-In other words, every domain you visit right now hits this one rule.
+At this point, every domain matches this rule.
 You can use the query button at the top right to run a DNS query and check how rules are being applied.
 ![](./dns-setup/query-dns-btn.png)
 
-Once open you will see these parts:
+The query panel shows:
 
-1. `Which Flow` the DNS check runs against — Flow0, i.e. the default Flow
-2. The `domain being queried`; the buttons are shortcuts for common domains
-3. `Which rule handled` the queried domain — here it is that default rule
-4. The `result` from the upstream DNS
-5. The internal cache result, useful for spotting `differences` between cache and live answers
+1. The Flow used for the check; Flow 0 is the default Flow
+2. The queried domain, with shortcuts for common domains
+3. The rule that handled the domain
+4. The response from the upstream DNS server
+5. The cached response, which can be compared with the live response
    <img src="./dns-setup/query-result.png" style="width: 48%;" />
 
-So `x.com` is currently handled by the default flow. Now let us add a rule.  
-Two cases to compare:
+The default Flow currently handles `x.com`. The following examples show how a
+new rule's numeric priority changes the result:
 
 ::: tabs
-== New rule with priority lower than 10000
+== New rule with a numeric priority below 10000
 
 <div style="display: flex; gap: 10px;">
   <img src="./dns-setup/less-than-10000.png" style="width: 50%;" />
@@ -56,10 +57,10 @@ Two cases to compare:
   <img src="./dns-setup/less-than-10000-other.png" style="width: 50%;" />
 </div>
 
-1. Query `x.com` -> caught by 9999 -> done
-2. Query `store.steampowered.com` -> 9999 does not match, skipped -> caught by 10000 -> done
+1. `x.com` matches rule 9999, so evaluation stops.
+2. `store.steampowered.com` does not match rule 9999, so rule 10000 handles it.
 
-== New rule with priority higher than 10000
+== New rule with a numeric priority above 10000
 
 <div style="display: flex; gap: 10px;">
   <img src="./dns-setup/more-than-10000.png" style="width: 50%;" />
@@ -67,9 +68,10 @@ Two cases to compare:
   <img src="./dns-setup/more-than-10000-other.png" style="width: 50%;" />
 </div>
 
-1. Query `x.com` -> caught by 10000 -> done
-2. Query `store.steampowered.com` -> caught by 10000 -> done
+1. `x.com` matches rule 10000 before the new rule is evaluated.
+2. `store.steampowered.com` also matches rule 10000 first.
 
 :::
 
-As you can see, DNS rules are matched in priority order: a domain is matched from the top down, and the first rule it hits is the one that handles it.
+DNS rules are evaluated in numeric priority order. Evaluation stops at the
+first matching rule.

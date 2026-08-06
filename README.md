@@ -1,8 +1,8 @@
 # Landscape Router Documentation
 
-The goal is to easily configure your favorite Linux distribution as a router using the web UI
+The goal is to make it easy to configure a Linux distribution as a router through the web UI.
 
-For the main project code, visit: [https://github.com/ThisSeanZhang/landscape](https://github.com/ThisSeanZhang/landscape)
+The main project is available in the [Landscape Router repository](https://github.com/ThisSeanZhang/landscape).
 
 ## License
 

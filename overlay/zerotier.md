@@ -1,23 +1,28 @@
 # ZeroTier
 
-Deploying ZeroTier roughly comes down to:
+Deploying ZeroTier involves the following steps:
 
-1. Set up **Full Cone NAT** mapping
-2. Start the ZeroTier container and create a Flow that uses it as the egress
-3. Set up routing so programs on the LAN can reach the IPs / subnets inside ZeroTier
+1. Configure **Full Cone NAT**.
+2. Start the ZeroTier container and create a Flow that uses it as the egress.
+3. Configure routing so LAN clients can reach ZeroTier addresses and subnets.
 
-## Setting up Full Cone NAT
+## Configuring Full Cone NAT
 
-There are two ways to get **Full Cone NAT**; either one works.
+There are two ways to configure **Full Cone NAT**; use either method.
 
 1. Configure a static NAT mapping for the port ZeroTier uses (`9993`).
 2. Add the `PLANET` addresses ZeroTier uses to an IP rule and turn the **Full Cone** switch on.
 
-Both only take effect once the `Route LAN` service is enabled on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/zerotier/1.png)
+Either method also requires the `Route LAN` service to be enabled on the bridge
+to which the container is attached. ![](../zh/overlay/zerotier/1.png)
 
-> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/zerotier/2.png)
+> Static NAT configuration: the internal target port is the container port and
+> the target IP is the container IP. ![](../zh/overlay/zerotier/2.png)
 
-> IP rule configuration (note this goes in the `destination IP rules` of the `default flow`, assuming you have not made the container's MAC or IP the ingress of some other flow) ![](../zh/overlay/zerotier/3.png) You can copy the JSON below and paste it into the rule
+> Add this under **Destination IP** on the default Flow, unless the container's
+> MAC address or IP address is already the ingress of another Flow.
+> ![](../zh/overlay/zerotier/3.png)
+> Copy the JSON below into the rule editor.
 >
 > ```json
 > [
@@ -52,15 +57,15 @@ Both only take effect once the `Route LAN` service is enabled on the `bridge` th
 ## Starting the container
 
 ::: warning
-You must set the bridge name!
+Set a fixed Docker bridge name. If Docker generates a new interface name after
+a restart, the LAN service cannot start correctly.
 
 ```yaml
 networks:
   my-zerotier-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the LAN service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: zero-br0
 ```
 
@@ -100,8 +105,7 @@ networks:
   my-zerotier-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the LAN service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: zero-br0
     ipam:
       config:
@@ -109,7 +113,7 @@ networks:
           gateway: 10.101.1.1
 ```
 
-Once the container is up you should see:
+Once the container is running, verify its peers with:
 
 ```
 docker exec <container name> zerotier-cli peers
@@ -122,15 +126,18 @@ cafe80ed74 -      PLANET   192 DIRECT   25175    29795    185.152.67.145/9993
 cafefd6717 -      PLANET   137 DIRECT   172      25038    79.127.159.187/9993
 ```
 
-Then create a Flow that uses this container as its egress. ![](../zh/overlay/zerotier/4.png)
+Create a Flow that uses this container as its egress. ![](../zh/overlay/zerotier/4.png)
 
-## Configuring the "route" rules
+## Configuring route rules
 
-Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/zerotier/5.png)
+Click **Destination IP** on the relevant Flow to configure a rule. Only traffic
+matching that rule uses the Flow. ![](../zh/overlay/zerotier/5.png)
 
-For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 21`, the one created when starting the container. ![](../zh/overlay/zerotier/6.png)
+In this example, the LAN client with MAC address `00:a0:98:27:41:47` is
+governed by `Flow 11`. Configure **Destination IP** on `Flow 11` and select
+`Flow 21`, the Flow created for the container, as the egress. ![](../zh/overlay/zerotier/6.png)
 
-Beyond that, remember to check:
+Also verify that the container has a ZeroTier interface:
 
 ```text
 docker exec <container name> ip add
@@ -143,9 +150,10 @@ docker exec <container name> ip add
        valid_lft forever preferred_lft forever
 ```
 
-Add your internal subnet (mine is `10.10.10.0/24`) to ZeroTier, with the `via` field set to the container's IP you just looked up `(172.26.161.171)`. ![](../zh/overlay/zerotier/7.png)
+Add the internal subnet (this example uses `10.10.10.0/24`) to ZeroTier and
+set its `via` field to the container IP found above (`172.26.161.171`). ![](../zh/overlay/zerotier/7.png)
 
-Connect from another client now and you will be able to reach resources on your LAN.
+Connect from another client and verify that it can reach resources on the LAN.
 
 ## Verifying the result
 
@@ -155,8 +163,10 @@ The devices involved:
 - `Device 2`: 172.26.161.171, the `ZeroTier client` deployed on the router
 - `Device 3`: 10.10.10.112, a host on the router's LAN
 
-1. Ping `Device 3` from `Device 1`, handled through `Device 2`. ![](../zh/overlay/zerotier/8.png)
-2. Ping `Device 1` from `Device 3`, handled through `Device 2`. ![](../zh/overlay/zerotier/9.png)
+1. From `Device 1`, ping `Device 3`; traffic passes through `Device 2`.
+   ![](../zh/overlay/zerotier/8.png)
+2. From `Device 3`, ping `Device 1`; traffic passes through `Device 2`.
+   ![](../zh/overlay/zerotier/9.png)
 
 ## Appendix: the PLANET addresses ZeroTier uses
 

@@ -1,8 +1,10 @@
 # Configuration Directory Structure
 
-When you use the command `landscape-webserver --help`, you can see the `-c, --config-dir <CONFIG_DIR>` option.
+Run `landscape-webserver --help` to view the
+`-c, --config-dir <CONFIG_DIR>` option.
 
-This is the persistent configuration storage path for the runtime project. When you inspect the directory, you will see something like this:
+This option sets Landscape's persistent configuration directory. Its contents
+look similar to the following example:
 
 ```shell
 .

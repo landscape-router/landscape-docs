@@ -12,7 +12,7 @@
 | Arch         | ✅         | Rolling release       | The kernel just needs to be new enough. Avoid installing NetworkManager.                    |
 | Rocky Linux  | 🟢         | Needs upgrade to 6.9+ | Also needs NetworkManager removed, `firewalld` disabled, and SELinux permissions handled.   |
 | Armbian      | 🟢         | Needs upgrade to 6.9+ | Depends on the specific kernel branch.                                                      |
-| OpenWRT      | 🟢         | 25+ / snapshot        | Requires compiling yourself; official prebuilt versions are not supported yet.              |
+| OpenWrt      | 🟢         | 25+ / snapshot        | Requires a custom build; official prebuilt versions are not supported yet.                  |
 | Alpine       | ❌         | -                     | Currently incompatible.                                                                     |
 
 <!--⚠️ Compatible after adjustment-->
@@ -20,19 +20,20 @@
 
 ## Memory Size Limits
 
-Memory usage has not been specially optimized yet. For ordinary distributions, at least 2 GiB of memory is recommended.  
-If you use a self-trimmed kernel, about 1.5 GiB should be enough.
+Memory use has not yet been optimized for constrained systems. At least 2 GiB
+is recommended for a standard distribution. A custom minimal system may be
+able to run with about 1.5 GiB.
 
 ## Kernel Version
 
-Requires kernel version `6.9.x` or higher for deployment.
+Landscape requires Linux kernel `6.9.x` or later.
 
 ## Required Kernel Configuration
 
-Please make sure the kernel compilation configuration contains the following options:
+Make sure the kernel build enables the following options:
 
 ::: warning
-Mainly check whether `BTF` generation is enabled, confirm `BPF` functionality is enabled, and also enable Cgroups CPU control.
+The key requirements are BTF generation, BPF support, and cgroup CPU control.
 :::
 
 ```text
@@ -71,10 +72,10 @@ Then in **Kernel hacking**
 -> **Compile-time checks and compiler options**  
 you can find the **Generate BTF type information** option. Enable it.
 
-## OpenWRT Build Requirements
+## OpenWrt Build Requirements
 
 The [configuration above](#required-kernel-configuration) needs to be enabled in the kernel build options (`make kernel_menuconfig`).  
-Additionally, in the OpenWRT build options (`make menuconfig`), select:
+Additionally, in the OpenWrt build options (`make menuconfig`), select:
 
 - **Global build settings** -> **Kernel build options**
   - **Compile the kernel with BPF event support** _(KERNEL_BPF_EVENTS)_

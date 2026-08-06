@@ -1,14 +1,15 @@
 # Traffic Shaping
 
-Traffic shaping can `define` a set of target IP behaviors and `apply` them to a group of clients.
+Traffic Shaping groups clients into Flows and applies destination-based DNS,
+routing, and egress policies to their traffic.
 
-> Any ideas are welcome to be posted here: https://github.com/ThisSeanZhang/landscape/discussions/88
+> Share feedback in [GitHub Discussions](https://github.com/ThisSeanZhang/landscape/discussions/88).
 
 ## Quick Navigation
 
 - [Basic Concepts](#basic-concepts) - Understand core concepts like Flow, entry and exit
 - [Flow Definition](#flow-definition) - How to create and configure a Flow
-- [How Flows Divide](#how-flows-divide) - DNS and IP rules in detail
+- [Destination Rules](#destination-rules) - DNS and IP rules in detail
 - [Rule Setting Location](#rule-setting-location) - Where to configure in the UI
 - [Docker Container as Flow Exit](#how-to-use-docker-container-as-flow-exit) - Advanced usage
 
@@ -18,34 +19,36 @@ Traffic shaping can `define` a set of target IP behaviors and `apply` them to a 
 
 ### Core Terms
 
-| Term             | Description                                                                       |
-| ---------------- | --------------------------------------------------------------------------------- |
-| **Flow (流)**    | A set of policies with entry and exit points                                      |
-| **Entry (入口)** | A set of filter rules for screening clients, matching using `IP address` or `MAC` |
-| **Exit (出口)**  | A Docker container or WAN network card, the final destination of the traffic      |
-| **Priority**     | The smaller the value, the higher the priority (range: 0 ~ 65535)                 |
+| Term         | Description                                                              |
+| ------------ | ------------------------------------------------------------------------ |
+| **Flow**     | A policy with entry rules, destination rules, and an exit                |
+| **Entry**    | Rules that match clients by IP address or MAC address                    |
+| **Exit**     | A WAN interface or Docker container through which traffic leaves         |
+| **Priority** | The rule order; lower numeric values take precedence (range: 0 to 65535) |
 
 ### Flow Types
 
 #### Default Flow (Flow ID 0)
 
-All `unmatched` traffic defaults to this flow, its exit is the `default route` set in the topology.
+Traffic not matched by a custom Flow enters the default Flow. Its exit is the
+default route configured in the topology.
 
-> **Example**: enable the "Set as default route" switch in [PPPoE configuration](../zh/reference/ipv4.md#pppoe)
+> **Example**: enable **Set as default route** in the
+> [PPPoE configuration](../reference/ipv4.md#pppoe).
 
-#### Other Flows (Flow ID 1~255)
+#### Custom Flows (Flow IDs 1-255)
 
-Matched according to entry rules, if matched successfully, enters this flow.
+Entry rules determine which clients use each custom Flow.
 
 ### Rule Matching Mechanism
 
-::: tip
-Matching logic
+::: tip Matching logic
 
-1. Check DNS rules and IP rules
-2. When both types of rules are satisfied, select by priority (the smaller the value, the higher)
-3. Once matched, send to the exit, subsequent rules are no longer matched
-4. Each packet only matches one rule
+1. Evaluate the DNS and IP rules.
+2. When more than one rule matches, use the rule with the lowest numeric
+   priority.
+3. Stop evaluation after a rule is selected and apply its traffic action.
+4. Apply at most one destination rule to each packet.
    :::
 
 ::: warning
@@ -76,37 +79,39 @@ This configuration window will pop up:
 
 ### Entry and Exit Configuration
 
-**Entry**: defines which qualifying clients will use this flow
+**Entry** defines which clients use this Flow.
 
-**Exit**: when traffic is handled by this flow, if the rules `have not changed` the target action, it is sent out through this exit (the flow's default exit)
+**Exit** defines where traffic leaves when no destination rule selects another
+action.
 
 ::: info
-Flexible configuration: not all traffic of this entry goes out through the default exit. You can use domain or IP rules to send specific traffic through other exits.
+Domain and IP rules can send selected traffic through a different exit.
 :::
 
 ### Special Configuration Scenarios
 
-::: details
-Entry / exit are optional
+::: details Entry and exit are optional
 
 - **Exit only** (empty entry)
-  The flow can be used as a forwarding target for other flows. Although no client enters directly, other flows' rules can reference it
+  Other Flows can use this Flow as an egress target, but no client enters it
+  directly.
 
 - **Entry only** (empty exit)
-  Traffic entering this flow is discarded by default, unless a rule specifies using another flow's exit
+  Traffic is dropped unless a rule selects another Flow's exit.
 
 - **Neither configured**
-  Can be used to discard traffic forwarded from other flows
+  The Flow can be used as a drop target for traffic forwarded by another Flow.
   :::
 
 ---
 
-## How Flows Divide
+## Destination Rules
 
 ### DNS Rules
 
 ::: info
-Independent cache: each flow has its own independent DNS cache, no need to worry about cache conflicts for the same domain across different flows.
+Each Flow has an independent DNS cache, so the same domain can have different
+cached answers in different Flows.
 :::
 
 #### DNS Rule Components
@@ -125,7 +130,8 @@ Each DNS rule can define the following parts:
 #### Fallback Rule
 
 ::: warning
-Mandatory: every flow should have at least one fallback DNS rule, used for processing domains that match no rule.
+Each Flow should have a fallback DNS rule for domains that do not match a more
+specific rule.
 :::
 
 Fallback rule example:
@@ -173,8 +179,7 @@ Suppose there are Flow A and Flow B, and client C is configured to use B's exit 
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-::: tip
-Use cases
+::: tip Use cases
 
 - C accesses website D → use B exit
 - C accesses other websites → use A exit
@@ -190,7 +195,7 @@ Access configuration through the **DNS card** in the upper right of the homepage
 
 ![Default flow configuration entry](./traffic-flow/main-dns.png)
 
-### Other Flows (Flow 1~255) Destination Matching Rules
+### Custom Flows (IDs 1-255) Destination Matching Rules
 
 Access configuration through **Traffic Shaping Settings** in the sidebar:
 
@@ -211,16 +216,19 @@ Two programs are needed:
    Can be any program: networking program, packet analysis program, etc.
 
 ::: danger
-Important: only containers packaged with the [**relay program**](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs) can be used as effective flow **exit containers**!
+A container must include the
+[relay program](https://github.com/ThisSeanZhang/landscape/blob/main/landscape-ebpf/src/bin/redirect_pkg_handler.rs)
+before it can be used as a Flow exit.
 :::
 
 ### Using the Official Image
 
-The project provides a test relay program image: [landscape-edge](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge)
+The project provides a reference image:
+[landscape-edge](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge).
 
 #### Starting from the UI
 
-If using the UI's image run interface, remember to check **Use as Flow exit**:
+In the UI's image-run dialog, enable **Use as Flow exit**:
 
 ![Enable Flow exit option](./traffic-flow/docker-run.png)
 
@@ -236,8 +244,8 @@ docker run -d \
   --cap-add=BPF \
   --cap-add=PERFMON \
   --privileged \
-  -v /root/.landscape-router/unix_link/:/ld_unix_link/:ro \ # Required mapping
-  ghcr.io/thisseanzhang/landscape-edge:amd64-xx # xx needs to be modified to appropriate version
+  -v /root/.landscape-router/unix_link/:/ld_unix_link/:ro \
+  ghcr.io/thisseanzhang/landscape-edge:amd64-xx # replace xx with the image version
 ```
 
 **Docker Compose**
@@ -245,7 +253,7 @@ docker run -d \
 ```yaml
 services:
   your_service:
-    image: ghcr.io/thisseanzhang/landscape-edge:amd64-xx # xx needs to be modified to appropriate version
+    image: ghcr.io/thisseanzhang/landscape-edge:amd64-xx # replace xx with the image version
     sysctls:
       - net.ipv4.conf.lo.accept_local=1
     cap_add:
@@ -255,7 +263,7 @@ services:
     privileged: true
     volumes:
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # Required mapping
-      # Can mount any worker program and its startup scripts etc. required files :/app/server
+      # Mount the worker program and its startup files under /app/server.
 ```
 
 ### Worker Program
@@ -291,7 +299,8 @@ volumes:
 When the container starts, `/app/server/run.sh` will be executed automatically.
 
 ::: tip
-Tip: the [test relay program image](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge) already includes the relay program, no need to add or mount it yourself.
+The [reference image](https://github.com/ThisSeanZhang/landscape/pkgs/container/landscape-edge)
+already includes the relay program.
 :::
 
 ### Custom Image Integration
@@ -338,7 +347,9 @@ Every argument of `redirect_pkg_handler` has a corresponding environment variabl
 
 ### ICMP Passthrough
 
-The TProxy mechanism only takes over TCP / UDP. The relay program **drops incoming ICMP packets by default**, so `ping` does not work on paths routed through a flow exit container - this is by design, not a fault.
+The TProxy mechanism handles only TCP and UDP. The relay program **drops
+incoming ICMP packets by default**, so `ping` does not work on paths routed
+through a Flow exit container. This is the expected default behavior.
 
 After enabling `--enable-icmp-passthrough`, ICMP packets are marked with `--icmp-mark-value` and handed over to the local protocol stack, so `ping` works.
 

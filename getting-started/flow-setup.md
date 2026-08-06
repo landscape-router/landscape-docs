@@ -13,10 +13,11 @@ A few concepts to know before starting:
 | **Egress**       | Where traffic finally leaves (a WAN interface or a Docker container); several can be set with weights | Where the pipe leads           |
 | **Routing rule** | DNS and IP rules deciding **which egress** traffic inside the Flow actually takes                     | A fork inside the pipe         |
 
-### The two kinds of Flow
+### Flow types
 
 - **Default Flow (ID 0)**: built in. Any traffic not matched by another Flow goes here, and its egress is the default route.
-- **Custom Flows (ID 1~255)**: the ones you create. They match devices by ingress rules, and DNS / IP rules can subdivide the traffic further.
+- **Custom Flows (ID 1-255)**: user-created policies that match devices by
+  ingress rules. DNS and IP rules can divide their traffic further.
 
 ::: tip More detail
 See [Traffic Shaping](../features/traffic-flow).
@@ -57,7 +58,7 @@ The fields:
 
 | Field             | Description                                                               |
 | ----------------- | ------------------------------------------------------------------------- |
-| **Flow ID**       | The Flow's unique identifier, 1~255, no duplicates                        |
+| **Flow ID**       | The Flow's unique identifier, from 1 to 255                               |
 | **Enable**        | Whether the Flow is in effect                                             |
 | **Note**          | For your own reference, so you remember what this Flow is for             |
 | **Ingress rules** | Which devices enter this Flow                                             |
@@ -106,7 +107,7 @@ Create Flow 1 for the TV box and click "add an ingress match rule":
 
 ::: tip Notes on ingress rules
 
-- Multiple ingress rules are OR'd together — matching any one enters the Flow
+- Multiple ingress rules are combined with OR; matching any rule selects the Flow
 - Match precedence: IP > MAC
 - Ingress rules of different Flows should not overlap, or only one of them takes effect
   :::
@@ -239,7 +240,8 @@ If the trace reports that the cache and the configuration disagree, click "clear
 2. In step 2, enter a domain covered by the rule → confirm the egress points at **Flow 2** (carrier B's WAN)
 3. In step 2, enter any other domain → confirm it takes Flow 1's **default egress** (carrier A's WAN)
 
-You can also browse to something on the device and then check **Metrics → Connection Info** to see which Flow live connections belong to.
+You can also generate traffic from the device and then open **Metrics →
+Connection Info** to see which Flow handles the live connections.
 
 ## Next steps
 

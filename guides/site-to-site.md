@@ -1,25 +1,29 @@
 # Site-to-Site Networking
 
-A site-to-site network means bridging two (or more) physically separate LANs together securely over a public network (the internet), so they behave as though they were one internal network.
+A site-to-site network securely connects two or more physically separate LANs
+over a public network. Hosts on each site can then reach the routed subnets at
+the other site.
 
-> Turning two offices / two server rooms / two home networks into "one big LAN".
+> The result is a private routed network spanning the sites.
 
 ## Topology
 
-Once configured, the topology looks roughly like this:
+Once configured, the topology looks like this:
 
 ::: info
-Note that the diagram does not show the LAN subnets on either side A or B.  
-To make them reach each other, add each side's LAN `CIDR` with `--advertise-routes` in the tailscale startup arguments.
+The diagram does not show the LAN subnets on Side A or Side B. Add each site's
+LAN CIDR to the `--advertise-routes` argument in the Tailscale startup
+configuration so the sites can reach each other.
 :::
 
 ![](../zh/guides/site-to-site/topology.png)
 
-In the diagram, hosts on `side B`'s LAN can reach the containers on `side A` through `10.200.1.0/24`, without caring what IP tailscale itself uses.
+In the diagram, hosts on Side B's LAN can reach the containers on Side A
+through `10.200.1.0/24`, regardless of the Tailscale node address.
 
 ## Deployment configuration
 
-Starting with `side A`, the compose file:
+Start with the compose file for Side A:
 
 ```yaml
 services:
@@ -50,7 +54,7 @@ services:
         ipv4_address: 10.200.1.10
     dns:
       - 10.200.1.1
-  # Nginx, for testing
+  # Nginx for testing
   ng1:
     image: nginx
     container_name: ng1
@@ -60,7 +64,7 @@ services:
         ipv4_address: 10.200.1.11
     dns:
       - 10.200.1.1
-  # A socks5 service, for testing
+  # A SOCKS5 service for testing
   sock-server:
     image: serjs/go-socks5-proxy
     container_name: sk5
@@ -77,8 +81,7 @@ networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: test_tail-br0
     ipam:
       config:
@@ -86,7 +89,8 @@ networks:
           gateway: 10.200.1.1
 ```
 
-After starting it, approve this node's routes in the tailscale admin console, exactly as in [Tailscale networking](../overlay/tailscale.md#starting-the-container).
+After starting the container, approve its routes in the Tailscale admin
+console, as described in [Tailscale networking](../overlay/tailscale.md#starting-the-container).
 
 `Side B`'s configuration:
 
@@ -124,8 +128,7 @@ networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: test_tail-br0
     ipam:
       config:
@@ -133,15 +136,19 @@ networks:
           gateway: 10.201.1.1
 ```
 
-After starting it, approve this node's routes in the tailscale admin console, exactly as in [Tailscale networking](../overlay/tailscale.md#starting-the-container).
+After starting the container, approve its routes in the Tailscale admin
+console, as described in [Tailscale networking](../overlay/tailscale.md#starting-the-container).
 
-With all that in place, on top of the tailscale routes configured in [tailscale / Configuring the "route" rules](../overlay/tailscale.md#configuring-the-route-rules), you also need to add the other side's LAN.  
-Side B reaches not only tailscale IPs but also the far side's Docker containers, so add the container CIDR as well. ![](../zh/guides/site-to-site/b-zone-dstip.png)
+In addition to the Tailscale routes configured in [Configuring route rules](../overlay/tailscale.md#configuring-route-rules), add the other site's LAN
+CIDR. Side B can then reach both Tailscale addresses and the Docker containers
+on the far side; add the container CIDR as well. ![](../zh/guides/site-to-site/b-zone-dstip.png)
 
-Side A likewise needs side B's LAN CIDR added.
+Side A likewise needs Side B's LAN CIDR.
 
-## Appendix: using side A as a jump host to join a tailscale network on another account
+## Appendix: Using Side A as a Relay to Join Another Tailscale Network
 
 ![](../zh/guides/site-to-site/add-c-topology.png)
 
-Just advertise `10.200.1.0/24` on the tailscale client connected to C as well, and B can reach C's LAN through A. The path to C can of course be any overlay tool you like.
+Advertise `10.200.1.0/24` on the Tailscale client connected to C as well. Side
+B can then reach C's LAN through Side A. The path to C can use any overlay
+networking tool.

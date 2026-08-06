@@ -1,12 +1,16 @@
 # Configuration File Guide
 
-The program's configuration sources mainly include:
+Landscape reads configuration from these files:
 
-- `landscape_init.toml`: Full configuration file, which not only contains all rule definitions but also includes the complete `landscape.toml`. It is read `only once` on the **_first run_**. After being read, a `landscape_init.lock` file will be created. You can export the current configuration as an `init` file from the UI, which is convenient for redeploying with the current configuration. For every available field, see [landscape_init.toml Reference](./init-config)
-- `landscape.toml`: Read on every startup. It only contains configuration such as _listen addresses_, _login username_ and _password_, and _logs_.
+- `landscape_init.toml`: a complete export containing all rule definitions and
+  the settings from `landscape.toml`. Landscape reads it only during
+  initialization, before `landscape_init.lock` exists. See the
+  [landscape_init.toml Reference](./init-config) for every available field.
+- `landscape.toml`: process settings read on every startup, including listen
+  addresses, administrator credentials, and logging.
 
-The program can start without any file configuration.  
-If you want it to be ready to use on the first boot, you can configure `landscape_init.toml`.
+Landscape can start without either file. Use `landscape_init.toml` to provide a
+complete configuration on the first startup.
 
 ## Configuration priority
 
@@ -19,9 +23,15 @@ The same setting can come from several places. From highest priority to lowest:
 
 ::: warning
 
-- When the `landscape_init.lock` file is deleted, startup will clear all existing configuration, and then refresh the entire configuration from `landscape_init.toml`, including the configuration in `landscape.toml`. So delete this file carefully.
-- Path configuration in config files can only use **absolute paths** or **relative paths**. Paths beginning with **~** are not supported.
-- The `landscape_init.toml` file can only be used to restore the current version. Cross-version restore will fail. So you can first restore it with a `suitable version`, then start with the `new version`. The new version can `automatically migrate` old configuration. (Note: exporting versioned files is supported after `v0.6.7`)
+- Deleting `landscape_init.lock` makes the next startup replace the current
+  configuration with `landscape_init.toml`. Verify the init file before
+  deleting the lock.
+- Configuration paths may be absolute or relative. Paths beginning with `~`
+  are not supported.
+- An init file can only be restored by the same Landscape version that created
+  it. For a cross-version restore, restore with the original version first,
+  then start the target version so its database migrations can run. Versioned
+  exports are available in v0.6.7 and later.
 :::
 
 Below, `<HOME>` refers to the configuration directory, `/root/.landscape-router` by default, changeable with `-c` / `LANDSCAPE_CONF_PATH`.
@@ -36,6 +46,11 @@ Every section and field may be omitted; omitted ones take the value in the "Defa
 | ------------ | ------ | -------- | -------------- |
 | `admin_user` | string | `"root"` | Login user     |
 | `admin_pass` | string | `"root"` | Login password |
+
+::: danger Change the default credentials
+Change both values before exposing the management interface to an untrusted
+network.
+:::
 
 ### `[web]` management interface
 
@@ -62,7 +77,10 @@ Every section and field may be omitted; omitted ones take the value in the "Defa
 | `database_path` | string | `sqlite://<HOME>/landscape_db.sqlite?mode=rwc` | Database connection string |
 
 ::: warning
-The environment variable for `database_path` is **`DATABASE_URL`**. That name is very generic, so if it already exists in your shell (for example from a repo-root `.env`, or in CI), it **overrides the directory given with `-c`** and the database ends up somewhere unexpected. Check this first when "I changed the config but nothing was persisted".
+The environment variable for `database_path` is **`DATABASE_URL`**. If it is
+already set in the shell, a repository `.env` file, or CI, it overrides the
+directory supplied with `-c`. Check this variable when configuration changes
+appear to be written to an unexpected database.
 :::
 
 ### `[metric]` metrics collection
@@ -86,7 +104,10 @@ Metrics land in `<HOME>/metric/`. This section can also be edited from the front
 | `cleanup_slice_window_secs`     | u64   | `300`      | Width of the time slice handled per sweep (seconds)     |
 
 ::: tip
-The `metric` directory keeps growing the longer the router runs, and cleanup only honours the retention days above. On low-spec devices or a small root disk, lower `connect_*_retention_days` / `dns_retention_days` as needed, or just set `mode = "memory"`.
+The `metric` directory grows while the router runs. Cleanup follows the
+retention settings above. On constrained devices or small root filesystems,
+reduce `connect_*_retention_days` and `dns_retention_days`, or set
+`mode = "memory"`.
 :::
 
 ### `[dns]` DNS service
@@ -109,7 +130,10 @@ Serves DNS for LAN device hostnames under a shared suffix, and advertises that s
 | `lan_suffix` | string | `"lan"` | LAN domain suffix; multi-label values such as `home.arpa` work    |
 
 ::: warning Upgrade note
-This section used to be named `[hostname_registry]`. The old key is still accepted when reading, for compatibility, but exports and serialisation always write `[lan_hostname]`. Having **both keys present fails to parse outright**, so keep only one when editing by hand.
+This section used to be named `[hostname_registry]`. The old key is still
+accepted for compatibility, but exports and serialization always write
+`[lan_hostname]`. A configuration containing both keys is invalid, so keep
+only one when editing the file manually.
 :::
 
 ### `[ui]` frontend preferences

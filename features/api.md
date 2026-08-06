@@ -1,6 +1,6 @@
 # API
 
-In Landscape, everything you can do in the UI can also be done through the API.
+Landscape exposes the operations used by its web UI through a REST API.
 
 After deployment, open [https://landscape.local:6443/api/docs](https://landscape.local:6443/api/docs) to view the REST API documentation.
 
@@ -8,9 +8,9 @@ After deployment, open [https://landscape.local:6443/api/docs](https://landscape
 
 There is also an npm package available: [@landscape-router/types](https://www.npmjs.com/package/@landscape-router/types)
 
-## Plugins and Helper Programs Using the Library
+## Projects Using the Package
 
-- [landscape browser traffic-splitting tracker plugin](https://github.com/landscape-router/landscape-browser-extension)
+- [Landscape browser traffic-routing extension](https://github.com/landscape-router/landscape-browser-extension)
 
 ## Screenshot
 

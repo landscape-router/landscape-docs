@@ -2,9 +2,8 @@
 
 ## Overview
 
-Both IP and domain forms are supported.  
-`dat` format files are supported.  
-Updates run automatically on a schedule.
+Sources can contain IP or domain data. Landscape supports `dat` and text files,
+and can update remote sources on a schedule.
 
 ## Adding a source
 
@@ -25,6 +24,6 @@ Updates run automatically on a schedule.
 
 ![](../zh/monitoring/domain-ip-collection/6.png)
 
-## TXT files are supported too
+## Using a Text File
 
 ![](../zh/monitoring/domain-ip-collection/7.png)

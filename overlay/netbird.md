@@ -1,41 +1,46 @@
 # NetBird
 
 ::: warning
-NetBird's website is blocked on a direct connection, so whether direct connectivity actually works depends on where you deploy it.
+Access to NetBird's website and control plane depends on the network from
+which the container is deployed. Verify connectivity before starting the
+container.
 :::
 
-Deploying NetBird roughly comes down to:
+Deploying NetBird involves the following steps:
 
-1. Set up **Full Cone NAT** mapping
-2. Start the NetBird container and create a Flow that uses it as the egress
-3. Set up routing so programs on the LAN can reach the IPs / subnets inside NetBird
+1. Configure **Full Cone NAT**.
+2. Start the NetBird container and create a Flow that uses it as the egress.
+3. Configure routing so LAN clients can reach NetBird addresses and subnets.
 
-## Setting up Full Cone NAT
+## Configuring Full Cone NAT
 
-There are two ways to get **Full Cone NAT**; either one works.
+There are two ways to configure **Full Cone NAT**; use either method.
 
 1. Configure a static NAT mapping for the port NetBird uses, [`51820`](https://docs.netbird.io/get-started/cli#up).
 2. Add NetBird's domain (netbird.io) to a DNS rule and turn the **Full Cone** switch on.
 
-Both only take effect once the `Route LAN` service is enabled on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/netbird/1.png)
+Either method also requires the `Route LAN` service to be enabled on the
+bridge to which the container is attached. ![](../zh/overlay/netbird/1.png)
 
-> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/netbird/2.png)
+> Static NAT configuration: the internal target port is the container port and
+> the target IP is the container IP. ![](../zh/overlay/netbird/2.png)
 
 > DNS / IP rule configuration  
-> Not yet configured in practice; see the ZeroTier page for the approach.
+> This example is not yet tested here; see the ZeroTier page for the same rule
+> pattern.
 
 ## Starting the container
 
 ::: warning
-You must set the bridge name!
+Set a fixed Docker bridge name. If Docker generates a new interface name after
+a restart, the LAN service cannot start correctly.
 
 ```yaml
 networks:
   my-netbird-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the LAN service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: netbird-br0
 ```
 
@@ -72,8 +77,7 @@ networks:
   my-netbird-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the LAN service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: netbird-br0
     ipam:
       config:
@@ -83,17 +87,23 @@ networks:
 
 Then create a Flow that uses this container as its egress. ![](../zh/overlay/netbird/3.png)
 
-Note that you have to add routes for the gateway node in the NetBird admin console. ![](../zh/overlay/netbird/edit-route.png) ![](../zh/overlay/netbird/allow-route.png)
+Add routes for the gateway node in the NetBird admin console. ![](../zh/overlay/netbird/edit-route.png) ![](../zh/overlay/netbird/allow-route.png)
 
-## Configuring the "route" rules
+## Configuring route rules
 
-Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/netbird/4.png)
+Click **Destination IP** on the relevant Flow to configure a rule. Only traffic
+matching that rule uses the Flow. ![](../zh/overlay/netbird/4.png)
 
-For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 22`, the one created when starting the container. ![](../zh/overlay/netbird/5.png)
+In this example, the LAN client with MAC address `00:a0:98:27:41:47` is
+governed by `Flow 11`. Configure **Destination IP** on `Flow 11` and select
+`Flow 22`, the Flow created for the container, as the egress. ![](../zh/overlay/netbird/5.png)
 
-That way, when the LAN client reaches `100.120.0.0/16` or `192.168.2.0/24`, those packets take the Flow 22 (netbird) egress and are forwarded into the `mybird` container.
+Traffic to `100.120.0.0/16` or `192.168.2.0/24` then uses the `Flow 22`
+(NetBird) egress and is forwarded into the `mybird` container.
 
-> The `192.168.2.0/24` example assumes you also deployed netbird on the far side, in which case you can configure the remote subnet directly and reach it both ways.
+> The `192.168.2.0/24` example assumes NetBird is also deployed on the far
+> side. In that case, configure the remote subnet directly to enable two-way
+> access.
 
 ## Verifying the result
 
@@ -103,5 +113,7 @@ The devices involved:
 - `Device 2`: 100.120.126.160, the `NetBird client` deployed on the router
 - `Device 3`: 10.10.10.112, a host on the router's LAN
 
-1. Ping `Device 3` from `Device 1`, handled through `Device 2`. ![](../zh/overlay/netbird/6.png)
-2. Ping `Device 1` from `Device 3`, handled through `Device 2`. ![](../zh/overlay/netbird/7.png)
+1. From `Device 1`, ping `Device 3`; traffic passes through `Device 2`.
+   ![](../zh/overlay/netbird/6.png)
+2. From `Device 3`, ping `Device 1`; traffic passes through `Device 2`.
+   ![](../zh/overlay/netbird/7.png)

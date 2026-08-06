@@ -1,16 +1,14 @@
-# DNS Related Questions
+# DNS Questions
 
-## Prompt: Address already in use
+## Address already in use
 
-Please check if `systemd-resolved` exists on the local machine. Check as follows:
-
-1. First check if the port is already occupied
+First identify which process is listening on port 53.
 
 ```shell
 ss -ltup
 ```
 
-In `Local Address:Port`, check if there is a domain or program occupying port 53.
+Check the `Local Address:Port` column for listeners on port 53.
 
 ```text
 
@@ -21,10 +19,14 @@ tcp       LISTEN   0     4096      127.0.0.53%lo:domain           0.0.0.0:*     
 tcp       LISTEN   0     1024          127.0.0.1:39329            0.0.0.0:*         users:(("code-6609ac3d66",pid=196919,fd=9))
 ```
 
-If you get similar results, then the local `systemd-resolved` service has occupied the port.  
-Use the command `systemctl stop systemd-resolved` to stop it and then you can start.
+Output like this indicates that `systemd-resolved` is using the port. Stop it
+before starting Landscape:
 
-To completely disable the **systemd-resolved** service, please use:
+```shell
+systemctl stop systemd-resolved
+```
+
+To keep `systemd-resolved` disabled after a reboot, run:
 
 ```shell
 systemctl stop systemd-resolved

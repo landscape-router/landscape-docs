@@ -1,6 +1,6 @@
 # Integrating with Armbian
 
-This page explains how to build together with Armbian.
+This page explains how to build Landscape as part of an Armbian image.
 
 Reference project: https://github.com/ThisSeanZhang/landscape-build
 
@@ -15,7 +15,10 @@ userpatches/overlay/landscape_init.toml
 The configuration depends on the hardware of the board you are targeting.
 
 ::: warning
-`version` must **equal** the version of landscape you downloaded — the check is for exact equality, and a mismatch fails at startup. If you fetch the binary via `latest`, remember to keep this in sync. For every available field see [landscape_init.toml Reference](../configuration/init-config).
+`version` must exactly match the downloaded Landscape version. A mismatch
+causes startup to fail. When fetching a binary through `latest`, keep this
+field in sync. For every available field, see the
+[landscape_init.toml Reference](../configuration/init-config).
 :::
 
 ```toml

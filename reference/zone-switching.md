@@ -1,6 +1,7 @@
 # Interface Zones
 
-In Landscape Router, different zones offer different services, so you have to switch an interface to the right zone before you can configure it.
+In Landscape Router, each zone provides a different set of services. Assign an
+interface to the appropriate zone before configuring it.
 
 ## Where the switch button is
 
@@ -10,22 +11,22 @@ In Landscape Router, different zones offer different services, so you have to sw
 
 ## Services available on WAN
 
-Unless you have special requirements, the defaults are fine to start with.
+The default services are a suitable starting point for most configurations.
 
-1-1 TCP MSS clamping  
-1-2 Firewall service  
-1-3 Interface NAT  
-2-1 IPv6-PD client  
-2-2 WAN route forwarding
+- TCP MSS clamping
+- Firewall service
+- Interface NAT
+- IPv6-PD client
+- WAN route forwarding
 
 ![](../zh/reference/zone-switching/10.png)
 
 ## Services available on LAN
 
-Configure as needed.
+Enable the services required by your LAN:
 
-1-1 DHCPv4 server (including MAC-to-IP binding)  
-1-2 ICMPv6-RA service  
-1-3 LAN route forwarding (should be enabled)
+- DHCPv4 server, including MAC-to-IP binding
+- ICMPv6 RA service
+- LAN route forwarding
 
 ![](../zh/reference/zone-switching/11.png)

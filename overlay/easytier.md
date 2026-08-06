@@ -1,16 +1,16 @@
-# Easytier
+# EasyTier
 
-Deploying Easytier roughly comes down to:
+Deploying EasyTier involves the following steps:
 
-1. Build an easytier container
-2. Start the easytier container and create a Flow that uses it as the egress
-3. Add the configuration on the easytier web side
-4. Set up **Full Cone NAT** mapping
-5. Set up routing so programs on the LAN can reach the IPs / subnets inside easytier
+1. Build an EasyTier container.
+2. Start the container and create a Flow that uses it as the egress.
+3. Configure the EasyTier control plane.
+4. Configure **Full Cone NAT**.
+5. Configure routing so LAN clients can reach EasyTier addresses and subnets.
 
-## Building the easytier container
+## Building the EasyTier Container
 
-First create a dockerfile:
+First create a `Dockerfile`:
 
 ```dockerfile
 FROM debian:bookworm
@@ -40,7 +40,10 @@ RUN chmod +x /start.sh
 ENTRYPOINT ["/start.sh"]
 ```
 
-Create a `start.sh` in the same directory. Mind the startup arguments — either set up the web side following easytier's own documentation, or [use the official web console](https://easytier.cn/web#/auth) and create an account. This example uses the official console, where filling in the account name is enough.
+Create `start.sh` in the same directory. Configure the control plane using
+EasyTier's documentation, or [use the official web console](https://easytier.cn/web#/auth)
+and create an account. This example uses the official console; the account name
+is the only value required here.
 
 ```bash
 #!/bin/bash
@@ -49,7 +52,7 @@ set -eo pipefail
 echo "[redirect_pkg_handler] starting..."
 /redirect_pkg_handler -m route &
 
-# Start easytier; replace the value after -w with your own username
+# Start EasyTier; replace the value after -w with your username
 /easytier-core -w <username> --machine-id <machine id> --hostname <name shown in the web console> &
 
 for i in $(seq 1 10); do
@@ -62,12 +65,13 @@ iptables -t nat -A POSTROUTING -o tun0 -j MASQUERADE
 wait
 ```
 
-Download `redirect_pkg_handler` and the easytier binary from the landscape and easytier releases. The directory should then contain:
+Download `redirect_pkg_handler` and the EasyTier binary from their respective
+release pages. The directory should then contain:
 
 ```bash
 tree
 .
-├── dockerfile
+├── Dockerfile
 ├── easytier-core
 ├── redirect_pkg_handler
 └── start.sh
@@ -82,15 +86,15 @@ docker build -t <tag> .
 ## Starting the container
 
 ::: warning
-You must set the bridge name!
+Set a fixed Docker bridge name. If Docker generates a new interface name after
+a restart, the LAN service cannot start correctly.
 
 ```yaml
 networks:
-  my-tailscale-bridge:
+  easytier-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the LAN service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: easytier-br0
 ```
 
@@ -100,7 +104,7 @@ Then start it with your own compose configuration.
 
 ```yaml
 services:
-  tailscale:
+  easytier:
     image: <tag of the image you built>
     container_name: easytier
     restart: unless-stopped
@@ -136,9 +140,9 @@ networks:
           gateway: 172.189.0.1
 ```
 
-Then create a Flow that uses this container as its egress. ![](../zh/overlay/easytier/1.png)
+Create a Flow that uses this container as its egress. ![](../zh/overlay/easytier/1.png)
 
-## Adding the configuration on the easytier web side
+## Configuring the EasyTier control plane
 
 Sign in to the [official web console](https://easytier.cn/web#/auth), find the device in the device list, and click the gear icon.
 
@@ -152,24 +156,31 @@ Choose to create a network.
 
 ![](../zh/overlay/easytier/4.png)
 
-Fill it in to match your setup.
+Complete the form to match your EasyTier network.
 
-## Setting up Full Cone NAT
+## Configuring Full Cone NAT
 
-First enable the `Route LAN` service on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/easytier/5.png)
+First enable the `Route LAN` service on the bridge to which the container is
+attached. ![](../zh/overlay/easytier/5.png)
 
-> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/easytier/6.png)
+> Static NAT configuration: the internal target port is the container port and
+> the target IP is the container IP. ![](../zh/overlay/easytier/6.png)
 
-> Open the matching port in the firewall ![](../zh/overlay/easytier/7.png)
+> Open the matching port in the firewall. ![](../zh/overlay/easytier/7.png)
 
-## Configuring the "route" rules
+## Configuring route rules
 
-Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/easytier/8.png)
+Click **Destination IP** on the relevant Flow to configure a rule. Only traffic
+matching that rule uses the Flow. ![](../zh/overlay/easytier/8.png)
 
-For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 252`, the one created when starting the container.
+In this example, the LAN client with MAC address `00:a0:98:27:41:47` is
+governed by `Flow 11`. Configure **Destination IP** on `Flow 11` and select
+`Flow 252`, the Flow created for the container, as the egress.
 
 ![](../zh/overlay/easytier/9.png)
 
-That way, when the LAN client reaches `6.6.0.0/16`, those packets take the Flow 252 (easytier) egress and are forwarded into the `easytier` container.
+Traffic to `6.6.0.0/16` then uses the `Flow 252` (EasyTier) egress and is
+forwarded into the `easytier` container.
 
-> The `6.6.0.0/16` example assumes you also deployed easytier on the far side, in which case you can configure the remote subnet directly and reach it both ways.
+> The `6.6.0.0/16` example assumes EasyTier is also deployed on the far side.
+> In that case, configure the remote subnet directly to enable two-way access.

@@ -1,33 +1,46 @@
 # Manual Deployment
 
-## File Preparation
+## Before You Begin
 
-::: warning
+::: warning Deployment assumptions
 
-1. Before deployment, please confirm that your system meets the requirements outlined in [System Requirements](./requirements.md)
-2. The system can start without any configuration, but the only side effect is that `/etc/resolv.conf` will be modified to `127.0.0.1`. If you cannot access the network after stopping the service, please check this file
-3. The following items marked as "optional" can be skipped if not needed
+1. Confirm that the host meets the [system requirements](./requirements.md).
+2. Landscape can start without a configuration, but it still changes
+   `/etc/resolv.conf` to use `127.0.0.1`. If name resolution stops working
+   after Landscape is stopped, restore a working resolver in this file.
+3. Items marked as optional can be skipped when the corresponding feature is
+   not required.
 
 :::
 
 ::: warning
-Remember to use `ss -lutp` to check if any DNS service is already occupying port `53` on the current host. If it's already in use, the service cannot start.
+Run `ss -lutp` and check whether another DNS service is already listening on
+port `53`. Landscape cannot start its DNS service while that port is in use.
 
-If `NetworkManager` is installed, please uninstall it first, as it conflicts with network management: `apt remove network-manager`
+Landscape expects exclusive control of the interfaces it manages. This guide
+assumes a dedicated router and removes NetworkManager with
+`apt remove network-manager`. Do not run that command on a host where
+NetworkManager still manages unrelated interfaces.
 
-If `SELinux` is enabled, you need to grant the relevant permissions.
+When SELinux is enabled, configure the required permissions before starting
+Landscape. SELinux policy configuration is outside the scope of this guide.
 :::
 
-1. Landscape Router main executable, download from [here](https://github.com/ThisSeanZhang/landscape/releases/)
-2. Static page files, download from [here](https://github.com/ThisSeanZhang/landscape/releases/), and extract to `/root/.landscape-router/static` folder
-3. (Optional) Install PPP for PPPoE dial-up
-4. (Optional) Install Docker. Required if you want to divert traffic into containers.
-5. (Optional) geosite / geoip files
+## Prepare the Files
 
-## Disable Automatic IP Configuration on Host Machine
+1. Download the Landscape Router executable from the
+   [release page](https://github.com/ThisSeanZhang/landscape/releases/).
+2. Download the static web files from the same release and extract them to
+   `/root/.landscape-router/static`.
+3. Optional: install PPP if the router will use PPPoE.
+4. Optional: install Docker if traffic will be routed through containers.
+5. Optional: download GeoSite and GeoIP files.
 
-1. Debian: Modify file: `/etc/network/interfaces`  
-   Set all LAN network cards to manual, and additionally set a static IP for the WAN network card in the configuration file, so that even if the router program fails, you can still access it from another machine with a static IP.
+## Disable Automatic IP Configuration on the Host
+
+On Debian, edit `/etc/network/interfaces`. Set LAN interfaces to manual mode and
+assign a recovery address to one interface so the host remains reachable if
+Landscape is not running.
 
 ```text
 auto <first_network_card_name> <- For example, set as WAN
@@ -57,11 +70,16 @@ auto ens5
 iface ens5 inet manual
 ```
 
-This way, even if the router fails, you can use another machine set to any address in the 192.168.22.0/24 network segment (for example: 192.168.22.2/24), directly connect to this network card, and be able to connect to the router.
+With this configuration, connect another machine directly to that interface
+and assign it an address in `192.168.22.0/24`, such as `192.168.22.2/24`, to
+reach the router at `192.168.22.1`.
 
-> Other systems to be added... PRs welcome to share deployment processes
+> Deployment instructions for other distributions are welcome as pull
+> requests.
 
-## Disable DNS Service on Host Machine (ignore if this service doesn't exist)
+## Disable the Host DNS Service
+
+Skip this section when `systemd-resolved` is not installed.
 
 ```shell
 systemctl stop systemd-resolved
@@ -71,7 +89,9 @@ systemctl mask systemd-resolved
 
 ## Manual Start Verification
 
-Before configuring the systemd service, you can manually run `/root/landscape-webserver` first to confirm it can execute. When running successfully, it will output the following content displaying the current configuration. You can verify if Auth and the corresponding Web path are correct:
+Before creating the systemd service, run `/root/landscape-webserver` manually.
+A successful startup prints the active authentication, logging, web, and
+storage configuration:
 
 ```text
 ██╗      █████╗ ███╗   ██╗██████╗ ███████╗ ██████╗ █████╗ ██████╗ ███████╗
@@ -109,9 +129,15 @@ Listen HTTPS on: https://[::]:6443
 Database Connect: sqlite://./db.sqlite?mode=rwc
 ```
 
-## Create systemd Service File
+::: danger Change the default credentials
+The example output shows the default administrator credentials. Change them
+before exposing the web interface to an untrusted network.
+:::
 
-Create `/etc/systemd/system/landscape-router.service` File content:
+## Create a systemd Service
+
+Create `/etc/systemd/system/landscape-router.service` with the following
+content:
 
 ```text
 [Unit]
@@ -136,9 +162,11 @@ systemctl enable landscape-router.service
 systemctl stop landscape-router.service
 ```
 
-## Upgrading landscape-router
+## Upgrade Landscape Router
 
-1. Download new version of `landscape-webserver` and `static` and extract
-2. Stop landscape-router.service
-3. Replace with new version of `landscape-webserver` and `static`
-4. Restart the service; if any issues occur, reboot the system
+1. Download and extract the new `landscape-webserver` executable and static web
+   files.
+2. Stop `landscape-router.service`.
+3. Replace the existing executable and static files.
+4. Restart the service. If startup fails, inspect the service logs before
+   rebooting the host.

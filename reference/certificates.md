@@ -1,7 +1,7 @@
 # Certificate Management
 
 ::: warning
-Supported from [0.17.3] onwards; the feature is still being refined.
+Available in v0.17.3 and later; the feature is still being refined.
 :::
 
 ![](../zh/reference/certificates/certificate.png)
@@ -18,4 +18,5 @@ Supported from [0.17.3] onwards; the feature is still being refined.
 
 ### Certificate scope
 
-A certificate can be used for API authentication, and for domains served by the HTTP reverse proxy ![](../zh/reference/certificates/certificates-4.png)
+A certificate can be used for API authentication and for domains served by the
+HTTP reverse proxy. ![](../zh/reference/certificates/certificates-4.png)

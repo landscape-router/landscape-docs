@@ -1,49 +1,79 @@
-# Symmetric NAT? No, stricter than Symmetric NAT
+# Destination-Locked NAT by Default
 
-Most router software today gives you only two choices for NAT behavior: either everything is **Full Cone NAT** or everything is **Symmetric NAT**.  
-Landscape gives you another option: both, but only where you want it.
+Conventional Symmetric NAT may create a separate mapping when the same
+internal endpoint communicates with a different external destination.
 
-## What changed?
+Landscape adds a destination-locking policy. For a given internal IP address,
+port, and protocol, the first external destination is allowed by default.
+Packets from that endpoint to another destination are dropped instead of
+creating another mapping.
 
-Traditional NAT, even **Symmetric NAT**, still usually follows one default assumption:
+## Default behavior
 
-> One internal port may create mappings to multiple external targets.
+With conventional Symmetric NAT, one internal endpoint can create different
+mappings for different external destinations:
 
-Landscape uses a stricter default policy:
+```text
+Client A:port X -> Server B
+  uses Router A':port Y
 
-> One port belongs only to the server it first connected to, unless you explicitly allow otherwise.
+Client A:port X -> Server C
+  uses another mapping, such as Router A':port Z
+```
 
-More specifically:
+Landscape locks the endpoint to the first destination while the mapping is
+active:
 
-After `Client A` talks to `Server B`, NAT creates the mapping `Client A` -> `Router A'`.
+- `Client A:port X` -> `Server B` is allowed.
+- `Server B` -> `Router A':port Y` is allowed and translated back to
+  `Server B` -> `Client A:port X`.
+- `Client A:port X` -> `Server C` is dropped; no second mapping is created.
+- `Server C` -> `Router A':port Y` is dropped.
 
-While that connection is alive:
+This is a Landscape-specific policy rather than a separate standardized NAT
+category.
 
-- `Client A` -> `Server B` ✅ allowed
-- `Server B` -> `Router A'` ✅ allowed, then translated back to `B -> A`
-- `Client A` -> `Another server C` ❌ dropped directly, and no new mapping is created
-- `Another server C` -> `Router A'` ❌ dropped
+## Why this default?
 
-## Why design it this way?
+Some applications create many long-lived outbound flows and may compete with
+other traffic for uplink capacity. Peer-assisted CDN (PCDN) software is one
+example.
 
-Because many programs quietly use your uplink for things like PCDN.  
-Then when you actually need your uplink, you discover it has already been rate-limited or consumed.
+Landscape's default policy limits reuse of a single internal endpoint across
+destinations. It should be understood as a connection-isolation policy, not a
+bandwidth limit.
 
-## What if I want Full Cone NAT?
+## Enabling Full Cone behavior
 
-1. If you already know the port, use a static NAT mapping to allow that specific client port to use **Full Cone NAT**.
-2. If you know the target domain or IP, use DNS rules or IP rules in the UI to control it.
+Some applications may benefit from more permissive NAT behavior, including:
 
-![In DNS rules](./nat/dns-nat.png) ![In IP rules](./nat/ip-nat.png)
+- peer-to-peer games
+- mesh VPNs
+- some VoIP deployments
 
-## Result Demo
+Full Cone NAT remains available for matching traffic through explicit rules.
 
-When accessing [checkmynat](https://www.checkmynat.com/) with the default behavior, you will get:
+1. If you already know the port, use a static NAT mapping to allow that client
+   port to use **Full Cone NAT**.
+2. If you know the target domain or IP, use a DNS rule or IP rule in the UI to
+   control where **Full Cone NAT** is enabled.
 
-`Error: Failed, process was interrupted`
+![Full Cone NAT enabled in a DNS rule](./nat/dns-nat.png)
 
-![](./nat/result-1.png)
+![Full Cone NAT enabled in an IP rule](./nat/ip-nat.png)
 
-After enabling the **Full Cone** switch and testing again, the site reports Full Cone:
+## Test result
 
-![](./nat/result-2.png)
+When accessing [checkmynat](https://www.checkmynat.com/) with the default
+behavior, this test reports:
+
+```text
+Error: Failed, process was interrupted
+```
+
+![checkmynat result with the default NAT policy](./nat/result-1.png)
+
+After enabling the **Full Cone** switch and testing again, the same test
+reports Full Cone NAT:
+
+![checkmynat result with Full Cone NAT enabled](./nat/result-2.png)

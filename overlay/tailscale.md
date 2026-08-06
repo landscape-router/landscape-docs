@@ -1,37 +1,41 @@
 # Tailscale
 
-Deploying Tailscale roughly comes down to:
+Deploying Tailscale involves the following steps:
 
-1. Set up **Full Cone NAT** mapping
-2. Start the tailscale container and create a Flow that uses it as the egress
-3. Set up routing so programs on the LAN can reach the IPs / subnets inside tailscale
+1. Configure **Full Cone NAT**.
+2. Start the Tailscale container and create a Flow that uses it as the egress.
+3. Configure routing so LAN clients can reach Tailscale addresses and subnets.
 
-## Setting up Full Cone NAT
+## Configuring Full Cone NAT
 
-There are two ways to get **Full Cone NAT**; either one works.
+There are two ways to configure **Full Cone NAT**; use either method.
 
-1. Pin [the port tailscale uses](https://tailscale.com/kb/1278/tailscaled#flags-to-tailscaled) and open it with a static NAT mapping.
-2. Leave the tailscale port dynamic, but add the tailscale DERP `domain` or `IP` to a DNS or IP rule and turn the **Full Cone** switch on.
+1. Pin [the port Tailscale uses](https://tailscale.com/kb/1278/tailscaled#flags-to-tailscaled) and open it with a static NAT mapping.
+2. Leave the Tailscale port dynamic, add the Tailscale DERP domain or IP to a
+   DNS or IP rule, and enable the **Full Cone** switch.
 
-Both only take effect once the `Route LAN` service is enabled on the `bridge` the container belongs to, as shown below. ![](../zh/overlay/tailscale/1.png)
+Either method also requires the `Route LAN` service to be enabled on the
+bridge to which the container is attached. ![](../zh/overlay/tailscale/1.png)
 
-> Static NAT configuration (the internal target port is the container port, the IP is the container IP) ![](../zh/overlay/tailscale/2.png)
+> Static NAT configuration: the internal target port is the container port and
+> the target IP is the container IP. ![](../zh/overlay/tailscale/2.png)
 
 > Rule configuration  
-> Not yet configured in practice; see the ZeroTier page for the approach.
+> This example is not yet tested here; see the ZeroTier page for the same rule
+> pattern.
 
 ## Starting the container
 
 ::: warning
-You must set the bridge name!
+Set a fixed Docker bridge name. If Docker generates a new interface name after
+a restart, the LAN service cannot start correctly.
 
 ```yaml
 networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # Must be set. Otherwise a dynamic interface name is used, and a restart changes it,
-      # which stops the LAN service from starting properly.
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: tail-br0
 ```
 
@@ -75,7 +79,7 @@ networks:
   my-tailscale-bridge:
     driver: bridge
     driver_opts:
-      # Must be set, otherwise a dynamic interface name is used
+      # Keep the bridge name fixed so it remains stable across restarts.
       com.docker.network.bridge.name: tail-br0
     ipam:
       config:
@@ -85,7 +89,7 @@ networks:
 
 Then create a Flow that uses this container as its egress. ![](../zh/overlay/tailscale/3.png)
 
-Note that you have to approve this node's routes in the tailscale admin console. ![](../zh/overlay/tailscale/edit-route.png)
+Approve this node's routes in the Tailscale admin console. ![](../zh/overlay/tailscale/edit-route.png)
 
 ![](../zh/overlay/tailscale/allow-route.png) Other clients also need the `--accept-routes` option when starting, for example:
 
@@ -93,17 +97,26 @@ Note that you have to approve this node's routes in the tailscale admin console.
 tailscale up --accept-routes
 ```
 
-## Configuring the "route" rules
+## Configuring route rules
 
-Click the `Destination IP` button on the relevant Flow to configure it. Only Flows with a matching rule take effect. ![](../zh/overlay/tailscale/4.png)
+Click **Destination IP** on the relevant Flow to configure a rule. Only traffic
+matching that rule uses the Flow. ![](../zh/overlay/tailscale/4.png)
 
-For instance, my LAN client's MAC address is `00:a0:98:27:41:47` and that client is currently governed by the `Flow 11` rules. So I configure `Destination IP` on `Flow 11` and pick the egress as `Flow 20`, the one created when starting the container. ![](../zh/overlay/tailscale/5.png)
+In this example, the LAN client with MAC address `00:a0:98:27:41:47` is
+governed by `Flow 11`. Configure **Destination IP** on `Flow 11` and select
+`Flow 20`, the Flow created for the container, as the egress. ![](../zh/overlay/tailscale/5.png)
 
-That way, when the LAN client reaches `100.64.0.0/10` or `192.168.2.0/24`, those packets take the Flow 20 (tailscale) egress and are forwarded into the `mytail` container.
+Traffic to `100.64.0.0/10` or `192.168.2.0/24` then uses the `Flow 20`
+(Tailscale) egress and is forwarded into the `mytail` container.
 
-> The `192.168.2.0/24` example assumes you also deployed tailscale on the far side, in which case you can configure the remote subnet directly and reach it both ways.
+> The `192.168.2.0/24` example assumes Tailscale is also deployed on the far
+> side. In that case, configure the remote subnet directly to enable two-way
+> access.
 
 ## Verifying the result
 
-1. From a `tailscale client` **not** deployed on the router (100.118.21.86), ping the `00:a0:98:27:41:47` client — handled by `100.76.59.45` in the container. ![](../zh/overlay/tailscale/6.png)
-2. From the `00:a0:98:27:41:47` client, ping the `tailscale client` **not** deployed on the router (100.118.21.86). ![](../zh/overlay/tailscale/7.png)
+1. From a Tailscale client **not** deployed on the router (`100.118.21.86`),
+   ping the client at `00:a0:98:27:41:47`. The request is handled by
+   `100.76.59.45` in the container. ![](../zh/overlay/tailscale/6.png)
+2. From the client at `00:a0:98:27:41:47`, ping the Tailscale client not
+   deployed on the router (`100.118.21.86`). ![](../zh/overlay/tailscale/7.png)

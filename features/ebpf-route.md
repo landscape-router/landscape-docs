@@ -2,7 +2,9 @@
 
 ## Overview
 
-Landscape Router uses eBPF to implement high-performance packet forwarding in the kernel, bypassing the traditional Netfilter path and significantly improving routing performance.
+Landscape Router uses eBPF to process eligible forwarded packets in the
+kernel. Depending on the attachment mode, this accelerated path can bypass the
+traditional Netfilter forwarding path.
 
 ## Prerequisites
 
@@ -11,7 +13,8 @@ For LAN and WAN to communicate normally, route forwarding must be enabled on the
 ![Enable route forwarding](./ebpf-route/route-1.png)
 
 ::: tip
-Where to configure it Open the interface configuration page, find the relevant WAN and LAN interfaces, and enable the `Route Forwarding Service` option.
+Open the interface configuration page, select the relevant WAN and LAN
+interfaces, and enable the `Route Forwarding Service` option.
 :::
 
 ---
@@ -44,7 +47,9 @@ The WAN → LAN direction is symmetric, except DNAT (port forwarding) occurs in 
 
 #### TC (Traffic Control) layer approach
 
-Landscape Router completes forwarding at the **Ingress / Egress (qdisc)** layer — it decides the destination **before** packets enter Netfilter and sends them directly to the target interface, completely bypassing the Netfilter processing chain.
+On Landscape's accelerated path, forwarding occurs at the **ingress/egress
+(qdisc)** layer. Landscape selects the target interface before the packet
+enters the Netfilter forwarding path and redirects it directly.
 
 Acceleration path:
 
@@ -54,7 +59,9 @@ NIC receive → driver → SKB alloc → eBPF processing (TC layer) → bpf_redi
 
 #### XDP (eXpress Data Path) approach
 
-XDP intercepts packets at the **earliest entry point** of the kernel network stack — the NIC driver layer — before SKB (Socket Buffer) allocation. This enables significantly higher forwarding performance than TC.
+XDP processes packets at the NIC driver layer, before SKB (socket buffer)
+allocation. Avoiding that allocation can reduce per-packet overhead compared
+with the TC path.
 
 Acceleration path:
 
@@ -76,9 +83,13 @@ Or restrict to specific interfaces:
 landscape-webserver --try-xdp=eth0,eth1
 ```
 
-If the NIC driver does not support native XDP, the system automatically falls back to the TC path.
+If the NIC driver does not support native XDP, Landscape falls back to the TC
+path.
 
 ## Performance Tests
+
+These results describe the listed test environments. Actual throughput depends
+on the CPU, NIC, driver, packet size, and enabled services.
 
 ### Metric Definitions
 
@@ -129,7 +140,7 @@ If the NIC driver does not support native XDP, the system automatically falls ba
 
 **Configuration**:
 
-- Operating system: Arch Linux (ChachyOS Server)
+- Operating system: Arch Linux (CachyOS Server)
 - CPU: Intel 9100T (4 cores / 4 threads)
 - NIC: Passthrough X520-DA2 (10Gbps)
 

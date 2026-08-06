@@ -33,7 +33,7 @@ PPPoE needs an existing interface to communicate over, so it has to be set up on
 
 1. Add a PPPoE account on the WAN interface
 2. Mark the PPPoE account as the default route
-3. Only fill in AC Name if you actually need it; leave it empty otherwise
+3. Only fill in **AC Name** when your provider requires it; otherwise leave it empty.
 
 ![](../zh/reference/ipv4/4.png)  
 ![](../zh/reference/ipv4/5.png)  

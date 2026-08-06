@@ -1,16 +1,26 @@
-# System Configuration
+# Exporting and Restoring Settings
 
 ::: warning
-An exported configuration can only be restored on the `same` version.  
-If you need to upgrade after exporting, first start the `version you exported from` and let it restore the init data, then start the latest version. When Landscape starts and finds the configuration version is `lower` than its own, it upgrades automatically — no configuration is lost in the process.
+An exported configuration can only be restored by the same Landscape version
+that created it.
+
+For a cross-version restore, first run the version that created the export and
+let it restore the initialization data. Then start the target version so its
+normal database migrations can run.
 :::
 
-## Exporting / importing the configuration file
+## Restoring an exported configuration
 
-1. Export, which gives you a `landscape_init.toml` file
-2. Copy the file into the `.landscape-router` directory
-3. Delete the `landscape_init.lock` file
-4. Restart landscape-router — the import is done
+1. Export the configuration to obtain `landscape_init.toml`.
+2. Copy the file into the `.landscape-router` directory.
+3. Delete `landscape_init.lock`.
+4. Restart Landscape Router to import the file.
+
+::: danger Verify the export before deleting the lock
+Deleting `landscape_init.lock` makes Landscape reinitialize its configuration
+on the next startup. Confirm that `landscape_init.toml` is complete and that
+the running version matches the exported version before continuing.
+:::
 
 ![](../zh/advanced/settings-export/1.png)
 
@@ -18,9 +28,7 @@ For a field-by-field description of everything in that file, see [landscape_init
 
 ---
 
-::: tip
-System configuration has been extended and now covers more ground.
-:::
+## Settings included in the export
 
 1. System preferences
 

@@ -1,6 +1,6 @@
 # Building
 
-## Installing dependencies
+## Installing Dependencies
 
 Make sure the following are installed:
 
@@ -8,15 +8,15 @@ Make sure the following are installed:
 sudo apt install build-essential clang libelf1 libelf-dev zlib1g-dev make pkg-config
 ```
 
-## Build steps
+## Build Steps
 
-Make sure `node`, `yarn` and `rust` are installed, then run:
+Make sure Node.js, Yarn, and Rust are installed, then run:
 
 ```shell
 ./build.sh
 ```
 
-Pick the architecture you want to build for:
+Select the target architecture when prompted:
 
 ```text
 No target specified.
