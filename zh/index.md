@@ -21,7 +21,7 @@ features:
     details: "DNS 应答写入每个 Flow 的 eBPF Map，将域名策略直接转化为数据包转发决策。"
   - title: DNS 亲和出口
     details: "流量走哪条线路，DNS 就从哪条线路查询，让 CDN 返回与实际出口匹配的解析结果。"
-  - title: 细粒度 NAT
+  - title: 多模 NAT
     details: "默认严格 NAT4，并可按域名或 IP 放通 NAT1，避免对整个网络一刀切。"
   - title: IPv6 多 WAN
     details: "流量切换出口时自动切换 IPv6 前缀，NPTv6 在 eBPF 驱动层完成。"

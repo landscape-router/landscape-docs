@@ -52,39 +52,39 @@ version = "0.22.2"
 
 除 `version` 与 `config` 外, 其余都是**数组节**, 用 `[[key]]` 重复书写. 全部可省略.
 
-| TOML 键                  | 作用                                                                  |
-| ------------------------ | --------------------------------------------------------------------- |
-| `config`                 | 等同 `landscape.toml` 全文, 见 [配置文件介绍](./index)                |
-| `ifaces`                 | 网卡定义: 区域归属、是否开机启用、网桥/VLAN 等创建类型、XPS/RPS       |
-| `ipconfigs`              | 网卡 IP 获取方式: 静态 / DHCP 客户端 / PPPoE 等                       |
-| `pppds`                  | PPPoE 拨号服务 (依附在某张物理网卡上, 产出 `ppp` 接口)                |
-| `nats`                   | WAN 网卡的 NAT 服务与端口范围                                         |
-| `marks`                  | 在 WAN 网卡上启用流量标记服务 (分流的前置)                            |
-| `route_wans`             | WAN 侧路由服务                                                        |
-| `route_lans`             | LAN 侧路由服务与静态路由                                              |
-| `mss_clamps`             | MSS 钳制 (PPPoE / 隧道场景避免大包被丢)                               |
-| `firewalls`              | 按网卡启用入站防火墙服务                                              |
-| `firewall_rules`         | 防火墙放行/拦截规则                                                   |
-| `firewall_blacklists`    | 防火墙黑名单来源                                                      |
-| `static_nat_mappings_v4` | IPv4 静态映射 (端口转发 / DMZ)                                        |
-| `static_nat_mappings_v6` | IPv6 静态映射                                                         |
-| `dhcpv4_services`        | LAN 的 DHCPv4 服务器, 见 [DHCPv4 Server](../reference/dhcpv4)         |
-| `dhcpv6pds`              | WAN 侧 DHCPv6-PD 前缀委派客户端                                       |
-| `lan_ipv6s`              | LAN 侧 IPv6 下发 (SLAAC / DHCPv6), 见 [IPv6 相关](../reference/ipv6/) |
-| `wifi_configs`           | 无线接入点配置 (内容是 hostapd 配置文本)                              |
-| `enrolled_devices`       | 已录入设备: 静态 IP 绑定、主机名、标签、按设备的 DHCP option          |
-| `flow_rules`             | 分流规则 (flow 定义与目标), 见 [分流控制](../features/traffic-flow)   |
-| `dst_ip_mark`            | 按目标 IP / GeoIP 打标记的规则                                        |
-| `dns_upstream_configs`   | 上游 DNS 服务器 (被 `dns_rules` 按 id 引用)                           |
-| `dns_rules`              | DNS 分流规则: 匹配域名 → 指定上游 + 标记 + 结果过滤                   |
-| `dns_redirects`          | DNS 重定向 (split-horizon: 把域名答成指定 IP)                         |
-| `dns_provider_profiles`  | DNS 服务商凭据 (供 DDNS 与证书 DNS-01 使用)                           |
-| `ddns_jobs`              | DDNS 任务                                                             |
-| `cert_accounts`          | ACME 账户                                                             |
-| `certs`                  | 证书申请与内容, 见 [证书](../reference/certificates)                  |
-| `gateway_rules`          | HTTP 反向代理的域名→上游规则                                          |
-| `geo_ips`                | GeoIP 数据源                                                          |
-| `geo_sites`              | GeoSite 数据源                                                        |
+| TOML 键                  | 作用                                                                              |
+| ------------------------ | --------------------------------------------------------------------------------- |
+| `config`                 | 等同 `landscape.toml` 全文, 见 [配置文件介绍](./index)                            |
+| `ifaces`                 | 网卡定义: 区域归属、是否开机启用、网桥/VLAN 等创建类型、XPS/RPS                   |
+| `ipconfigs`              | 网卡 IP 获取方式: 静态 / DHCP 客户端 / PPPoE 等                                   |
+| `pppds`                  | PPPoE 拨号服务 (依附在某张物理网卡上, 产出 `ppp` 接口)                            |
+| `nats`                   | WAN 网卡的 NAT 服务与端口范围                                                     |
+| `marks`                  | 在 WAN 网卡上启用流量标记服务 (分流的前置)                                        |
+| `route_wans`             | WAN 侧路由服务                                                                    |
+| `route_lans`             | LAN 侧路由服务与静态路由                                                          |
+| `mss_clamps`             | MSS 钳制 (PPPoE / 隧道场景避免大包被丢)                                           |
+| `firewalls`              | 按网卡启用入站防火墙服务                                                          |
+| `firewall_rules`         | 防火墙放行/拦截规则                                                               |
+| `firewall_blacklists`    | 防火墙黑名单来源                                                                  |
+| `static_nat_mappings_v4` | IPv4 静态映射 (端口转发 / DMZ)                                                    |
+| `static_nat_mappings_v6` | IPv6 静态映射                                                                     |
+| `dhcpv4_services`        | LAN 的 DHCPv4 服务器, 见 [DHCPv4 Server](../reference/dhcpv4)                     |
+| `dhcpv6pds`              | WAN 侧 DHCPv6-PD 前缀委派客户端                                                   |
+| `lan_ipv6s`              | LAN 侧 IPv6 下发 (SLAAC / DHCPv6), 见 [LAN IPv6 分配](../reference/ipv6/lan-ipv6) |
+| `wifi_configs`           | 无线接入点配置 (内容是 hostapd 配置文本)                                          |
+| `enrolled_devices`       | 已录入设备: 静态 IP 绑定、主机名、标签、按设备的 DHCP option                      |
+| `flow_rules`             | 分流规则 (flow 定义与目标), 见 [分流控制](../features/traffic-flow)               |
+| `dst_ip_mark`            | 按目标 IP / GeoIP 打标记的规则                                                    |
+| `dns_upstream_configs`   | 上游 DNS 服务器 (被 `dns_rules` 按 id 引用)                                       |
+| `dns_rules`              | DNS 分流规则: 匹配域名 → 指定上游 + 标记 + 结果过滤                               |
+| `dns_redirects`          | DNS 重定向 (split-horizon: 把域名答成指定 IP)                                     |
+| `dns_provider_profiles`  | DNS 服务商凭据 (供 DDNS 与证书 DNS-01 使用)                                       |
+| `ddns_jobs`              | DDNS 任务                                                                         |
+| `cert_accounts`          | ACME 账户                                                                         |
+| `certs`                  | 证书申请与内容, 见 [证书](../reference/certificates)                              |
+| `gateway_rules`          | HTTP 反向代理的域名→上游规则                                                      |
+| `geo_ips`                | GeoIP 数据源                                                                      |
+| `geo_sites`              | GeoSite 数据源                                                                    |
 
 ## 通用字段约定
 
@@ -370,5 +370,5 @@ next_update_at = 0.0
 
 `flow_rules` / `dst_ip_mark` / `lan_ipv6s` / `certs` 等节字段较多且互相引用 (flow id、设备 id、
 证书 id), 手写容易出错. 推荐做法是**先在界面上配好, 再导出 init 文件**, 拿导出结果当模板改.
-各功能本身的说明见 [分流控制](../features/traffic-flow)、[IPv6 相关](../reference/ipv6/)、
+各功能本身的说明见 [分流控制](../features/traffic-flow)、[LAN IPv6 分配](../reference/ipv6/lan-ipv6)、
 [证书](../reference/certificates).

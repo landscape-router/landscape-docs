@@ -34,7 +34,7 @@ Traffic not matched by a custom Flow enters the default Flow. Its exit is the
 default route configured in the topology.
 
 > **Example**: enable **Set as default route** in the
-> [PPPoE configuration](../reference/ipv4.md#pppoe).
+> [PPPoE configuration](../reference/pppoe.md).
 
 #### Custom Flows (Flow IDs 1-255)
 

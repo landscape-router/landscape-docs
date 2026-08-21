@@ -28,6 +28,6 @@ features:
     details: 'Send selected traffic through any TProxy-compatible Docker container; direct traffic remains independent if it fails.'
   - title: Full REST API
     details: 'Automate web UI operations through the REST API and the published npm types.'
-  - title: Fine-Grained NAT
+  - title: Multi-Mode NAT
     details: 'Use destination-locked NAT by default and allow Full Cone NAT per domain or IP.'
 ---

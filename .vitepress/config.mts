@@ -60,19 +60,24 @@ export default defineConfig({
             text: 'Reference',
             items: [
               { text: 'Zone', link: '/reference/interface-zone' },
+              { text: 'VLAN (Temporary)', link: '/reference/vlan-temp' },
+              { text: 'PPPoE', link: '/reference/pppoe' },
               {
-                text: 'Basic System Settings',
+                text: 'IPv6',
                 collapsed: true,
                 items: [
-                  { text: 'Basic Settings', link: '/reference/basic-settings' },
-                  { text: 'Zone Switching', link: '/reference/zone-switching' },
+                  { text: '(WAN) Obtain an IPv6 Prefix', link: '/reference/ipv6/ipv6-pd' },
+                  { text: '(LAN) Assign IPv6 to Devices', link: '/reference/ipv6/lan-ipv6' },
+                  {
+                    text: '(Docker) Assign Public IPv6 to Containers',
+                    link: '/reference/ipv6/docker-ipv6',
+                  },
                 ],
               },
-              { text: 'Interface IP Settings', link: '/reference/ipv4' },
-              { text: 'IPv6', link: '/reference/ipv6/' },
               { text: 'DHCPv4 Server', link: '/reference/dhcpv4' },
               { text: 'Firewall', link: '/reference/firewall' },
-              { text: 'DNS', link: '/reference/dns' },
+              { text: 'Redirects / Ad Blocking', link: '/reference/redirect' },
+              { text: 'Upstream DNS', link: '/reference/dns' },
               { text: 'LAN Hostnames', link: '/reference/lan-hostname' },
               {
                 text: 'Overlay Networking',
@@ -95,9 +100,10 @@ export default defineConfig({
                   { text: 'DNS Metrics', link: '/monitoring/dns-metrics' },
                 ],
               },
-              { text: 'Geo Database', link: '/monitoring/domain-ip-collection' },
+              { text: 'Geo Database', link: '/reference/domain-ip-collection' },
               { text: 'Device Management', link: '/reference/device-management' },
               { text: 'Certificates', link: '/reference/certificates' },
+              { text: 'DDNS', link: '/reference/ddns' },
               { text: 'HTTP Reverse Proxy', link: '/reference/proxy' },
               { text: 'System Configuration', link: '/advanced/settings-export' },
             ],
@@ -127,6 +133,7 @@ export default defineConfig({
               { text: 'Relationship with iptables', link: '/faq/iptables' },
               { text: 'Using Podman instead of Docker', link: '/faq/podman' },
               { text: 'Certificate Error', link: '/faq/cert-error' },
+              { text: 'Slow Images After IPv6 Reboot', link: '/faq/reboot-slow' },
             ],
           },
         ],
@@ -187,19 +194,21 @@ export default defineConfig({
             text: '功能详解',
             items: [
               { text: '区域 (Zone)', link: '/zh/reference/interface-zone' },
+              { text: 'VLAN (临时)', link: '/zh/reference/vlan-temp' },
+              { text: 'PPPoE 拨号', link: '/zh/reference/pppoe' },
               {
-                text: '系统基本设置',
+                text: 'IPv6',
                 collapsed: true,
                 items: [
-                  { text: '基础操作', link: '/zh/reference/basic-settings' },
-                  { text: '区域切换', link: '/zh/reference/zone-switching' },
+                  { text: '(WAN) 获取前缀 IPv6 前缀', link: '/zh/reference/ipv6/ipv6-pd' },
+                  { text: '(LAN) 为设备分配 IPv6', link: '/zh/reference/ipv6/lan-ipv6' },
+                  { text: '(Docker) 容器分配公网 IPv6', link: '/zh/reference/ipv6/docker-ipv6' },
                 ],
               },
-              { text: 'IPv4 相关', link: '/zh/reference/ipv4' },
-              { text: 'IPv6 相关', link: '/zh/reference/ipv6/' },
-              { text: 'DHCPv4 Server 相关', link: '/zh/reference/dhcpv4' },
+              { text: 'DHCPv4 服务', link: '/zh/reference/dhcpv4' },
               { text: '防火墙设置', link: '/zh/reference/firewall' },
-              { text: 'DNS 相关', link: '/zh/reference/dns' },
+              { text: '重定向 / 广告拦截', link: '/zh/reference/redirect' },
+              { text: '上游 DNS 配置', link: '/zh/reference/dns' },
               { text: '内网主机名与 LAN 后缀', link: '/zh/reference/lan-hostname' },
               {
                 text: '虚拟组网',
@@ -224,7 +233,7 @@ export default defineConfig({
               },
               {
                 text: '地理关系库管理',
-                link: '/zh/monitoring/domain-ip-collection',
+                link: '/zh/reference/domain-ip-collection',
               },
               {
                 text: '设备管理',
@@ -233,6 +242,10 @@ export default defineConfig({
               {
                 text: '证书管理',
                 link: '/zh/reference/certificates',
+              },
+              {
+                text: 'DDNS',
+                link: '/zh/reference/ddns',
               },
               {
                 text: 'HTTP 反代',
@@ -269,6 +282,7 @@ export default defineConfig({
               { text: '与 iptable 的关系是-没关系', link: '/zh/faq/iptables' },
               { text: '用 Podman 替换 Docker', link: '/zh/faq/podman' },
               { text: '您的连接不是私密连接', link: '/zh/faq/cert-error' },
+              { text: '开启 IPv6 重启路由后, 有些图片加载缓慢', link: '/zh/reboot-slow' },
             ],
           },
         ],

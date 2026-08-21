@@ -52,39 +52,39 @@ So the correct order for a cross-version restore is: start **the version you exp
 
 Apart from `version` and `config`, everything is an **array section**, written repeatedly as `[[key]]`. All are optional.
 
-| TOML key                 | Purpose                                                                                    |
-| ------------------------ | ------------------------------------------------------------------------------------------ |
-| `config`                 | Identical to all of `landscape.toml`, see [Configuration File Guide](./index)              |
-| `ifaces`                 | Interface definitions: zone, enable-on-boot, bridge/VLAN creation type, XPS/RPS            |
-| `ipconfigs`              | How an interface gets its IP: static / DHCP client / PPPoE                                 |
-| `pppds`                  | PPPoE dial-up service (attached to a physical interface, producing a `ppp` interface)      |
-| `nats`                   | NAT service and port ranges on WAN interfaces                                              |
-| `marks`                  | Enables the traffic-marking service on a WAN interface (prerequisite for flows)            |
-| `route_wans`             | WAN-side routing service                                                                   |
-| `route_lans`             | LAN-side routing service and static routes                                                 |
-| `mss_clamps`             | MSS clamping (avoids large packets being dropped on PPPoE / tunnels)                       |
-| `firewalls`              | Enables the inbound firewall service per interface                                         |
-| `firewall_rules`         | Firewall allow/deny rules                                                                  |
-| `firewall_blacklists`    | Firewall blacklist sources                                                                 |
-| `static_nat_mappings_v4` | IPv4 static mappings (port forwarding / DMZ)                                               |
-| `static_nat_mappings_v6` | IPv6 static mappings                                                                       |
-| `dhcpv4_services`        | DHCPv4 server for the LAN, see [DHCPv4 Server](../reference/dhcpv4)                        |
-| `dhcpv6pds`              | WAN-side DHCPv6-PD prefix delegation client                                                |
-| `lan_ipv6s`              | LAN-side IPv6 advertisement (SLAAC / DHCPv6), see [IPv6](../reference/ipv6/)               |
-| `wifi_configs`           | Wireless access point configuration (the body is hostapd configuration text)               |
-| `enrolled_devices`       | Enrolled devices: static IP bindings, hostnames, tags, per-device DHCP options             |
-| `flow_rules`             | Flow rules (flow definitions and targets), see [Traffic Shaping](../features/traffic-flow) |
-| `dst_ip_mark`            | Rules that mark traffic by destination IP / GeoIP                                          |
-| `dns_upstream_configs`   | Upstream DNS servers (referenced by id from `dns_rules`)                                   |
-| `dns_rules`              | DNS flow rules: match domains → pick upstream + mark + result filter                       |
-| `dns_redirects`          | DNS redirects (split-horizon: answer a domain with a chosen IP)                            |
-| `dns_provider_profiles`  | DNS provider credentials (used by DDNS and certificate DNS-01)                             |
-| `ddns_jobs`              | DDNS jobs                                                                                  |
-| `cert_accounts`          | ACME accounts                                                                              |
-| `certs`                  | Certificate orders and material, see [Certificates](../reference/certificates)             |
-| `gateway_rules`          | Domain → upstream rules for the HTTP reverse proxy                                         |
-| `geo_ips`                | GeoIP data sources                                                                         |
-| `geo_sites`              | GeoSite data sources                                                                       |
+| TOML key                 | Purpose                                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------------------- |
+| `config`                 | Identical to all of `landscape.toml`, see [Configuration File Guide](./index)                       |
+| `ifaces`                 | Interface definitions: zone, enable-on-boot, bridge/VLAN creation type, XPS/RPS                     |
+| `ipconfigs`              | How an interface gets its IP: static / DHCP client / PPPoE                                          |
+| `pppds`                  | PPPoE dial-up service (attached to a physical interface, producing a `ppp` interface)               |
+| `nats`                   | NAT service and port ranges on WAN interfaces                                                       |
+| `marks`                  | Enables the traffic-marking service on a WAN interface (prerequisite for flows)                     |
+| `route_wans`             | WAN-side routing service                                                                            |
+| `route_lans`             | LAN-side routing service and static routes                                                          |
+| `mss_clamps`             | MSS clamping (avoids large packets being dropped on PPPoE / tunnels)                                |
+| `firewalls`              | Enables the inbound firewall service per interface                                                  |
+| `firewall_rules`         | Firewall allow/deny rules                                                                           |
+| `firewall_blacklists`    | Firewall blacklist sources                                                                          |
+| `static_nat_mappings_v4` | IPv4 static mappings (port forwarding / DMZ)                                                        |
+| `static_nat_mappings_v6` | IPv6 static mappings                                                                                |
+| `dhcpv4_services`        | DHCPv4 server for the LAN, see [DHCPv4 Server](../reference/dhcpv4)                                 |
+| `dhcpv6pds`              | WAN-side DHCPv6-PD prefix delegation client                                                         |
+| `lan_ipv6s`              | LAN-side IPv6 advertisement (SLAAC / DHCPv6), see [LAN IPv6 allocation](../reference/ipv6/lan-ipv6) |
+| `wifi_configs`           | Wireless access point configuration (the body is hostapd configuration text)                        |
+| `enrolled_devices`       | Enrolled devices: static IP bindings, hostnames, tags, per-device DHCP options                      |
+| `flow_rules`             | Flow rules (flow definitions and targets), see [Traffic Shaping](../features/traffic-flow)          |
+| `dst_ip_mark`            | Rules that mark traffic by destination IP / GeoIP                                                   |
+| `dns_upstream_configs`   | Upstream DNS servers (referenced by id from `dns_rules`)                                            |
+| `dns_rules`              | DNS flow rules: match domains → pick upstream + mark + result filter                                |
+| `dns_redirects`          | DNS redirects (split-horizon: answer a domain with a chosen IP)                                     |
+| `dns_provider_profiles`  | DNS provider credentials (used by DDNS and certificate DNS-01)                                      |
+| `ddns_jobs`              | DDNS jobs                                                                                           |
+| `cert_accounts`          | ACME accounts                                                                                       |
+| `certs`                  | Certificate orders and material, see [Certificates](../reference/certificates)                      |
+| `gateway_rules`          | Domain → upstream rules for the HTTP reverse proxy                                                  |
+| `geo_ips`                | GeoIP data sources                                                                                  |
+| `geo_sites`              | GeoSite data sources                                                                                |
 
 ## Shared field conventions
 
@@ -364,4 +364,4 @@ next_update_at = 0.0
 
 ## Writing the remaining sections
 
-`flow_rules` / `dst_ip_mark` / `lan_ipv6s` / `certs` and friends have many fields and cross-reference each other (flow ids, device ids, certificate ids), which makes them error-prone to write by hand. The recommended approach is to **configure them in the UI first, then export the init file** and use the result as a template. For the features themselves see [Traffic Shaping](../features/traffic-flow), [IPv6](../reference/ipv6/) and [Certificates](../reference/certificates).
+`flow_rules` / `dst_ip_mark` / `lan_ipv6s` / `certs` and friends have many fields and cross-reference each other (flow ids, device ids, certificate ids), which makes them error-prone to write by hand. The recommended approach is to **configure them in the UI first, then export the init file** and use the result as a template. For the features themselves see [Traffic Shaping](../features/traffic-flow), [LAN IPv6 allocation](../reference/ipv6/lan-ipv6) and [Certificates](../reference/certificates).
