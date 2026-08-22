@@ -45,6 +45,7 @@ services:
       net.ipv6.conf.all.forwarding: '1'
     volumes:
       - <持久化存放路径>:/var/lib/tailscale
+      # 使用 lkit 部署时，主机路径为 /root/.lkit/landscape/data/unix_link/
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       my-tailscale-bridge:
@@ -113,6 +114,7 @@ services:
       net.ipv6.conf.all.forwarding: '1'
     volumes:
       - <持久化存放路径>:/var/lib/tailscale
+      # 使用 lkit 部署时，主机路径为 /root/.lkit/landscape/data/unix_link/
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       my-tailscale-bridge:

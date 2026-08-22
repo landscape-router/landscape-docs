@@ -121,6 +121,7 @@ services:
       net.ipv6.conf.all.autoconf: '1'
       net.ipv6.conf.default.accept_ra: '2'
     volumes:
+      # For lkit deployments, use /root/.lkit/landscape/data/unix_link/ as the host path.
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       easytier-bridge:

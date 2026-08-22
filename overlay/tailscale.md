@@ -68,6 +68,7 @@ services:
       net.ipv6.conf.all.forwarding: '1'
     volumes:
       - ${DATA_PATH}:/var/lib/tailscale
+      # For lkit deployments, use /root/.lkit/landscape/data/unix_link/ as the host path.
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       my-tailscale-bridge:

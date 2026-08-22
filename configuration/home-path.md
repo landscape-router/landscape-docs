@@ -24,6 +24,7 @@ look similar to the following example:
 │   ├── assets
 │   │   └── ...
 │   └── index.html
+# For lkit deployments, the host path for this directory is /root/.lkit/landscape/data/unix_link/
 └── unix_link # Socket file for Docker container communication; can be ignored
     └── register.sock
 ```

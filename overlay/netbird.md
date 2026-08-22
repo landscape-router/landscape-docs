@@ -66,6 +66,7 @@ services:
       - NB_SETUP_KEY=${SETUP_KEY}
     volumes:
       - ${DATA_PATH}:/var/lib/netbird
+      # For lkit deployments, use /root/.lkit/landscape/data/unix_link/ as the host path.
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       my-netbird-bridge:

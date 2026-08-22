@@ -24,6 +24,7 @@
 │   ├── assets
 │   │   └── ...
 │   └── index.html
+# 使用 lkit 部署时，该目录的主机路径为 /root/.lkit/landscape/data/unix_link/
 └── unix_link # 与 docker 容器通信的 sock 文件 忽略即可
     └── register.sock
 ```

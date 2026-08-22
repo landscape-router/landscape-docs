@@ -229,6 +229,7 @@ IP 规则与 DNS 规则类似，但少了"DNS 上游"配置：
 **Docker Run 方式**
 
 ```shell
+# 使用 lkit 部署时，主机路径为 /root/.lkit/landscape/data/unix_link/
 docker run -d \
   --name your_service \
   --sysctl net.ipv4.conf.lo.accept_local=1 \
@@ -254,6 +255,7 @@ services:
       - PERFMON
     privileged: true
     volumes:
+      # 使用 lkit 部署时，主机路径为 /root/.lkit/landscape/data/unix_link/
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # 必要映射
       # 挂载 任意工作程序及其启动脚本等所需文件 :/app/server
 ```

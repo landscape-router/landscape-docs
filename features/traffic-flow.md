@@ -237,6 +237,7 @@ In the UI's image-run dialog, enable **Use as Flow exit**:
 **Docker Run**
 
 ```shell
+# For lkit deployments, use /root/.lkit/landscape/data/unix_link/ as the host path.
 docker run -d \
   --name your_service \
   --sysctl net.ipv4.conf.lo.accept_local=1 \
@@ -262,6 +263,7 @@ services:
       - PERFMON
     privileged: true
     volumes:
+      # For lkit deployments, use /root/.lkit/landscape/data/unix_link/ as the host path.
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro # Required mapping
       # Mount the worker program and its startup files under /app/server.
 ```

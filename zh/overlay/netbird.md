@@ -60,6 +60,7 @@ services:
       - NB_SETUP_KEY=${SETUP_KEY}
     volumes:
       - ${DATA_PATH}:/var/lib/netbird
+      # 使用 lkit 部署时，主机路径为 /root/.lkit/landscape/data/unix_link/
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       my-netbird-bridge:

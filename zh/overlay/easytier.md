@@ -116,6 +116,7 @@ services:
       net.ipv6.conf.all.autoconf: '1'
       net.ipv6.conf.default.accept_ra: '2'
     volumes:
+      # 使用 lkit 部署时，主机路径为 /root/.lkit/landscape/data/unix_link/
       - /root/.landscape-router/unix_link/:/ld_unix_link/:ro
     networks:
       easytier-bridge:
